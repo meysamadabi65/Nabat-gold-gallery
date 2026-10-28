@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#176b58">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>دفتر حساب شخصی</title>
+<style>
+:root{font-family:Tahoma,Arial,sans-serif;color:#17211d;background:#f3f6f4}
+*{box-sizing:border-box}body{margin:0}header{background:#176b58;color:#fff;padding:18px 16px}
+header h1{font-size:1.25rem;margin:0 0 6px}header p{margin:0;font-size:.9rem;opacity:.9}
+main{max-width:980px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #dce5df;border-radius:14px;padding:16px;margin:0 0 14px;box-shadow:0 2px 8px #142b2010}
+h2{font-size:1.05rem;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:block;font-size:.88rem;margin-bottom:6px;color:#35443b}
+input,select,textarea,button{font:inherit;width:100%;border-radius:9px;padding:11px;border:1px solid #cbd8cf;background:#fff;color:#17211d}
+textarea{min-height:75px;resize:vertical}button{border:0;background:#176b58;color:white;font-weight:bold;cursor:pointer;margin-top:10px}button.secondary{background:#e8f2ed;color:#176b58;border:1px solid #c7dfd2}button.danger{background:#8a2e2e}
+small,.muted{color:#637269;font-size:.82rem;line-height:1.7}.status{padding:10px;border-radius:9px;background:#eef5f0;margin-top:10px;white-space:pre-wrap}
+.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#124c40}
+table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:right;padding:9px;border-bottom:1px solid #e2e9e4;vertical-align:top}th{background:#f5f8f6}
+.tablewrap{overflow-x:auto}.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.metric{background:#f4f8f5;padding:12px;border-radius:10px}.metric strong{display:block;font-size:1.1rem;margin-top:6px;overflow-wrap:anywhere}
+.inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.warn{background:#fff6e6;border:1px solid #efd7a6;padding:12px;border-radius:10px;line-height:1.8;font-size:.88rem}
+td .rowbtn{width:auto;margin:0 0 0 6px;padding:6px 10px;font-size:.8rem}.actions{white-space:nowrap}.badge{font-size:.75rem;color:#9a6b00}
+footer{text-align:center;color:#68766e;font-size:.8rem;padding:12px}
+</style>
+</head>
+<body>
+<header><h1>دفتر حساب شخصی</h1><p>ثبت مشتری، پول و طلا؛ با همگام‌سازی آنلاین</p></header>
+<main>
+<div class="card" id="setup">
+<h2>ورود به دفتر حساب</h2>
+<div class="warn">اطلاعات اتصال فقط در همین مرورگر ذخیره می‌شود. کلید <b>service_role</b> یا کلید مخفی را اینجا وارد نکنید؛ فقط Project URL و کلید عمومی publishable.</div>
+<div class="grid" style="margin-top:12px">
+<div><label for="url">Project URL</label><input id="url" placeholder="https://....supabase.co" autocomplete="url"></div>
+<div><label for="key">Publishable / anon key</label><input id="key" placeholder="sb_publishable_... یا کلید anon" autocomplete="off"></div>
+<div><label for="email">ایمیل حساب</label><input id="email" type="email" autocomplete="username"></div>
+<div><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"></div>
+</div>
+<div class="inline"><button id="saveConfig" class="secondary">ذخیره تنظیمات</button><button id="login">ورود به دفتر حساب</button></div>
+<div class="inline"><button id="signup" class="secondary">ساخت حساب (در صورت نیاز)</button><button id="logout" class="secondary hidden">خروج</button></div>
+<div id="authStatus" class="status" role="status">هنوز وارد نشده‌اید.</div>
+<p class="muted">این نسخه برای استفاده شخصی طراحی شده است. پس از ورود، هر ردیف جدید با شناسه حساب شما ثبت می‌شود.</p>
+</div>
+<div id="app" class="hidden">
+<div class="card">
+<div class="inline"><div><b id="who"></b><div class="muted" id="netStatus">در انتظار اتصال…</div></div><button id="refresh" class="secondary">همگام‌سازی</button></div>
+</div>
+<div class="tabs">
+<button class="active" data-tab="customerTab">مشتری‌ها</button>
+<button data-tab="transactionTab">ثبت تراکنش</button>
+<button data-tab="reportTab">گزارش مانده</button>
+<button data-tab="historyTab">گردش حساب</button>
+</div>
+<section id="customerTab" class="tab card">
+<h2 id="cFormTitle">ثبت مشتری</h2>
+<div class="grid">
+<div><label for="cName">نام مشتری *</label><input id="cName" required></div>
+<div><label for="cPhone">تلفن</label><input id="cPhone" inputmode="tel"></div>
+<div><label for="cAddress">نشانی</label><input id="cAddress"></div>
+</div><div class="inline"><button id="addCustomer">ثبت مشتری</button><button id="cancelEdit" class="secondary hidden">انصراف از ویرایش</button></div>
+<h2 style="margin-top:22px">فهرست مشتری‌ها</h2>
+<label for="customerSearch">جست‌وجو</label><input id="customerSearch" placeholder="نام مشتری…">
+<div class="tablewrap"><table><thead><tr><th>نام</th><th>تلفن</th><th>نشانی</th><th>عملیات</th></tr></thead><tbody id="customersBody"></tbody></table></div>
+</section>
+<section id="transactionTab" class="tab card hidden">
+<h2>ثبت تراکنش</h2>
+<div class="grid">
+<div><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select></div>
+<div><label for="tType">نوع تراکنش *</label><select id="tType"><option value="Give">دادم (Give)</option><option value="Receive">گرفتم (Receive)</option></select></div>
+<div><label for="tAsset">نوع دارایی *</label><select id="tAsset"><option value="money">پول</option><option value="gold">طلا</option></select></div>
+<div><label for="tAmount">مبلغ / وزن *</label><input id="tAmount" type="number" min="0.000001" step="any" inputmode="decimal" placeholder="مثلاً 2500000 یا 1.25"></div>
+<div><label for="tTime">تاریخ و ساعت</label><input id="tTime" type="datetime-local"></div>
+<div><label for="tDesc">توضیحات</label><input id="tDesc" placeholder="شرح تراکنش"></div>
+</div><p class="muted">مانده مثبت یعنی مشتری به شما بدهکار است؛ «دادم» مانده را زیاد و «گرفتم» مانده را کم می‌کند. واحد پول/وزن را در یادداشت مشخص کنید.</p>
+<button id="addTransaction">ثبت تراکنش</button>
+</section>
+<section id="reportTab" class="tab card hidden">
+<h2>گزارش مانده مشتری‌ها</h2>
+<div class="balance">
+<div class="metric">جمع مانده پول<strong id="moneyTotal">—</strong></div>
+<div class="metric">جمع مانده طلا<strong id="goldTotal">—</strong></div>
+</div>
+<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>مشتری</th><th>مانده پول</th><th>مانده طلا</th></tr></thead><tbody id="reportBody"></tbody></table></div>
+<button id="exportReport" class="secondary">خروجی CSV گزارش (مناسب Excel)</button>
+</section>
+<section id="historyTab" class="tab card hidden">
+<h2>گردش تراکنش‌ها</h2>
+<div class="grid">
+<div><label for="fromDate">از تاریخ</label><input id="fromDate" type="date"></div>
+<div><label for="toDate">تا تاریخ</label><input id="toDate" type="date"></div>
+<div><label for="historyCustomer">مشتری</label><select id="historyCustomer"><option value="">همه مشتری‌ها</option></select></div>
+<div><label for="historyAsset">دارایی</label><select id="historyAsset"><option value="">همه</option><option value="money">پول</option><option value="gold">طلا</option></select></div>
+</div><button id="filterHistory" class="secondary">اعمال فیلتر</button>
+<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>تاریخ</th><th>مشتری</th><th>نوع</th><th>دارایی</th><th>مبلغ/وزن</th><th>توضیحات</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+<button id="exportHistory" class="secondary">خروجی CSV گردش حساب</button>
+</section>
+<div id="appStatus" class="status" role="status"></div>
+</div>
+</main>
+<footer>نسخه اولیه دفتر حساب شخصی</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+let client = null, currentUser = null, customers = [], transactions = [];
+const say = (id,msg) => { $(id).textContent = msg; };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => Number(n||0).toLocaleString('fa-IR',{maximumFractionDigits:6});
+const localDateTime = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
+$('tTime').value = localDateTime();
+const saved = (()=>{try{return JSON.parse(localStorage.getItem('ledgerConfig')||'{}')}catch{return {}}})();
+$('url').value=saved.url||'https://walqvjkqkyruuweqwqih.supabase.co';
+$('key').value=saved.key||'';
+$('email').value=saved.email||'';
+function setupClient(){
+ if(!window.supabase){throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.')}
+ const url=$('url').value.trim().replace(/\/+$/,''); const key=$('key').value.trim();
+ if(!url.startsWith('https://')||!key) throw new Error('Project URL و کلید عمومی را کامل وارد کنید.');
+ localStorage.setItem('ledgerConfig',JSON.stringify({url,key,email:$('email').value.trim()}));
+ client=window.supabase.createClient(url,key);
+ return client;
+}
+function needClient(){ if(!client) setupClient(); return client; }
+function msg(e){return e?.message || String(e || 'خطای نامشخص');}
+$('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
+$('login').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await onSignedIn(data.user)}catch(e){say('authStatus','ورود انجام نشد: '+msg(e))}};
+$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
+$('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];queue=[];$('app').classList.add('hidden');$('setup').classList.remove('hidden');$('logout').classList.add('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
+const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+let queue=[],tmpSeq=0,flushing=false,syncErr='';
+const cacheKey=()=>'ledgerCache:'+(currentUser&&currentUser.id);
+const newTmp=()=>-(Date.now()*1000+(tmpSeq++%1000));
+const isNet=e=>!navigator.onLine||/failed to fetch|networkerror|load failed|network request|fetch/i.test(msg(e));
+const pend=c=>queue.some(o=>(o.k==='cInsert'&&o.tmp===c.id)||o.id===c.id)?' <span class="badge">⏳</span>':'';
+const pendT=t=>queue.some(o=>o.k==='tInsert'&&o.tmp===t.id)?' <span class="badge">⏳</span>':'';
+function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify({customers,transactions,queue}))}catch(e){say('appStatus','هشدار: حافظه دستگاه پر است و ذخیره محلی انجام نشد.')}}
+function loadCache(){try{const d=JSON.parse(localStorage.getItem(cacheKey())||'{}');customers=d.customers||[];transactions=d.transactions||[];queue=d.queue||[]}catch(e){customers=[];transactions=[];queue=[]}}
+function updateNet(){const n=queue.length,off=!client||!navigator.onLine;let t=off?'آفلاین — تغییرات روی همین دستگاه ذخیره می‌شود و پس از اتصال همگام می‌شود.':n?'متصل؛ '+n+' تغییر هنوز همگام نشده است.':'متصل و همگام؛ '+customers.length+' مشتری و '+transactions.length+' تراکنش.';if(off&&n)t+=' ('+n+' مورد در انتظار)';if(syncErr)t+=' خطای همگام‌سازی: '+syncErr;say('netStatus',t);}
+function renderAll(){const a=$('tCustomer').value,h=$('historyCustomer').value;renderCustomers();renderCustomerOptions();$('tCustomer').value=a;$('historyCustomer').value=h;renderReport();renderHistory();updateNet();}
+function remap(a,b){customers.forEach(c=>{if(c.id===a)c.id=b});transactions.forEach(t=>{if(t.Customer_id===a)t.Customer_id=b});queue.forEach(o=>{if(o.id===a)o.id=b;if(o.row&&o.row.Customer_id===a)o.row.Customer_id=b})}
+async function runOp(o){const T=n=>client.from(n);let r;
+ if(o.k==='cInsert'){r=await T('Customer').insert(o.row).select('id').single();if(r.error)throw r.error;remap(o.tmp,r.data.id);}
+ else if(o.k==='cUpdate'){r=await T('Customer').update(o.fields).eq('id',o.id);if(r.error)throw r.error;if(o.fields.Name!==undefined)await T('Transaction').update({Name:o.fields.Name}).eq('Customer_id',o.id);}
+ else if(o.k==='cDelete'){r=await T('Transaction').delete().eq('Customer_id',o.id);if(r.error)throw r.error;r=await T('Customer').delete().eq('id',o.id);if(r.error)throw r.error;}
+ else if(o.k==='tInsert'){r=await T('Transaction').insert(o.row);if(r.error)throw r.error;}}
+async function flush(){if(flushing)return false;if(!client||!currentUser||!navigator.onLine)return !queue.length;flushing=true;syncErr='';
+ try{while(queue.length){const op=queue[0];await runOp(op);const i=queue.indexOf(op);if(i>=0)queue.splice(i,1);persist();}return true;}
+ catch(e){if(!isNet(e))syncErr=msg(e)+' — سیاست‌های RLS و نام ستون‌ها را بررسی کنید.';return false;}
+ finally{flushing=false;}}
+async function pull(){const [cr,tr]=await Promise.all([client.from('Customer').select('id,Name,Phone,Address,user_id').order('Name'),client.from('Transaction').select('id,Time,Amount,Is_money,Name,Description,Customer_id,Type,user_id').order('Time',{ascending:false})]);if(cr.error)throw cr.error;if(tr.error)throw tr.error;if(queue.length)return;customers=cr.data||[];transactions=tr.data||[];persist();}
+async function syncNow(){if(!currentUser)return;if(client&&navigator.onLine){say('netStatus','در حال همگام‌سازی…');if(await flush()){try{await pull()}catch(e){if(!isNet(e))syncErr='خطا در دریافت داده‌ها: '+msg(e)}}}renderAll();}
+const loadAll=syncNow;
+async function onSignedIn(user){currentUser=user;try{localStorage.setItem('ledgerUser',JSON.stringify({id:user.id,email:user.email}))}catch(e){}$('setup').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');say('authStatus','ورود موفق بود.');$('who').textContent='حساب: '+(user.email||'واردشده');loadCache();renderAll();window.scrollTo({top:0,behavior:'smooth'});await syncNow();}
+$('refresh').onclick=syncNow;
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));});
+let editingId=null,pendingDel=null;
+const afterChange=()=>{persist();renderAll();syncNow();};
+const sortC=()=>customers.sort((a,b)=>String(a.Name).localeCompare(String(b.Name),'fa'));
+function resetCustomerForm(){editingId=null;$('cName').value='';$('cPhone').value='';$('cAddress').value='';$('cFormTitle').textContent='ثبت مشتری';$('addCustomer').textContent='ثبت مشتری';$('cancelEdit').classList.add('hidden');}
+$('cancelEdit').onclick=resetCustomerForm;
+$('addCustomer').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('cName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const fields={Name:name,Phone:$('cPhone').value.trim()||null,Address:$('cAddress').value.trim()||null};
+ if(editingId!==null){const c=customers.find(x=>String(x.id)===String(editingId));if(!c)throw Error('مشتری پیدا نشد.');Object.assign(c,fields);transactions.forEach(t=>{if(t.Customer_id===c.id)t.Name=name});
+  const ins=queue.find(o=>o.k==='cInsert'&&o.tmp===c.id);if(ins)Object.assign(ins.row,fields);else{const u=queue.find(o=>o.k==='cUpdate'&&o.id===c.id);if(u)Object.assign(u.fields,fields);else queue.push({k:'cUpdate',id:c.id,fields:fields});}
+  resetCustomerForm();say('appStatus','ویرایش مشتری ذخیره شد.');}
+ else{const id=newTmp();const row=Object.assign({},fields,{user_id:currentUser.id});customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});resetCustomerForm();say('appStatus','مشتری ثبت شد.');}
+ sortC();afterChange();}catch(e){say('appStatus','ذخیره مشتری ناموفق بود: '+msg(e));}};
+$('customersBody').onclick=ev=>{const b=ev.target.closest('button[data-act]');if(!b)return;const id=b.dataset.id;const c=customers.find(x=>String(x.id)===String(id));if(!c)return;
+ if(b.dataset.act==='edit'){editingId=c.id;$('cName').value=c.Name||'';$('cPhone').value=c.Phone||'';$('cAddress').value=c.Address||'';$('cFormTitle').textContent='ویرایش مشتری';$('addCustomer').textContent='ذخیره ویرایش';$('cancelEdit').classList.remove('hidden');$('cName').focus();$('cFormTitle').scrollIntoView({behavior:'smooth'});return;}
+ if(b.dataset.act==='del'){try{const cid=c.id,n=transactions.filter(t=>t.Customer_id===cid).length;
+  if(pendingDel!==String(cid)){pendingDel=String(cid);b.textContent='تأیید حذف؟';say('appStatus',(n?`مشتری «${c.Name}» ${n} تراکنش دارد و با حذف او همه آن‌ها هم برای همیشه پاک می‌شوند. `:`مشتری «${c.Name}» حذف می‌شود. `)+'برای تأیید، دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingDel===String(cid)){pendingDel=null;renderCustomers();say('appStatus','');}},6000);return;}
+  pendingDel=null;
+  queue=queue.filter(o=>!(o.k==='cInsert'&&o.tmp===cid)&&!(o.k==='cUpdate'&&o.id===cid)&&!(o.k==='tInsert'&&o.row.Customer_id===cid));
+  if(cid>0)queue.push({k:'cDelete',id:cid});
+  customers=customers.filter(x=>x.id!==cid);transactions=transactions.filter(t=>t.Customer_id!==cid);
+  if(String(editingId)===String(cid))resetCustomerForm();
+  say('appStatus','مشتری حذف شد.');afterChange();}catch(e){say('appStatus','حذف ناموفق بود: '+msg(e));}}};function renderCustomers(){const q=$('customerSearch').value.trim().toLocaleLowerCase();$('customersBody').innerHTML=customers.filter(c=>String(c.Name||'').toLocaleLowerCase().includes(q)).map(c=>`<tr><td>${esc(c.Name)}${pend(c)}</td><td>${esc(c.Phone||'—')}</td><td>${esc(c.Address||'—')}</td><td class="actions"><button class="rowbtn secondary" data-act="edit" data-id="${c.id}">ویرایش</button><button class="rowbtn danger" data-act="del" data-id="${c.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="4">مشتری‌ای پیدا نشد.</td></tr>';}
+$('customerSearch').oninput=renderCustomers;
+function renderCustomerOptions(){const opts=customers.map(c=>`<option value="${c.id}">${esc(c.Name)}</option>`).join('');$('tCustomer').innerHTML='<option value="">انتخاب مشتری</option>'+opts;$('historyCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;}
+$('addTransaction').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const customerId=$('tCustomer').value;const amount=Number($('tAmount').value);if(!customerId)throw Error('مشتری را انتخاب کنید.');if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();const customer=customers.find(c=>String(c.id)===String(customerId));const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:$('tDesc').value.trim()||null,Customer_id:Number(customerId),Type:$('tType').value,user_id:currentUser.id};const id=newTmp();transactions.push(Object.assign({id:id},row));transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));queue.push({k:'tInsert',tmp:id,row:row});$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();say('appStatus','تراکنش ثبت شد.');afterChange();}catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
+const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
+function signed(t){return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
+function renderReport(){const map=new Map();for(const c of customers)map.set(String(c.id),{name:c.Name,money:0,gold:0});for(const t of transactions){const k=String(t.Customer_id);if(!map.has(k))map.set(k,{name:cname(t.Customer_id),money:0,gold:0});const r=map.get(k);if(t.Is_money===true)r.money+=signed(t);else if(t.Is_money===false)r.gold+=signed(t);}
+const rows=[...map.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name),'fa'));$('reportBody').innerHTML=rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${fmt(r.money)}</td><td>${fmt(r.gold)}</td></tr>`).join('')||'<tr><td colspan="3">داده‌ای وجود ندارد.</td></tr>';
+$('moneyTotal').textContent=fmt(rows.reduce((s,r)=>s+r.money,0));$('goldTotal').textContent=fmt(rows.reduce((s,r)=>s+r.gold,0));}
+function filteredHistory(){const from=$('fromDate').value,to=$('toDate').value,cid=$('historyCustomer').value,asset=$('historyAsset').value;return transactions.filter(t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==String(cid))return false;if(asset==='money'&&t.Is_money!==true)return false;if(asset==='gold'&&t.Is_money!==false)return false;return true;});}
+function renderHistory(){const rows=filteredHistory();$('historyBody').innerHTML=rows.map(t=>`<tr><td>${esc(new Date(t.Time).toLocaleString('fa-IR'))}${pendT(t)}</td><td>${esc(cname(t.Customer_id))}</td><td>${t.Type==='Give'?'دادم':'گرفتم'}</td><td>${t.Is_money===true?'پول':t.Is_money===false?'طلا':'نامشخص'}</td><td>${fmt(t.Amount)}</td><td>${esc(t.Description||'—')}</td></tr>`).join('')||'<tr><td colspan="6">تراکنشی پیدا نشد.</td></tr>';}
+$('filterHistory').onclick=renderHistory;
+function downloadCSV(filename,rows){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
+$('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','مانده طلا'],...Array.from($('reportBody').rows).map(r=>Array.from(r.cells).map(c=>c.textContent))];downloadCSV('customer-balances.csv',rows)};
+$('exportHistory').onclick=()=>{const rows=[['تاریخ','مشتری','نوع','دارایی','مبلغ/وزن','توضیحات'],...filteredHistory().map(t=>[new Date(t.Time).toLocaleString('fa-IR'),cname(t.Customer_id),t.Type==='Give'?'دادم':'گرفتم',t.Is_money?'پول':'طلا',t.Amount,t.Description||''])];downloadCSV('transactions.csv',rows)};
+const cachedUser=()=>{try{return JSON.parse(localStorage.getItem('ledgerUser')||'null')}catch(e){return null}};
+function ensureLib(){return new Promise(r=>{if(window.supabase)return r(true);const s=document.createElement('script');s.src=CDN;s.onload=()=>r(!!window.supabase);s.onerror=()=>r(false);document.head.appendChild(s);});}
+window.addEventListener('offline',updateNet);
+window.addEventListener('online',async()=>{if(!currentUser)return;try{if(!client){if(!(await ensureLib()))return updateNet();setupClient();}const r=await client.auth.getSession();if(!r.data||!r.data.session){say('netStatus','اینترنت وصل شد؛ برای همگام‌سازی خارج شو و دوباره وارد شو (تغییرات ذخیره‌شده از بین نمی‌رود).');return;}}catch(e){return updateNet();}syncNow();});
+(async()=>{let ok=true;try{setupClient();}catch(e){ok=false;say('authStatus',msg(e));}
+ if(ok){try{const r=await client.auth.getSession();if(r.data&&r.data.session)await onSignedIn(r.data.session.user);else if(cachedUser()&&(r.error||!navigator.onLine))await onSignedIn(cachedUser());}catch(e){if(cachedUser())await onSignedIn(cachedUser());}
+  client.auth.onAuthStateChange((_e,session)=>{if(session&&!currentUser)onSignedIn(session.user).catch(e=>say('authStatus',msg(e)));});}
+ else if(cachedUser())await onSignedIn(cachedUser());})();
+})();
+</script>
+<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
+</body>
+</html>
