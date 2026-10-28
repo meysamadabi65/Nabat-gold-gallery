@@ -18,7 +18,7 @@ label{display:block;font-size:.88rem;margin-bottom:6px;color:#35443b}
 input,select,textarea,button{font:inherit;width:100%;border-radius:9px;padding:11px;border:1px solid #cbd8cf;background:#fff;color:#17211d}
 textarea{min-height:75px;resize:vertical}button{border:0;background:#176b58;color:white;font-weight:bold;cursor:pointer;margin-top:10px}button.secondary{background:#e8f2ed;color:#176b58;border:1px solid #c7dfd2}button.danger{background:#8a2e2e}
 small,.muted{color:#637269;font-size:.82rem;line-height:1.7}.status{padding:10px;border-radius:9px;background:#eef5f0;margin-top:10px;white-space:pre-wrap}
-.pos{color:#176b58}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#124c40}
+.legend{display:flex;gap:14px;justify-content:center;font-size:.85rem;margin-top:4px}.legend i,.dl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.dl div{margin:5px 0;font-size:.9rem}.metric.hero{background:linear-gradient(135deg,#1f8a70,#0e3d33);color:#fff}.metric.hero strong{color:#ffe08a;font-size:1.3rem}.pos{color:#176b58}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#124c40}
 table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:right;padding:9px;border-bottom:1px solid #e2e9e4;vertical-align:top}th{background:#f5f8f6}
 .tablewrap{overflow-x:auto}.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.metric{background:#f4f8f5;padding:12px;border-radius:10px}.metric strong{display:block;font-size:1.1rem;margin-top:6px;overflow-wrap:anywhere}
 .inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.warn{background:#fff6e6;border:1px solid #efd7a6;padding:12px;border-radius:10px;line-height:1.8;font-size:.88rem}
@@ -55,7 +55,7 @@ footer{text-align:center;color:#68766e;font-size:.8rem;padding:12px}
 <button data-tab="reportTab">گزارش مانده</button>
 <button data-tab="historyTab">گردش حساب</button>
 </div>
-<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div></section>
+<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div></section>
 <section id="customerTab" class="tab card hidden">
 <h2 id="cFormTitle">ثبت مشتری</h2>
 <div class="grid">
@@ -205,15 +205,33 @@ $('filterHistory').onclick=renderHistory;
 function downloadCSV(filename,rows){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
 $('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','مانده طلا'],...Array.from($('reportBody').rows).map(r=>Array.from(r.cells).map(c=>c.textContent))];downloadCSV('customer-balances.csv',rows)};
 $('exportHistory').onclick=()=>{const rows=[['تاریخ','مشتری','نوع','دارایی','مبلغ/وزن','توضیحات'],...filteredHistory().map(t=>[new Date(t.Time).toLocaleString('fa-IR'),cname(t.Customer_id),t.Type==='Give'?'دادم':'گرفتم',t.Is_money?'پول':'طلا',t.Amount,t.Description||''])];downloadCSV('transactions.csv',rows)};
-const metric=(l,v,c)=>`<div class="metric">${l}<strong class="${c||''}">${fmt(v)}</strong></div>`;
+const metric=(l,v,c,h)=>`<div class="metric${h?' hero':''}">${l}<strong class="${c||''}">${fmt(v)}</strong></div>`;
 const pc=v=>v<0?'neg':'pos';
 const jp=d=>{const p=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric'}).formatToParts(new Date(d));return Number(p.find(x=>x.type==='year'||x.type==='relatedYear').value)*100+Number(p.find(x=>x.type==='month').value)};
 const pendE=e=>queue.some(o=>o.k==='eInsert'&&o.tmp===e.id)?' <span class="badge">⏳</span>':'';
 function sumE(f){let i=0,x=0;for(const e of entries){if(!f(e))continue;if(e.Kind==='Income')i+=Number(e.Amount);else x+=Number(e.Amount)}return{i:i,x:x,p:i-x}}
 function renderProfit(){const f=$('rFrom').value,t=$('rTo').value;const r=sumE(e=>{const d=String(e.Time||'').slice(0,10);return(!f||d>=f)&&(!t||d<=t)});$('profitBox').innerHTML=metric('درآمد',r.i)+metric('هزینه',r.x)+metric('سود (درآمد − هزینه)',r.p,pc(r.p));}
-function renderDash(){let m=0,g=0;const bal=new Map();for(const t of transactions){const v=signed(t);if(t.Is_money===true){m+=v;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)+v)}else if(t.Is_money===false)g+=v}
+function renderCharts(){
+ const g=new Map();for(const e of entries){const k=jp(e.Time);if(!g.has(k))g.set(k,{d:e.Time,i:0,x:0});const r=g.get(k);if(e.Kind==='Income')r.i+=Number(e.Amount);else r.x+=Number(e.Amount)}
+ const ms=[...g.entries()].sort((a,b)=>a[0]-b[0]).slice(-6);
+ if(!ms.length){$('chartMonths').innerHTML='<div class="muted">با ثبت درآمد و هزینه، نمودار اینجا ظاهر می‌شود.</div>';$('chartCats').innerHTML='';return}
+ const W=340,H=190,pad=24,base=H-28,top=16,mx=Math.max(1,...ms.flatMap(a=>[a[1].i,a[1].x])),slot=(W-pad*2)/ms.length,bw=Math.min(22,slot/3);
+ let v=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">`;
+ [0,.5,1].forEach(f=>{const y=base-(base-top)*f;v+=`<line x1="${pad}" x2="${W-pad}" y1="${y}" y2="${y}" stroke="#e3ebe6"/>`});
+ v+=`<text x="${W-pad}" y="${top-4}" text-anchor="start" font-size="10" fill="#5b6b63">${fmt(mx)}</text>`;
+ ms.forEach((a,idx)=>{const r=a[1],cx=W-pad-slot*(idx+.5),hi=(base-top)*r.i/mx,hx=(base-top)*r.x/mx;
+  v+=`<rect x="${cx-bw-1}" y="${base-hi}" width="${bw}" height="${hi}" rx="4" fill="#d4a62a"/><rect x="${cx+1}" y="${base-hx}" width="${bw}" height="${hx}" rx="4" fill="#c9625a"/><text x="${cx}" y="${H-10}" text-anchor="middle" font-size="11" fill="#5b6b63">${esc(new Intl.DateTimeFormat('fa-IR',{month:'short'}).format(new Date(r.d)))}</text>`});
+ $('chartMonths').innerHTML=v+'</svg><div class="legend"><span><i style="background:#d4a62a"></i>درآمد</span><span><i style="background:#c9625a"></i>هزینه</span></div>';
+ const cat=new Map();for(const e of entries)if(e.Kind==='Expense'){const c=e.Category||'بدون دسته';cat.set(c,(cat.get(c)||0)+Number(e.Amount))}
+ let cs=[...cat.entries()].sort((a,b)=>b[1]-a[1]);const tot=cs.reduce((a,b)=>a+b[1],0);
+ if(!tot){$('chartCats').innerHTML='<div class="muted">هنوز هزینه‌ای ثبت نشده.</div>';return}
+ if(cs.length>5)cs=cs.slice(0,5).concat([['سایر',cs.slice(5).reduce((a,b)=>a+b[1],0)]]);
+ const pal=['#176b58','#d4a62a','#c9625a','#4a7fb5','#8a6bbf','#8c9a93'];let off=25,arcs='',lg='';
+ cs.forEach((a,i)=>{const p=a[1]/tot*100;arcs+=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${pal[i]}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;off-=p;lg+=`<div><i style="background:${pal[i]}"></i>${esc(a[0])} <b>${fmt(Math.round(p))}٪</b></div>`});
+ $('chartCats').innerHTML=`<div class="donut"><svg viewBox="0 0 42 42" style="width:150px;height:150px"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#eef3f0" stroke-width="6"/>${arcs}<text x="21" y="22.5" text-anchor="middle" font-size="4" fill="#17211d">${fmt(tot)}</text></svg><div class="dl">${lg}</div></div>`;}
+function renderDash(){renderCharts();let m=0,g=0;const bal=new Map();for(const t of transactions){const v=signed(t);if(t.Is_money===true){m+=v;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)+v)}else if(t.Is_money===false)g+=v}
  const cur=jp(new Date()),mo=sumE(e=>jp(e.Time)===cur),all=sumE(()=>true);
- $('dashCards').innerHTML=metric('مانده پول مشتری‌ها',m)+metric('مانده طلای مشتری‌ها',g)+metric('درآمد این ماه',mo.i)+metric('هزینه این ماه',mo.x)+metric('سود این ماه',mo.p,pc(mo.p))+metric('سود کل',all.p,pc(all.p))+metric('تعداد مشتری',customers.length);
+ $('dashCards').innerHTML=metric('✨ سود این ماه',mo.p,'',true)+metric('📈 درآمد این ماه',mo.i)+metric('📉 هزینه این ماه',mo.x)+metric('💰 سود کل',all.p,pc(all.p))+metric('💵 مانده پول مشتری‌ها',m)+metric('🪙 مانده طلای مشتری‌ها',g)+metric('👥 تعداد مشتری',customers.length);
  const g2=new Map();for(const e of entries){const k=jp(e.Time);if(!g2.has(k))g2.set(k,{d:e.Time,i:0,x:0});const r=g2.get(k);if(e.Kind==='Income')r.i+=Number(e.Amount);else r.x+=Number(e.Amount)}
  $('dashMonths').innerHTML=[...g2.entries()].sort((a,b)=>b[0]-a[0]).slice(0,6).map(([k,r])=>`<tr><td>${esc(new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'long'}).format(new Date(r.d)))}</td><td>${fmt(r.i)}</td><td>${fmt(r.x)}</td><td class="${pc(r.i-r.x)}">${fmt(r.i-r.x)}</td></tr>`).join('')||'<tr><td colspan="4">هنوز درآمد یا هزینه‌ای ثبت نشده.</td></tr>';
  $('dashDebt').innerHTML=[...bal.entries()].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,v])=>`<tr><td>${esc(cname(id))}</td><td>${fmt(v)}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>';

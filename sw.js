@@ -1,4 +1,4 @@
-const V='ledger-v3';
+const V='ledger-v4';
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const FILES=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(V);await Promise.all(FILES.map(f=>c.add(f).catch(()=>{})));try{await c.add(new Request(CDN,{mode:'cors'}))}catch(_){}self.skipWaiting();})())});
