@@ -3,27 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#176b58">
+<meta name="theme-color" content="#6d28d9">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>گالری طلای نبات</title>
 <style>
-:root{font-family:Tahoma,Arial,sans-serif;color:#17211d;background:#f3f6f4}
-*{box-sizing:border-box}body{margin:0}header{background:#176b58;color:#fff;padding:18px 16px}
+:root{font-family:Tahoma,Arial,sans-serif;color:#1e1630;background:#f7f4fd}
+*{box-sizing:border-box}body{margin:0}header{background:#6d28d9;color:#fff;padding:18px 16px}
 header h1{font-size:1.25rem;margin:0 0 6px}header p{margin:0;font-size:.9rem;opacity:.9}
-main{max-width:980px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #dce5df;border-radius:14px;padding:16px;margin:0 0 14px;box-shadow:0 2px 8px #142b2010}
+main{max-width:980px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #e2d9f7;border-radius:14px;padding:16px;margin:0 0 14px;box-shadow:0 2px 8px #2a0f4d10}
 h2{font-size:1.05rem;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-label{display:block;font-size:.88rem;margin-bottom:6px;color:#35443b}
-input,select,textarea,button{font:inherit;width:100%;border-radius:9px;padding:11px;border:1px solid #cbd8cf;background:#fff;color:#17211d}
-textarea{min-height:75px;resize:vertical}button{border:0;background:#176b58;color:white;font-weight:bold;cursor:pointer;margin-top:10px}button.secondary{background:#e8f2ed;color:#176b58;border:1px solid #c7dfd2}button.danger{background:#8a2e2e}
-small,.muted{color:#637269;font-size:.82rem;line-height:1.7}.status{padding:10px;border-radius:9px;background:#eef5f0;margin-top:10px;white-space:pre-wrap}
-.legend{display:flex;gap:14px;justify-content:center;font-size:.85rem;margin-top:4px}.legend i,.dl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.dl div{margin:5px 0;font-size:.9rem}.metric.hero{background:linear-gradient(135deg,#1f8a70,#0e3d33);color:#fff}.metric.hero strong{color:#ffe08a;font-size:1.3rem}.pos{color:#176b58}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#124c40}
-table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:right;padding:9px;border-bottom:1px solid #e2e9e4;vertical-align:top}th{background:#f5f8f6}
-.tablewrap{overflow-x:auto}.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.metric{background:#f4f8f5;padding:12px;border-radius:10px}.metric strong{display:block;font-size:1.1rem;margin-top:6px;overflow-wrap:anywhere}
+label{display:block;font-size:.88rem;margin-bottom:6px;color:#443a58}
+input,select,textarea,button{font:inherit;width:100%;border-radius:9px;padding:11px;border:1px solid #d6c9f5;background:#fff;color:#1e1630}
+textarea{min-height:75px;resize:vertical}button{border:0;background:#7c3aed;color:white;font-weight:bold;cursor:pointer;margin-top:10px}button.secondary{background:#f1ecfe;color:#5b21b6;border:1px solid #d6c9f5}button.danger{background:#8a2e2e}
+small,.muted{color:#6b5f7e;font-size:.82rem;line-height:1.7}.status{padding:10px;border-radius:9px;background:#f5f0ff;margin-top:10px;white-space:pre-wrap}
+.legend{display:flex;gap:14px;justify-content:center;font-size:.85rem;margin-top:4px}.legend i,.dl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.dl div{margin:5px 0;font-size:.9rem}.metric.hero{background:linear-gradient(135deg,#8b5cf6,#4c1d95);color:#fff}.metric.hero strong{color:#ffe08a;font-size:1.3rem}.pos{color:#7c3aed}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#5b21b6}
+table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:right;padding:9px;border-bottom:1px solid #ece4fb;vertical-align:top}th{background:#f6f2fe}
+.tablewrap{overflow-x:auto}.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.metric{background:#f6f1fe;padding:12px;border-radius:10px}.metric strong{display:block;font-size:1.1rem;margin-top:6px;overflow-wrap:anywhere}
 .inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.warn{background:#fff6e6;border:1px solid #efd7a6;padding:12px;border-radius:10px;line-height:1.8;font-size:.88rem}
 td .rowbtn{width:auto;margin:0 0 0 6px;padding:6px 10px;font-size:.8rem}.actions{white-space:nowrap}.badge{font-size:.75rem;color:#9a6b00}
-footer{text-align:center;color:#68766e;font-size:.8rem;padding:12px}
+footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
+.toolbar{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.toolbar #netStatus{flex:1;font-size:.8rem}
+.toolbar button{width:auto;margin:0;padding:8px 12px;font-size:.85rem}
 </style>
 </head>
 <body>
@@ -39,13 +42,15 @@ footer{text-align:center;color:#68766e;font-size:.8rem;padding:12px}
 <div><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"></div>
 </div>
 <div class="inline"><button id="saveConfig" class="secondary">ذخیره تنظیمات</button><button id="login">ورود به دفتر حساب</button></div>
-<div class="inline"><button id="signup" class="secondary">ساخت حساب (در صورت نیاز)</button><button id="logout" class="secondary hidden">خروج</button></div>
+<div class="inline"><button id="signup" class="secondary">ساخت حساب (در صورت نیاز)</button></div>
 <div id="authStatus" class="status" role="status">هنوز وارد نشده‌اید.</div>
 <p class="muted">این نسخه برای استفاده شخصی طراحی شده است. پس از ورود، هر ردیف جدید با شناسه حساب شما ثبت می‌شود.</p>
 </div>
 <div id="app" class="hidden">
-<div class="card">
-<div class="inline"><div><b id="who"></b><div class="muted" id="netStatus">در انتظار اتصال…</div></div><button id="refresh" class="secondary">همگام‌سازی</button></div>
+<div class="card toolbar">
+<button id="refresh" class="secondary">همگام‌سازی</button>
+<div class="muted" id="netStatus">در انتظار اتصال…</div>
+<button id="logout" class="secondary">خروج</button>
 </div>
 <div class="tabs">
 <button class="active" data-tab="dashboardTab">داشبورد</button>
@@ -137,9 +142,9 @@ function setupClient(){
 function needClient(){ if(!client) setupClient(); return client; }
 function msg(e){return e?.message || String(e || 'خطای نامشخص');}
 $('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
-$('login').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await onSignedIn(data.user)}catch(e){say('authStatus','ورود انجام نشد: '+msg(e))}};
-$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
-$('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];$('app').classList.add('hidden');$('setup').classList.remove('hidden');$('logout').classList.add('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
+$('login').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await onSignedIn(data.user, true)}catch(e){say('authStatus','ورود انجام نشد: '+msg(e))}};
+$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
+$('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
 const cacheKey=()=>'ledgerCache:'+(currentUser&&currentUser.id);
@@ -151,22 +156,78 @@ function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify({customers
 function loadCache(){try{const d=JSON.parse(localStorage.getItem(cacheKey())||'{}');customers=d.customers||[];transactions=d.transactions||[];entries=d.entries||[];queue=d.queue||[]}catch(e){customers=[];transactions=[];entries=[];queue=[]}}
 function updateNet(){const n=queue.length,off=!client||!navigator.onLine;let t=off?'آفلاین — تغییرات روی همین دستگاه ذخیره می‌شود و پس از اتصال همگام می‌شود.':n?'متصل؛ '+n+' تغییر هنوز همگام نشده است.':'متصل و همگام؛ '+customers.length+' مشتری و '+transactions.length+' تراکنش.';if(off&&n)t+=' ('+n+' مورد در انتظار)';if(syncErr)t+=' خطای همگام‌سازی: '+syncErr;say('netStatus',t);}
 function renderAll(){const a=$('tCustomer').value,h=$('historyCustomer').value,r=$('rCustomer').value;renderCustomers();renderCustomerOptions();$('rCustomer').value=r;$('tCustomer').value=a;$('historyCustomer').value=h;renderReport();renderHistory();renderDash();renderCash();updateNet();}
-function remap(a,b){customers.forEach(c=>{if(c.id===a)c.id=b});transactions.forEach(t=>{if(t.Customer_id===a)t.Customer_id=b});queue.forEach(o=>{if(o.id===a)o.id=b;if(o.row&&o.row.Customer_id===a)o.row.Customer_id=b})}
+function remap(a,b){
+ customers.forEach(c=>{if(c.id===a)c.id=b});
+ transactions.forEach(t=>{if(t.Customer_id===a)t.Customer_id=b});
+ queue.forEach(o=>{
+   if(o.id===a)o.id=b;
+   if(o.tmp===a)o.tmp=b;
+   if(o.row&&o.row.Customer_id===a)o.row.Customer_id=b;
+   if(o.eid===a)o.eid=b;
+ });
+}
 async function runOp(o){const T=n=>client.from(n);let r;
  if(o.k==='cInsert'){r=await T('Customer').insert(o.row).select('id').single();if(r.error)throw r.error;remap(o.tmp,r.data.id);}
- else if(o.k==='cUpdate'){r=await T('Customer').update(o.fields).eq('id',o.id);if(r.error)throw r.error;if(o.fields.Name!==undefined)await T('Transaction').update({Name:o.fields.Name}).eq('Customer_id',o.id);}
+ else if(o.k==='cUpdate'){r=await T('Customer').update(o.fields).eq('id',o.id);if(r.error)throw r.error;if(o.fields.Name!==undefined){const {error:te}=await T('Transaction').update({Name:o.fields.Name}).eq('Customer_id',o.id);if(te)throw te;}}
  else if(o.k==='cDelete'){r=await T('Transaction').delete().eq('Customer_id',o.id);if(r.error)throw r.error;r=await T('Customer').delete().eq('id',o.id);if(r.error)throw r.error;}
  else if(o.k==='eInsert'){r=await T('Cashflow').insert(o.row).select('id').single();if(r.error)throw r.error;entries.forEach(e=>{if(e.id===o.tmp)e.id=r.data.id});}
  else if(o.k==='eDelete'){r=await T('Cashflow').delete().eq('id',o.eid);if(r.error)throw r.error;}
  else if(o.k==='tInsert'){r=await T('Transaction').insert(o.row);if(r.error)throw r.error;}}
-async function flush(){if(flushing)return false;if(!client||!currentUser||!navigator.onLine)return !queue.length;flushing=true;syncErr='';
- try{while(queue.length){const op=queue[0];await runOp(op);const i=queue.indexOf(op);if(i>=0)queue.splice(i,1);persist();}return true;}
- catch(e){if(!isNet(e))syncErr=msg(e)+' — سیاست‌های RLS و نام ستون‌ها را بررسی کنید.';return false;}
- finally{flushing=false;}}
-async function pull(){const [cr,tr,er]=await Promise.all([client.from('Customer').select('id,Name,Phone,Address,user_id').order('Name'),client.from('Transaction').select('id,Time,Amount,Is_money,Name,Description,Customer_id,Type,user_id').order('Time',{ascending:false}),client.from('Cashflow').select('id,Time,Kind,Category,Amount,Description,user_id').order('Time',{ascending:false})]);if(cr.error)throw cr.error;if(tr.error)throw tr.error;if(queue.length)return;customers=cr.data||[];transactions=tr.data||[];if(er.error)cfErr=msg(er.error);else{cfErr='';entries=er.data||[]}persist();}
-async function syncNow(){if(!currentUser)return;if(client&&navigator.onLine){say('netStatus','در حال همگام‌سازی…');if(await flush()){try{await pull()}catch(e){if(!isNet(e))syncErr='خطا در دریافت داده‌ها: '+msg(e)}}}renderAll();}
+async function flush(){
+ if(flushing)return false;
+ if(!client||!currentUser||!navigator.onLine)return !queue.length;
+ flushing=true;syncErr='';
+ try{
+   while(queue.length){
+     const op=queue[0];
+     await runOp(op);
+     const i=queue.indexOf(op);
+     if(i>=0)queue.splice(i,1);
+     persist();
+   }
+   return true;
+ }catch(e){
+   if(isNet(e))syncErr='';
+   else syncErr=msg(e)+' — سیاست‌های RLS و نام ستون‌ها را بررسی کنید.';
+   return false;
+ }finally{flushing=false;}
+}
+async function pull(){
+ const [cr,tr,er]=await Promise.all([
+   client.from('Customer').select('id,Name,Phone,Address,user_id').order('Name'),
+   client.from('Transaction').select('id,Time,Amount,Is_money,Name,Description,Customer_id,Type,user_id').order('Time',{ascending:false}),
+   client.from('Cashflow').select('id,Time,Kind,Category,Amount,Description,user_id').order('Time',{ascending:false})
+ ]);
+ if(cr.error)throw cr.error;
+ if(tr.error)throw tr.error;
+ if(queue.length)return;
+ customers=cr.data||[];
+ transactions=tr.data||[];
+ if(er.error)cfErr=msg(er.error);else{cfErr='';entries=er.data||[]}
+ persist();
+}
+async function syncNow(){
+ if(!currentUser)return;
+ if(client&&navigator.onLine){
+   say('netStatus','در حال همگام‌سازی…');
+   if(await flush()){
+     try{await pull()}catch(e){if(!isNet(e))syncErr='خطا در دریافت داده‌ها: '+msg(e)}
+   }
+ }
+ renderAll();
+}
 const loadAll=syncNow;
-async function onSignedIn(user){currentUser=user;try{localStorage.setItem('ledgerUser',JSON.stringify({id:user.id,email:user.email}))}catch(e){}$('setup').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');say('authStatus','ورود موفق بود.');$('who').textContent='حساب: '+(user.email||'واردشده');loadCache();renderAll();document.querySelector('[data-tab="dashboardTab"]').click();window.scrollTo({top:0,behavior:'smooth'});await syncNow();}
+async function onSignedIn(user, force=false){
+ if(currentUser && !force && currentUser.id===user.id){ await syncNow(); return; }
+ currentUser=user;
+ try{localStorage.setItem('ledgerUser',JSON.stringify({id:user.id,email:user.email}))}catch(e){}
+ $('setup').classList.add('hidden');$('app').classList.remove('hidden');say('authStatus','ورود موفق بود.');
+ loadCache();renderAll();
+ const dashBtn=document.querySelector('[data-tab="dashboardTab"]');
+ if(dashBtn)dashBtn.click();
+ window.scrollTo({top:0,behavior:'smooth'});
+ await syncNow();
+}
 $('refresh').onclick=syncNow;
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));});
 let editingId=null,pendingDel=null;
@@ -182,23 +243,63 @@ $('addCustomer').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وار
  sortC();afterChange();}catch(e){say('appStatus','ذخیره مشتری ناموفق بود: '+msg(e));}};
 $('customersBody').onclick=ev=>{const b=ev.target.closest('button[data-act]');if(!b)return;const id=b.dataset.id;const c=customers.find(x=>String(x.id)===String(id));if(!c)return;
  if(b.dataset.act==='edit'){editingId=c.id;$('cName').value=c.Name||'';$('cPhone').value=c.Phone||'';$('cAddress').value=c.Address||'';$('cFormTitle').textContent='ویرایش مشتری';$('addCustomer').textContent='ذخیره ویرایش';$('cancelEdit').classList.remove('hidden');$('cName').focus();$('cFormTitle').scrollIntoView({behavior:'smooth'});return;}
- if(b.dataset.act==='del'){try{const cid=c.id,n=transactions.filter(t=>t.Customer_id===cid).length;
-  if(pendingDel!==String(cid)){pendingDel=String(cid);b.textContent='تأیید حذف؟';say('appStatus',(n?`مشتری «${c.Name}» ${n} تراکنش دارد و با حذف او همه آن‌ها هم برای همیشه پاک می‌شوند. `:`مشتری «${c.Name}» حذف می‌شود. `)+'برای تأیید، دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingDel===String(cid)){pendingDel=null;renderCustomers();say('appStatus','');}},6000);return;}
-  pendingDel=null;
-  queue=queue.filter(o=>!(o.k==='cInsert'&&o.tmp===cid)&&!(o.k==='cUpdate'&&o.id===cid)&&!(o.k==='tInsert'&&o.row.Customer_id===cid));
-  if(cid>0)queue.push({k:'cDelete',id:cid});
-  customers=customers.filter(x=>x.id!==cid);transactions=transactions.filter(t=>t.Customer_id!==cid);
-  if(String(editingId)===String(cid))resetCustomerForm();
-  say('appStatus','مشتری حذف شد.');afterChange();}catch(e){say('appStatus','حذف ناموفق بود: '+msg(e));}}};function renderCustomers(){const q=$('customerSearch').value.trim().toLocaleLowerCase();$('customersBody').innerHTML=customers.filter(c=>String(c.Name||'').toLocaleLowerCase().includes(q)).map(c=>`<tr><td>${esc(c.Name)}${pend(c)}</td><td>${esc(c.Phone||'—')}</td><td>${esc(c.Address||'—')}</td><td class="actions"><button class="rowbtn secondary" data-act="edit" data-id="${c.id}">ویرایش</button><button class="rowbtn danger" data-act="del" data-id="${c.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="4">مشتری‌ای پیدا نشد.</td></tr>';}
+ if(b.dataset.act==='del'){
+   const cid=c.id,n=transactions.filter(t=>t.Customer_id===cid).length;
+   if(pendingDel!==String(cid)){
+     pendingDel=String(cid);
+     b.textContent='تأیید حذف؟';
+     say('appStatus',(n?`مشتری «${c.Name}» ${n} تراکنش دارد و با حذف او همه آن‌ها هم برای همیشه پاک می‌شوند. `:`مشتری «${c.Name}» حذف می‌شود. `)+'برای تأیید، دوباره روی «تأیید حذف؟» بزن.');
+     setTimeout(()=>{if(pendingDel===String(cid)){pendingDel=null;renderCustomers();say('appStatus','');}},6000);
+     return;
+   }
+   pendingDel=null;
+   queue=queue.filter(o=>
+     !(o.k==='cInsert'&&o.tmp===cid) &&
+     !(o.k==='cUpdate'&&o.id===cid) &&
+     !(o.k==='tInsert'&&o.row&&o.row.Customer_id===cid)
+   );
+   const serverId = typeof cid==='number' && cid>0 ? cid : null;
+   if(serverId!==null)queue.push({k:'cDelete',id:serverId});
+   customers=customers.filter(x=>String(x.id)!==String(cid));
+   transactions=transactions.filter(t=>String(t.Customer_id)!==String(cid));
+   if(String(editingId)===String(cid))resetCustomerForm();
+   say('appStatus','مشتری حذف شد.');afterChange();
+ }
+};
+function renderCustomers(){const q=$('customerSearch').value.trim().toLocaleLowerCase();$('customersBody').innerHTML=customers.filter(c=>String(c.Name||'').toLocaleLowerCase().includes(q)).map(c=>`<tr><td>${esc(c.Name)}${pend(c)}</td><td>${esc(c.Phone||'—')}</td><td>${esc(c.Address||'—')}</td><td class="actions"><button class="rowbtn secondary" data-act="edit" data-id="${c.id}">ویرایش</button><button class="rowbtn danger" data-act="del" data-id="${c.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="4">مشتری‌ای پیدا نشد.</td></tr>';}
 $('customerSearch').oninput=renderCustomers;
 function renderCustomerOptions(){const opts=customers.map(c=>`<option value="${c.id}">${esc(c.Name)}</option>`).join('');$('tCustomer').innerHTML='<option value="">انتخاب مشتری</option>'+opts;$('historyCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;$('rCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;}
-$('addTransaction').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const customerId=$('tCustomer').value;const amount=Number($('tAmount').value);if(!customerId)throw Error('مشتری را انتخاب کنید.');if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();const customer=customers.find(c=>String(c.id)===String(customerId));const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:$('tDesc').value.trim()||null,Customer_id:Number(customerId),Type:$('tType').value,user_id:currentUser.id};const id=newTmp();transactions.push(Object.assign({id:id},row));transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));queue.push({k:'tInsert',tmp:id,row:row});$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();say('appStatus','تراکنش ثبت شد.');afterChange();}catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
+$('addTransaction').onclick=()=>{try{
+ if(!currentUser)throw Error('ابتدا وارد شوید.');
+ const customerId=$('tCustomer').value;
+ const amount=Number($('tAmount').value);
+ if(!customerId)throw Error('مشتری را انتخاب کنید.');
+ if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
+ const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();
+ const customer=customers.find(c=>String(c.id)===String(customerId));
+ const type=$('tType').value;
+ if(type!=='Give'&&type!=='Receive')throw Error('نوع تراکنش نامعتبر است.');
+ const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:$('tDesc').value.trim()||null,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
+ const id=newTmp();
+ transactions.push(Object.assign({id:id},row));
+ transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
+ queue.push({k:'tInsert',tmp:id,row:row});
+ $('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();
+ say('appStatus','تراکنش ثبت شد.');afterChange();
+}catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
 function signed(t){return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
 function reportFilter(){const from=$('rFrom').value,to=$('rTo').value,cid=$('rCustomer').value,type=$('rType').value;return{cid:cid,ok:t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==cid)return false;if(type&&t.Type!==type)return false;return true}}}
-function renderReport(){renderProfit();const map=new Map();const rf=reportFilter();for(const c of customers){if(!rf.cid||String(c.id)===rf.cid)map.set(String(c.id),{name:c.Name,money:0,gold:0})}for(const t of transactions){if(!rf.ok(t))continue;const k=String(t.Customer_id);if(!map.has(k))map.set(k,{name:cname(t.Customer_id),money:0,gold:0});const r=map.get(k);if(t.Is_money===true)r.money+=signed(t);else if(t.Is_money===false)r.gold+=signed(t);}
-const rows=[...map.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name),'fa'));$('reportBody').innerHTML=rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${fmt(r.money)}</td><td>${fmt(r.gold)}</td></tr>`).join('')||'<tr><td colspan="3">داده‌ای وجود ندارد.</td></tr>';
-$('moneyTotal').textContent=fmt(rows.reduce((s,r)=>s+r.money,0));$('goldTotal').textContent=fmt(rows.reduce((s,r)=>s+r.gold,0));}
+function renderReport(){
+ renderProfit();
+ const map=new Map();const rf=reportFilter();
+ for(const c of customers){if(!rf.cid||String(c.id)===rf.cid)map.set(String(c.id),{name:c.Name,money:0,gold:0})}
+ for(const t of transactions){if(!rf.ok(t))continue;const k=String(t.Customer_id);if(!map.has(k))map.set(k,{name:cname(t.Customer_id),money:0,gold:0});const r=map.get(k);if(t.Is_money===true)r.money+=signed(t);else if(t.Is_money===false)r.gold+=signed(t);}
+ const rows=[...map.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name),'fa'));
+ $('reportBody').innerHTML=rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${fmt(r.money)}</td><td>${fmt(r.gold)}</td></tr>`).join('')||'<tr><td colspan="3">داده‌ای وجود ندارد.</td></tr>';
+ $('moneyTotal').textContent=fmt(rows.reduce((s,r)=>s+r.money,0));
+ $('goldTotal').textContent=fmt(rows.reduce((s,r)=>s+r.gold,0));
+}
 function filteredHistory(){const from=$('fromDate').value,to=$('toDate').value,cid=$('historyCustomer').value,asset=$('historyAsset').value;return transactions.filter(t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==String(cid))return false;if(asset==='money'&&t.Is_money!==true)return false;if(asset==='gold'&&t.Is_money!==false)return false;return true;});}
 function renderHistory(){const rows=filteredHistory();$('historyBody').innerHTML=rows.map(t=>`<tr><td>${esc(new Date(t.Time).toLocaleString('fa-IR'))}${pendT(t)}</td><td>${esc(cname(t.Customer_id))}</td><td>${t.Type==='Give'?'دادم':'گرفتم'}</td><td>${t.Is_money===true?'پول':t.Is_money===false?'طلا':'نامشخص'}</td><td>${fmt(t.Amount)}</td><td>${esc(t.Description||'—')}</td></tr>`).join('')||'<tr><td colspan="6">تراکنشی پیدا نشد.</td></tr>';}
 $('filterHistory').onclick=renderHistory;
@@ -207,7 +308,17 @@ $('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','م
 $('exportHistory').onclick=()=>{const rows=[['تاریخ','مشتری','نوع','دارایی','مبلغ/وزن','توضیحات'],...filteredHistory().map(t=>[new Date(t.Time).toLocaleString('fa-IR'),cname(t.Customer_id),t.Type==='Give'?'دادم':'گرفتم',t.Is_money?'پول':'طلا',t.Amount,t.Description||''])];downloadCSV('transactions.csv',rows)};
 const metric=(l,v,c,h)=>`<div class="metric${h?' hero':''}">${l}<strong class="${c||''}">${fmt(v)}</strong></div>`;
 const pc=v=>v<0?'neg':'pos';
-const jp=d=>{const p=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric'}).formatToParts(new Date(d));return Number(p.find(x=>x.type==='year'||x.type==='relatedYear').value)*100+Number(p.find(x=>x.type==='month').value)};
+const jp=d=>{
+  try{
+    const dt=new Date(d);
+    if(isNaN(dt.getTime()))return 0;
+    const p=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric'}).formatToParts(dt);
+    const y=p.find(x=>x.type==='year'||x.type==='relatedYear');
+    const m=p.find(x=>x.type==='month');
+    if(!y||!m)return 0;
+    return Number(y.value)*100+Number(m.value);
+  }catch(e){return 0;}
+};
 const pendE=e=>queue.some(o=>o.k==='eInsert'&&o.tmp===e.id)?' <span class="badge">⏳</span>':'';
 function sumE(f){let i=0,x=0;for(const e of entries){if(!f(e))continue;if(e.Kind==='Income')i+=Number(e.Amount);else x+=Number(e.Amount)}return{i:i,x:x,p:i-x}}
 function renderProfit(){const f=$('rFrom').value,t=$('rTo').value;const r=sumE(e=>{const d=String(e.Time||'').slice(0,10);return(!f||d>=f)&&(!t||d<=t)});$('profitBox').innerHTML=metric('درآمد',r.i)+metric('هزینه',r.x)+metric('سود (درآمد − هزینه)',r.p,pc(r.p));}
@@ -217,40 +328,77 @@ function renderCharts(){
  if(!ms.length){$('chartMonths').innerHTML='<div class="muted">با ثبت درآمد و هزینه، نمودار اینجا ظاهر می‌شود.</div>';$('chartCats').innerHTML='';return}
  const W=340,H=190,pad=24,base=H-28,top=16,mx=Math.max(1,...ms.flatMap(a=>[a[1].i,a[1].x])),slot=(W-pad*2)/ms.length,bw=Math.min(22,slot/3);
  let v=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">`;
- [0,.5,1].forEach(f=>{const y=base-(base-top)*f;v+=`<line x1="${pad}" x2="${W-pad}" y1="${y}" y2="${y}" stroke="#e3ebe6"/>`});
- v+=`<text x="${W-pad}" y="${top-4}" text-anchor="start" font-size="10" fill="#5b6b63">${fmt(mx)}</text>`;
+ [0,.5,1].forEach(f=>{const y=base-(base-top)*f;v+=`<line x1="${pad}" x2="${W-pad}" y1="${y}" y2="${y}" stroke="#ece4fb"/>`});
+ v+=`<text x="${W-pad}" y="${top-4}" text-anchor="start" font-size="10" fill="#6b5f7e">${fmt(mx)}</text>`;
  ms.forEach((a,idx)=>{const r=a[1],cx=W-pad-slot*(idx+.5),hi=(base-top)*r.i/mx,hx=(base-top)*r.x/mx;
-  v+=`<rect x="${cx-bw-1}" y="${base-hi}" width="${bw}" height="${hi}" rx="4" fill="#d4a62a"/><rect x="${cx+1}" y="${base-hx}" width="${bw}" height="${hx}" rx="4" fill="#c9625a"/><text x="${cx}" y="${H-10}" text-anchor="middle" font-size="11" fill="#5b6b63">${esc(new Intl.DateTimeFormat('fa-IR',{month:'short'}).format(new Date(r.d)))}</text>`});
+  v+=`<rect x="${cx-bw-1}" y="${base-hi}" width="${bw}" height="${hi}" rx="4" fill="#d4a62a"/><rect x="${cx+1}" y="${base-hx}" width="${bw}" height="${hx}" rx="4" fill="#c9625a"/><text x="${cx}" y="${H-10}" text-anchor="middle" font-size="11" fill="#6b5f7e">${esc(new Intl.DateTimeFormat('fa-IR',{month:'short'}).format(new Date(r.d)))}</text>`});
  $('chartMonths').innerHTML=v+'</svg><div class="legend"><span><i style="background:#d4a62a"></i>درآمد</span><span><i style="background:#c9625a"></i>هزینه</span></div>';
  const cat=new Map();for(const e of entries)if(e.Kind==='Expense'){const c=e.Category||'بدون دسته';cat.set(c,(cat.get(c)||0)+Number(e.Amount))}
  let cs=[...cat.entries()].sort((a,b)=>b[1]-a[1]);const tot=cs.reduce((a,b)=>a+b[1],0);
  if(!tot){$('chartCats').innerHTML='<div class="muted">هنوز هزینه‌ای ثبت نشده.</div>';return}
  if(cs.length>5)cs=cs.slice(0,5).concat([['سایر',cs.slice(5).reduce((a,b)=>a+b[1],0)]]);
- const pal=['#176b58','#d4a62a','#c9625a','#4a7fb5','#8a6bbf','#8c9a93'];let off=25,arcs='',lg='';
+ const pal=['#7c3aed','#d4a62a','#c9625a','#4a7fb5','#8a6bbf','#8c9a93'];let off=25,arcs='',lg='';
  cs.forEach((a,i)=>{const p=a[1]/tot*100;arcs+=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${pal[i]}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;off-=p;lg+=`<div><i style="background:${pal[i]}"></i>${esc(a[0])} <b>${fmt(Math.round(p))}٪</b></div>`});
- $('chartCats').innerHTML=`<div class="donut"><svg viewBox="0 0 42 42" style="width:150px;height:150px"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#eef3f0" stroke-width="6"/>${arcs}<text x="21" y="22.5" text-anchor="middle" font-size="4" fill="#17211d">${fmt(tot)}</text></svg><div class="dl">${lg}</div></div>`;}
-function renderDash(){renderCharts();let m=0,g=0;const bal=new Map();for(const t of transactions){const v=signed(t);if(t.Is_money===true){m+=v;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)+v)}else if(t.Is_money===false)g+=v}
+ $('chartCats').innerHTML=`<div class="donut"><svg viewBox="0 0 42 42" style="width:150px;height:150px"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#f0eafd" stroke-width="6"/>${arcs}<text x="21" y="22.5" text-anchor="middle" font-size="4" fill="#1e1630">${fmt(tot)}</text></svg><div class="dl">${lg}</div></div>`;}
+function renderDash(){
+ renderCharts();
+ let m=0,g=0;const bal=new Map();
+ for(const t of transactions){const v=signed(t);if(t.Is_money===true){m+=v;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)+v)}else if(t.Is_money===false)g+=v}
  const cur=jp(new Date()),mo=sumE(e=>jp(e.Time)===cur),all=sumE(()=>true);
  $('dashCards').innerHTML=metric('✨ سود این ماه',mo.p,'',true)+metric('📈 درآمد این ماه',mo.i)+metric('📉 هزینه این ماه',mo.x)+metric('💰 سود کل',all.p,pc(all.p))+metric('💵 مانده پول مشتری‌ها',m)+metric('🪙 مانده طلای مشتری‌ها',g)+metric('👥 تعداد مشتری',customers.length);
  const g2=new Map();for(const e of entries){const k=jp(e.Time);if(!g2.has(k))g2.set(k,{d:e.Time,i:0,x:0});const r=g2.get(k);if(e.Kind==='Income')r.i+=Number(e.Amount);else r.x+=Number(e.Amount)}
  $('dashMonths').innerHTML=[...g2.entries()].sort((a,b)=>b[0]-a[0]).slice(0,6).map(([k,r])=>`<tr><td>${esc(new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'long'}).format(new Date(r.d)))}</td><td>${fmt(r.i)}</td><td>${fmt(r.x)}</td><td class="${pc(r.i-r.x)}">${fmt(r.i-r.x)}</td></tr>`).join('')||'<tr><td colspan="4">هنوز درآمد یا هزینه‌ای ثبت نشده.</td></tr>';
  $('dashDebt').innerHTML=[...bal.entries()].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,v])=>`<tr><td>${esc(cname(id))}</td><td>${fmt(v)}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>';
- $('dashSetup').classList.toggle('hidden',!cfErr);$('dashSetup').textContent=cfErr?'جدول درآمد/هزینه (Cashflow) در Supabase ساخته نشده یا دسترسی ندارد: '+cfErr:'';}
+ $('dashSetup').classList.toggle('hidden',!cfErr);$('dashSetup').textContent=cfErr?'جدول درآمد/هزینه (Cashflow) در Supabase ساخته نشده یا دسترسی ندارد: '+cfErr:'';
+}
 function renderCash(){const rows=entries.slice().sort((a,b)=>new Date(b.Time)-new Date(a.Time)).slice(0,100);$('cashBody').innerHTML=rows.map(e=>`<tr><td>${esc(new Date(e.Time).toLocaleDateString('fa-IR'))}${pendE(e)}</td><td>${e.Kind==='Income'?'درآمد':'هزینه'}</td><td>${esc(e.Category||'—')}</td><td>${fmt(e.Amount)}</td><td>${esc(e.Description||'—')}</td><td><button class="rowbtn danger" data-del="${e.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="6">هنوز چیزی ثبت نشده.</td></tr>';}
 let pendingCash=null;
 $('cashTime').value=localDateTime();
-$('addCash').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const a=Number($('cashAmount').value);if(!Number.isFinite(a)||a<=0)throw Error('مبلغ باید بیشتر از صفر باشد.');const row={Time:$('cashTime').value?new Date($('cashTime').value).toISOString():new Date().toISOString(),Kind:$('cashKind').value,Category:$('cashCat').value.trim()||null,Amount:a,Description:$('cashDesc').value.trim()||null,user_id:currentUser.id};const id=newTmp();entries.push(Object.assign({id:id},row));queue.push({k:'eInsert',tmp:id,row:row});$('cashAmount').value='';$('cashDesc').value='';$('cashTime').value=localDateTime();say('appStatus','ثبت شد.');afterChange();}catch(e){say('appStatus','ثبت ناموفق بود: '+msg(e));}};
-$('cashBody').onclick=ev=>{const b=ev.target.closest('button[data-del]');if(!b)return;const id=Number(b.dataset.del);if(pendingCash!==id){pendingCash=id;b.textContent='تأیید؟';setTimeout(()=>{if(pendingCash===id){pendingCash=null;renderCash()}},5000);return;}pendingCash=null;const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===id);if(ins)queue=queue.filter(o=>o!==ins);else queue.push({k:'eDelete',eid:id});entries=entries.filter(e=>e.id!==id);afterChange();};
+$('addCash').onclick=()=>{try{
+ if(!currentUser)throw Error('ابتدا وارد شوید.');
+ const a=Number($('cashAmount').value);
+ if(!Number.isFinite(a)||a<=0)throw Error('مبلغ باید بیشتر از صفر باشد.');
+ const kind=$('cashKind').value;
+ if(kind!=='Income'&&kind!=='Expense')throw Error('نوع نامعتبر است.');
+ const row={Time:$('cashTime').value?new Date($('cashTime').value).toISOString():new Date().toISOString(),Kind:kind,Category:$('cashCat').value.trim()||null,Amount:a,Description:$('cashDesc').value.trim()||null,user_id:currentUser.id};
+ const id=newTmp();entries.push(Object.assign({id:id},row));queue.push({k:'eInsert',tmp:id,row:row});
+ $('cashAmount').value='';$('cashDesc').value='';$('cashTime').value=localDateTime();
+ say('appStatus','ثبت شد.');afterChange();
+}catch(e){say('appStatus','ثبت ناموفق بود: '+msg(e));}};
+$('cashBody').onclick=ev=>{const b=ev.target.closest('button[data-del]');if(!b)return;const id=Number(b.dataset.del);if(pendingCash!==id){pendingCash=id;b.textContent='تأیید؟';setTimeout(()=>{if(pendingCash===id){pendingCash=null;renderCash()}},5000);return;}pendingCash=null;const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===id);if(ins)queue=queue.filter(o=>o!==ins);else if(id>0)queue.push({k:'eDelete',eid:id});entries=entries.filter(e=>e.id!==id);afterChange();};
 ['rFrom','rTo','rCustomer','rType'].forEach(i=>{$(i).onchange=renderReport});
 $('rClear').onclick=()=>{['rFrom','rTo','rCustomer','rType'].forEach(i=>{$(i).value=''});renderReport();};
 const cachedUser=()=>{try{return JSON.parse(localStorage.getItem('ledgerUser')||'null')}catch(e){return null}};
 function ensureLib(){return new Promise(r=>{if(window.supabase)return r(true);const s=document.createElement('script');s.src=CDN;s.onload=()=>r(!!window.supabase);s.onerror=()=>r(false);document.head.appendChild(s);});}
 window.addEventListener('offline',updateNet);
-window.addEventListener('online',async()=>{if(!currentUser)return;try{if(!client){if(!(await ensureLib()))return updateNet();setupClient();}const r=await client.auth.getSession();if(!r.data||!r.data.session){say('netStatus','اینترنت وصل شد؛ برای همگام‌سازی خارج شو و دوباره وارد شو (تغییرات ذخیره‌شده از بین نمی‌رود).');return;}}catch(e){return updateNet();}syncNow();});
-(async()=>{let ok=true;try{setupClient();}catch(e){ok=false;say('authStatus',msg(e));}
- if(ok){try{const r=await client.auth.getSession();if(r.data&&r.data.session)await onSignedIn(r.data.session.user);else if(cachedUser()&&(r.error||!navigator.onLine))await onSignedIn(cachedUser());}catch(e){if(cachedUser())await onSignedIn(cachedUser());}
-  client.auth.onAuthStateChange((_e,session)=>{if(session&&!currentUser)onSignedIn(session.user).catch(e=>say('authStatus',msg(e)));});}
- else if(cachedUser())await onSignedIn(cachedUser());})();
+window.addEventListener('online',async()=>{
+ if(!currentUser)return;
+ try{
+   if(!client){if(!(await ensureLib()))return updateNet();setupClient();}
+   const r=await client.auth.getSession();
+   if(!r.data||!r.data.session){
+     const {data:refresh,error:rerr}=await client.auth.refreshSession().catch(()=>({error:true}));
+     if(rerr||!refresh||!refresh.session){say('netStatus','اینترنت وصل شد؛ برای همگام‌سازی خارج شو و دوباره وارد شو (تغییرات ذخیره‌شده از بین نمی‌رود).');return;}
+   }
+ }catch(e){return updateNet();}
+ syncNow();
+});
+(async()=>{
+ let ok=true;
+ try{setupClient();}catch(e){ok=false;say('authStatus',msg(e));}
+ if(ok){
+   try{
+     const r=await client.auth.getSession();
+     if(r.data&&r.data.session)await onSignedIn(r.data.session.user, true);
+     else if(cachedUser())await onSignedIn(cachedUser(), true);
+   }catch(e){if(cachedUser())await onSignedIn(cachedUser(), true);}
+   client.auth.onAuthStateChange((_e,session)=>{
+     if(session && (!currentUser || currentUser.id!==session.user.id)){
+       onSignedIn(session.user, true).catch(e=>say('authStatus',msg(e)));
+     }
+   });
+ } else if(cachedUser())await onSignedIn(cachedUser(), true);
+})();
 })();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
