@@ -18,7 +18,7 @@ label{display:block;font-size:.88rem;margin-bottom:6px;color:#443a58}
 input,select,textarea,button{font:inherit;width:100%;border-radius:9px;padding:11px;border:1px solid #d6c9f5;background:#fff;color:#1e1630}
 textarea{min-height:75px;resize:vertical}button{border:0;background:#7c3aed;color:white;font-weight:bold;cursor:pointer;margin-top:10px}button.secondary{background:#f1ecfe;color:#5b21b6;border:1px solid #d6c9f5}button.danger{background:#8a2e2e}
 small,.muted{color:#6b5f7e;font-size:.82rem;line-height:1.7}.status{padding:10px;border-radius:9px;background:#f5f0ff;margin-top:10px;white-space:pre-wrap}
-.legend{display:flex;gap:14px;justify-content:center;font-size:.85rem;margin-top:4px}.legend i,.dl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.dl div{margin:5px 0;font-size:.9rem}.metric.hero{background:linear-gradient(135deg,#8b5cf6,#4c1d95);color:#fff}.metric.hero strong{color:#ffe08a;font-size:1.3rem}.pos{color:#7c3aed}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#5b21b6}
+.legend{display:flex;gap:14px;justify-content:center;font-size:.85rem;margin-top:4px}.legend i,.dl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.dl div{margin:5px 0;font-size:.9rem}.metric.hero{background:linear-gradient(135deg,#8b5cf6,#4c1d95);color:#fff}.metric.hero strong{color:#ffe08a;font-size:1.3rem}#invoiceView{position:fixed;inset:0;background:#fff;color:#111;z-index:9999;overflow:auto;padding:16px}#invoiceView table{width:100%;border-collapse:collapse;margin-top:10px}#invoiceView td{border:1px solid #bbb;padding:8px}#invoiceView .tot td{font-weight:bold;background:#f1f1f1}#invoiceView .row2{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:.9rem}@media print{body>*:not(#invoiceView){display:none!important}#invoiceView{position:static;overflow:visible;padding:0}.noprint{display:none!important}}.pos{color:#7c3aed}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#5b21b6}
 table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:right;padding:9px;border-bottom:1px solid #ece4fb;vertical-align:top}th{background:#f6f2fe}
 .tablewrap{overflow-x:auto}.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.metric{background:#f6f1fe;padding:12px;border-radius:10px}.metric strong{display:block;font-size:1.1rem;margin-top:6px;overflow-wrap:anywhere}
 .inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.warn{background:#fff6e6;border:1px solid #efd7a6;padding:12px;border-radius:10px;line-height:1.8;font-size:.88rem}
@@ -39,11 +39,12 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div><label for="url">Project URL</label><input id="url" placeholder="https://....supabase.co" autocomplete="url"></div>
 <div><label for="key">Publishable / anon key</label><input id="key" placeholder="sb_publishable_... یا کلید anon" autocomplete="off"></div>
 <div><label for="email">ایمیل حساب</label><input id="email" type="email" autocomplete="username"></div>
-<div><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"></div>
+<div><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"><label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="showPw" style="width:auto;margin:0"> نمایش رمز</label></div>
 </div>
 <div class="inline"><button id="saveConfig" class="secondary">ذخیره تنظیمات</button><button id="login">ورود به دفتر حساب</button></div>
-<div class="inline"><button id="signup" class="secondary">ساخت حساب (در صورت نیاز)</button></div>
+<div class="inline"><button id="signup" class="secondary">ساخت حساب (در صورت نیاز)</button><button id="forgot" class="secondary">فراموشی رمز عبور</button></div>
 <div id="authStatus" class="status" role="status">هنوز وارد نشده‌اید.</div>
+<div id="recoveryBox" class="hidden"><h2>تعیین رمز جدید</h2><label for="newPw">رمز جدید</label><input id="newPw" type="password" autocomplete="new-password"><label for="newPw2">تکرار رمز جدید</label><input id="newPw2" type="password" autocomplete="new-password"><button id="savePw">ذخیره رمز جدید</button></div>
 <p class="muted">این نسخه برای استفاده شخصی طراحی شده است. پس از ورود، هر ردیف جدید با شناسه حساب شما ثبت می‌شود.</p>
 </div>
 <div id="app" class="hidden">
@@ -60,7 +61,7 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <button data-tab="reportTab">گزارش مانده</button>
 <button data-tab="historyTab">گردش حساب</button>
 </div>
-<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:#f6f1fe;border-radius:10px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم)</b><button id="refreshMarket" class="secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem">بروزرسانی</button></div><div id="marketPrices" style="font-size:1.3rem;font-weight:bold;margin-top:8px">—</div><div id="marketUpdated" class="muted"></div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div></section>
+<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:#f6f1fe;border-radius:10px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم)</b><button id="refreshMarket" class="secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem">بروزرسانی</button></div><div id="marketPrices" style="font-size:1.3rem;font-weight:bold;margin-top:8px">—</div><div id="marketUpdated" class="muted"></div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div><h2>پشتیبان‌گیری</h2><label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="bkAuto" checked style="width:auto;margin:0"> ذخیره خودکار نسخه پشتیبان در پوشه Downloads گوشی</label><div class="inline"><button id="bkNow">پشتیبان‌گیری الان</button><button id="bkRestore" class="secondary">بازیابی از فایل</button></div><input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="muted" id="bkInfo"></div></section>
 <section id="customerTab" class="tab card hidden">
 <h2 id="cFormTitle">ثبت مشتری</h2>
 <div class="grid">
@@ -152,7 +153,11 @@ function setupClient(){
 function needClient(){ if(!client) setupClient(); return client; }
 function msg(e){return e?.message || String(e || 'خطای نامشخص');}
 $('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
-$('login').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await onSignedIn(data.user, true)}catch(e){say('authStatus','ورود انجام نشد: '+msg(e))}};
+$('login').onclick=async()=>{try{const c=setupClient();const em=$('email').value.trim().toLowerCase(),pw=$('password').value;
+ const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+ let r=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error)break;if(!/invalid login/i.test(msg(r.error)))break;}
+ if(r.error)throw r.error;await onSignedIn(r.data.user,true)}catch(e){let h='';try{h=' (پروژه: '+new URL($('url').value.trim()).host+')'}catch(_){}say('authStatus','ورود انجام نشد: '+msg(e)+h)}};
+$('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'password'};
 $('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
 $('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -162,7 +167,7 @@ const newTmp=()=>-(Date.now()*1000+(tmpSeq++%1000));
 const isNet=e=>!navigator.onLine||/failed to fetch|networkerror|load failed|network request|fetch/i.test(msg(e));
 const pend=c=>queue.some(o=>(o.k==='cInsert'&&o.tmp===c.id)||o.id===c.id)?' <span class="badge">⏳</span>':'';
 const pendT=t=>queue.some(o=>(o.k==='tInsert'&&o.tmp===t.id)||(o.k==='tUpdate'&&o.tid===t.id))?' <span class="badge">⏳</span>':'';
-function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify({customers,transactions,entries,queue}))}catch(e){say('appStatus','هشدار: حافظه دستگاه پر است و ذخیره محلی انجام نشد.')}}
+function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify({customers,transactions,entries,queue}))}catch(e){say('appStatus','هشدار: حافظه دستگاه پر است و ذخیره محلی انجام نشد.')}scheduleBackup();}
 function loadCache(){try{const d=JSON.parse(localStorage.getItem(cacheKey())||'{}');customers=d.customers||[];transactions=d.transactions||[];entries=d.entries||[];queue=d.queue||[]}catch(e){customers=[];transactions=[];entries=[];queue=[]}}
 function updateNet(){const n=queue.length,off=!client||!navigator.onLine;let t=off?'آفلاین — تغییرات روی همین دستگاه ذخیره می‌شود و پس از اتصال همگام می‌شود.':n?'متصل؛ '+n+' تغییر هنوز همگام نشده است.':'متصل و همگام؛ '+customers.length+' مشتری و '+transactions.length+' تراکنش.';if(off&&n)t+=' ('+n+' مورد در انتظار)';if(syncErr)t+=' خطای همگام‌سازی: '+syncErr;say('netStatus',t);}
 function renderAll(){const a=$('tCustomer').value,h=$('historyCustomer').value,r=$('rCustomer').value;renderCustomers();renderCustomerOptions();$('rCustomer').value=r;$('tCustomer').value=a;$('historyCustomer').value=h;renderReport();renderHistory();renderDash();renderCash();updateNet();}
@@ -320,7 +325,8 @@ $('addTransaction').onclick=()=>{try{
 let editingTx=null,pendingTx=null;
 function resetTx(){editingTx=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='ثبت تراکنش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
 $('cancelTx').onclick=resetTx;
-$('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],button[data-tdel]');if(!b)return;const id=b.dataset.tedit||b.dataset.tdel;const t=transactions.find(x=>String(x.id)===String(id));if(!t)return;
+$('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],button[data-tdel],button[data-tinv]');if(!b)return;const id=b.dataset.tedit||b.dataset.tdel||b.dataset.tinv;const t=transactions.find(x=>String(x.id)===String(id));if(!t)return;
+ if(b.dataset.tinv){showInvoice(t);return;}
  if(b.dataset.tedit){editingTx=t.id;const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');updateGold();document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;}
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
@@ -344,6 +350,33 @@ try{const d=JSON.parse(localStorage.getItem('goldPct')||'{}');$('gVat').value=d.
 PRC.forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.t=1}));
 window.addEventListener('goldrate',()=>{fillGoldPrice();renderGold()});
 updateGold();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+const enD=x=>String(x||'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٬/g,'').replace(/٫/g,'.');
+function parseSale(d){const m=enD(d).match(/قیمت هر گرم\s*([\d.]+)\s*\|\s*اجرت\s*([\d.]+)٪\s*\|\s*سود\s*([\d.]+)٪\s*\|\s*مالیات\s*([\d.]+)٪\s*\|\s*مبلغ نهایی\s*([\d.]+)/);return m?{pr:+m[1],wg:+m[2],pf:+m[3],vat:+m[4],pay:/اقساطی/.test(d)?'اقساطی':/نقدی/.test(d)?'نقدی':''}:null}
+function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Customer_id))||{};const sale=t.Is_money===false&&t.Type==='Give'?parseSale(t.Description):null;let rows,total='';
+ if(sale){const w=Number(t.Amount),base=Math.round(w*sale.pr),wage=Math.round(base*sale.wg/100),pf=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+pf)*sale.vat/100);
+  rows=`<tr><td>طلا — ${fmt(w)} گرم × ${fmt(sale.pr)}</td><td>${fmt(base)}</td></tr><tr><td>اجرت (${fmt(sale.wg)}٪)</td><td>${fmt(wage)}</td></tr><tr><td>سود (${fmt(sale.pf)}٪)</td><td>${fmt(pf)}</td></tr><tr><td>مالیات بر ارزش افزوده (${fmt(sale.vat)}٪)</td><td>${fmt(tax)}</td></tr><tr class="tot"><td>مبلغ نهایی (تومان)</td><td>${fmt(base+wage+pf+tax)}</td></tr>`;
+  total='<div class="row2"><span>نحوه پرداخت: '+(sale.pay||'—')+'</span>'+(sale.pay==='اقساطی'?'<span>مانده بدهی طلای مشتری: '+fmt(goldBal(t.Customer_id))+' گرم</span>':'')+'</div>';}
+ else rows=`<tr><td>${t.Type==='Give'?'دادم':'گرفتم'} — ${t.Is_money===false?'طلا':'پول'}</td><td>${fmt(t.Amount)}${t.Is_money===false?' گرم':' تومان'}</td></tr>`+(t.Description?`<tr><td colspan="2">${esc(t.Description)}</td></tr>`:'');
+ const old=document.getElementById('invoiceView');if(old)old.remove();
+ const v=document.createElement('div');v.id='invoiceView';
+ v.innerHTML=`<div class="noprint" style="display:flex;gap:8px;margin-bottom:10px"><button id="invPrint">چاپ / ذخیره PDF</button><button id="invClose" class="secondary">بستن</button></div><h2 style="margin:0">گالری طلای نبات</h2><div>${sale?'فاکتور فروش طلا':'رسید تراکنش'}</div><div class="row2"><span>تاریخ: ${esc(new Date(t.Time).toLocaleString('fa-IR'))}</span><span>شماره: ${t.id>0?t.id:'—'}</span></div><div class="row2"><span>مشتری: ${esc(c.Name||t.Name||'')}</span><span>${esc(c.Phone||'')}</span></div><table>${rows}</table>${total}<div class="row2" style="margin-top:40px"><span>امضای فروشنده</span><span>امضای خریدار</span></div>`;
+ document.body.appendChild(v);document.getElementById('invClose').onclick=()=>v.remove();document.getElementById('invPrint').onclick=()=>window.print();}
+let bkTimer=null,lastBk=Number(localStorage.getItem('bkLast')||0),lastSig='',pendingRestore=null;
+$('bkAuto').checked=localStorage.getItem('bkAuto')!=='0';$('bkAuto').onchange=()=>{try{localStorage.setItem('bkAuto',$('bkAuto').checked?'1':'0')}catch(e){}};
+function bkDownload(){if(!currentUser)return;const o={app:'nabat',v:1,userId:currentUser.id,email:currentUser.email,savedAt:Date.now(),customers:customers,transactions:transactions,entries:entries,queue:queue};lastSig=JSON.stringify([customers,transactions,entries,queue]);
+ const d=new Date(),n='nabat-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+ lastBk=Date.now();try{localStorage.setItem('bkLast',String(lastBk))}catch(e){}$('bkInfo').textContent='آخرین پشتیبان: '+d.toLocaleString('fa-IR')+' (فایل '+n+' در Downloads)';}
+function scheduleBackup(){if(!currentUser||!$('bkAuto').checked)return;if(JSON.stringify([customers,transactions,entries,queue])===lastSig)return;clearTimeout(bkTimer);bkTimer=setTimeout(bkDownload,Math.max(20000,120000-(Date.now()-lastBk)));}
+$('bkNow').onclick=bkDownload;
+$('bkFile').onchange=async()=>{const f=$('bkFile').files[0];$('bkFile').value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d||d.app!=='nabat'||!Array.isArray(d.customers))throw Error('فایل پشتیبان معتبر نیست.');if(!currentUser||d.userId!==currentUser.id)throw Error('این پشتیبان مربوط به حساب دیگری است.');if(queue.length)throw Error('تغییر همگام‌نشده وجود دارد؛ اول همگام‌سازی کن.');
+ pendingRestore=d;$('bkRestore').textContent='تأیید بازیابی';say('bkInfo','پشتیبان '+new Date(d.savedAt).toLocaleString('fa-IR')+' با '+d.customers.length+' مشتری، '+d.transactions.length+' تراکنش و '+(d.queue||[]).length+' تغییر همگام‌نشده. برای تأیید، دکمه «تأیید بازیابی» را بزن.');setTimeout(()=>{pendingRestore=null;$('bkRestore').textContent='بازیابی از فایل'},30000);}catch(e){say('bkInfo','بازیابی ناموفق بود: '+msg(e))}};
+$('bkRestore').onclick=()=>{if(pendingRestore){const d=pendingRestore;pendingRestore=null;$('bkRestore').textContent='بازیابی از فایل';customers=d.customers;transactions=d.transactions;entries=d.entries||[];queue=d.queue||[];persist();renderAll();syncNow();say('bkInfo','بازیابی انجام شد.');}else $('bkFile').click();};
+let recoveryMode=/type=recovery/.test(location.hash);
+function showRecovery(){$('recoveryBox').classList.remove('hidden');say('authStatus','رمز جدید خودت را تعیین کن.')}
+if(recoveryMode)showRecovery();else if(/error_code=/.test(location.hash))say('authStatus','لینک تغییر رمز منقضی یا استفاده‌شده است؛ دوباره «فراموشی رمز عبور» را بزن.');
+$('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال ناموفق بود: '+msg(e))}};
+$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز ناموفق بود: '+msg(e))}};
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
 function signed(t){return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
 function reportFilter(){const from=$('rFrom').value,to=$('rTo').value,cid=$('rCustomer').value,type=$('rType').value;return{cid:cid,ok:t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==cid)return false;if(type&&t.Type!==type)return false;return true}}}
@@ -358,7 +391,7 @@ function renderReport(){
  $('goldTotal').textContent=fmt(rows.reduce((s,r)=>s+r.gold,0));
 }
 function filteredHistory(){const from=$('fromDate').value,to=$('toDate').value,cid=$('historyCustomer').value,asset=$('historyAsset').value;return transactions.filter(t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==String(cid))return false;if(asset==='money'&&t.Is_money!==true)return false;if(asset==='gold'&&t.Is_money!==false)return false;return true;});}
-function renderHistory(){const rows=filteredHistory();$('historyBody').innerHTML=rows.map(t=>`<tr><td>${esc(new Date(t.Time).toLocaleString('fa-IR'))}${pendT(t)}</td><td>${esc(cname(t.Customer_id))}</td><td>${t.Type==='Give'?'دادم':'گرفتم'}</td><td>${t.Is_money===true?'پول':t.Is_money===false?'طلا':'نامشخص'}</td><td>${fmt(t.Amount)}</td><td>${esc(t.Description||'—')}</td><td class="actions"><button class="rowbtn secondary" data-tedit="${t.id}">ویرایش</button><button class="rowbtn danger" data-tdel="${t.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">تراکنشی پیدا نشد.</td></tr>';}
+function renderHistory(){const rows=filteredHistory();$('historyBody').innerHTML=rows.map(t=>`<tr><td>${esc(new Date(t.Time).toLocaleString('fa-IR'))}${pendT(t)}</td><td>${esc(cname(t.Customer_id))}</td><td>${t.Type==='Give'?'دادم':'گرفتم'}</td><td>${t.Is_money===true?'پول':t.Is_money===false?'طلا':'نامشخص'}</td><td>${fmt(t.Amount)}</td><td>${esc(t.Description||'—')}</td><td class="actions"><button class="rowbtn secondary" data-tedit="${t.id}">ویرایش</button><button class="rowbtn secondary" data-tinv="${t.id}">فاکتور</button><button class="rowbtn danger" data-tdel="${t.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">تراکنشی پیدا نشد.</td></tr>';}
 $('filterHistory').onclick=renderHistory;
 function downloadCSV(filename,rows){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
 $('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','مانده طلا'],...Array.from($('reportBody').rows).map(r=>Array.from(r.cells).map(c=>c.textContent))];downloadCSV('customer-balances.csv',rows)};
@@ -446,11 +479,12 @@ window.addEventListener('online',async()=>{
  if(ok){
    try{
      const r=await client.auth.getSession();
-     if(r.data&&r.data.session)await onSignedIn(r.data.session.user, true);
+     if(recoveryMode)showRecovery();
+     else if(r.data&&r.data.session)await onSignedIn(r.data.session.user, true);
      else if(cachedUser())await onSignedIn(cachedUser(), true);
    }catch(e){if(cachedUser())await onSignedIn(cachedUser(), true);}
    client.auth.onAuthStateChange((_e,session)=>{
-     if(session && (!currentUser || currentUser.id!==session.user.id)){
+     if(!recoveryMode&&session && (!currentUser || currentUser.id!==session.user.id)){
        onSignedIn(session.user, true).catch(e=>say('authStatus',msg(e)));
      }
    });
