@@ -56,7 +56,7 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div class="tabs">
 <button class="active" data-tab="dashboardTab">داشبورد</button>
 <button data-tab="customerTab">مشتری‌ها</button>
-<button data-tab="transactionTab">ثبت تراکنش</button>
+<button data-tab="transactionTab">خرید و فروش</button>
 <button data-tab="cashTab">درآمد و هزینه</button>
 <button data-tab="reportTab">گزارش مانده</button>
 <button data-tab="historyTab">گردش حساب</button>
@@ -74,15 +74,16 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div class="tablewrap"><table><thead><tr><th>نام</th><th>تلفن</th><th>نشانی</th><th>عملیات</th></tr></thead><tbody id="customersBody"></tbody></table></div>
 </section>
 <section id="transactionTab" class="tab card hidden">
-<h2 id="tFormTitle">ثبت تراکنش</h2>
+<h2 id="tFormTitle">خرید و فروش</h2>
+<label for="tOp">نوع عملیات</label><select id="tOp"><option value="sell">فروش طلا</option><option value="buy">خرید طلا</option><option value="pay">دریافت قسط (پول ← طلا)</option><option value="manual">تراکنش دستی (دادم / گرفتم)</option></select>
 <div class="grid">
-<div><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select></div>
-<div><label for="tType">نوع تراکنش *</label><select id="tType"><option value="Give">دادم (Give)</option><option value="Receive">گرفتم (Receive)</option></select></div>
-<div><label for="tAsset">نوع دارایی *</label><select id="tAsset"><option value="money">پول</option><option value="gold">طلا</option></select></div>
+<div id="fCust"><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select></div>
+<div id="fType" class="hidden"><label for="tType">نوع تراکنش *</label><select id="tType"><option value="Give">دادم (Give)</option><option value="Receive">گرفتم (Receive)</option></select></div>
+<div id="fAsset" class="hidden"><label for="tAsset">نوع دارایی *</label><select id="tAsset"><option value="money">پول</option><option value="gold">طلا</option></select></div>
 <div><label for="tAmount">مبلغ / وزن *</label><input id="tAmount" type="number" min="0.000001" step="any" inputmode="decimal" placeholder="مثلاً 2500000 یا 1.25"></div>
 <div><label for="tTime">تاریخ و ساعت</label><input id="tTime" type="datetime-local"></div>
 <div><label for="tDesc">توضیحات</label><input id="tDesc" placeholder="شرح تراکنش"></div>
-</div><p class="muted">مانده مثبت یعنی مشتری به شما بدهکار است؛ «دادم» مانده را زیاد و «گرفتم» مانده را کم می‌کند. واحد پول/وزن را در یادداشت مشخص کنید.</p>
+</div><p class="muted" id="opHint"></p>
 <div id="goldBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 محاسبه فروش طلا</b><div class="muted">وزن طلا (گرم) را در فیلد «مبلغ / وزن» بالا وارد کن.</div>
 <div class="grid" style="margin-top:8px"><div><label for="gPrice">قیمت هر گرم طلا (تومان)</label><input id="gPrice" type="number" inputmode="decimal" min="0" step="any"></div>
 <div><label for="gWage">درصد اجرت</label><input id="gWage" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
@@ -91,7 +92,7 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div class="muted" id="gBreak" style="margin-top:8px"></div>
 <label for="gFinal" style="margin-top:8px">مبلغ نهایی (تومان)</label><input id="gFinal" readonly>
 <div class="muted">مبلغ نهایی (با مالیات) کلاً به‌عنوان درآمد ثبت می‌شود. در حالت اقساطی، بدهی مشتری به‌صورت وزن طلا می‌ماند.</div></div>
-<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="bBuy" checked style="width:auto;margin:0"> ثبت به‌عنوان خرید (هزینه)</label><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="number" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div></div>
+<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">خرید کلاً به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="number" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div></div>
 <div id="payBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>💳 پرداخت قسط</b><label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="pInst" checked style="width:auto;margin:0"> تبدیل پول به طلا و کم کردن از بدهی طلا</label><div class="grid"><div><label for="pPrice">قیمت هر گرم طلا (تومان)</label><input id="pPrice" type="number" inputmode="decimal" min="0" step="any"></div><div><label for="pGrams">معادل طلا (گرم)</label><input id="pGrams" readonly></div></div><div class="muted" id="pInfo"></div></div>
 <button id="addTransaction">ثبت تراکنش</button><button id="cancelTx" class="secondary hidden">انصراف از ویرایش</button>
 </section>
@@ -291,16 +292,16 @@ $('addTransaction').onclick=()=>{try{
  if(!currentUser)throw Error('ابتدا وارد شوید.');
  const customerId=$('tCustomer').value;
  const amount=Number($('tAmount').value);
- if(!customerId)throw Error('مشتری را انتخاب کنید.');
+ if(!customerId&&txMode()!=='buy')throw Error('مشتری را انتخاب کنید.');
  if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
  const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
  if(type!=='Give'&&type!=='Receive')throw Error('نوع تراکنش نامعتبر است.');
  let gc=null,descText=$('tDesc').value.trim()||null;
- const md=txMode(),pr=Number($(md==='buy'?'bPrice':md==='pay'?'pPrice':'gPrice').value)||0,cn=customer?customer.Name:'';let extra=null,asGold=null;
+ const md=txMode(),pr=Number($(md==='buy'?'bPrice':md==='pay'?'pPrice':'gPrice').value)||0,cn=md==='buy'?$('bSeller').value.trim():(customer?customer.Name:'');let extra=null,asGold=null;
  if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | '+($('gPay').value==='cash'?'نقدی':'اقساطی')].filter(Boolean).join(' | ');}
- else if(md==='buy'&&$('bBuy').checked){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr);extra={kind:'Expense',cat:'خرید طلا',amt:tot,desc:'خرید طلا از '+cn+' — '+fmt(amount)+' گرم'};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)].filter(Boolean).join(' | ');}
+ else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr);extra={kind:'Expense',cat:'خرید طلا',amt:tot,desc:'خرید طلا'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)].filter(Boolean).join(' | ');}
  else if(md==='pay'&&$('pInst').checked){if(!(pr>0))throw Error('قیمت طلا را وارد کنید.');asGold=Math.round(amount/pr*1000)/1000;descText=[descText,'پرداخت قسط '+fmt(amount)+' تومان به قیمت هر گرم '+fmt(pr)+' = '+fmt(asGold)+' گرم طلا'].filter(Boolean).join(' | ');}
  const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:descText,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
  if(editingTx!==null){const t=transactions.find(x=>String(x.id)===String(editingTx));if(!t)throw Error('تراکنش پیدا نشد.');
@@ -309,9 +310,9 @@ $('addTransaction').onclick=()=>{try{
   const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===t.id);
   if(ins)Object.assign(ins.row,f);else{const u=queue.find(o=>o.k==='tUpdate'&&o.tid===t.id);if(u)Object.assign(u.fields,f);else queue.push({k:'tUpdate',tid:t.id,fields:f});}
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));resetTx();say('appStatus','ویرایش تراکنش ذخیره شد.');afterChange();return;}
- const mk=rw=>{const id=newTmp();transactions.push(Object.assign({id:id},rw));queue.push({k:'tInsert',tmp:id,row:rw});};
+ const mk=rw=>{const id=newTmp();const o=Object.assign({id:id},rw);transactions.push(o);queue.push({k:'tInsert',tmp:id,row:rw});return o;};
  if(asGold!==null){row.Amount=asGold;row.Is_money=false;}
- mk(row);
+ const saved=md==='buy'?null:mk(row);
  const cash=gc&&$('gPay').value==='cash';
  if(cash)mk(Object.assign({},row,{Type:'Receive',Description:'پرداخت نقدی '+fmt(gc.final)+' تومان — تسویه فروش'}));
  if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.final,desc:'فروش طلا ('+($('gPay').value==='cash'?'نقدی':'اقساطی')+') به '+cn+' — '+fmt(gc.w)+' گرم'};
@@ -319,21 +320,21 @@ $('addTransaction').onclick=()=>{try{
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  if(gc){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value}))}catch(e){}}
  PRC.forEach(i=>{delete $(i).dataset.t});
- $('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();updateGold();
- say('appStatus',gc?(cash?'فروش نقدی ثبت شد':'فروش اقساطی ثبت شد')+' و '+fmt(gc.final)+' به درآمد اضافه شد.':extra?'تراکنش ثبت شد و '+fmt(extra.amt)+' به '+(extra.kind==='Expense'?'هزینه':'درآمد')+' اضافه شد.':asGold!==null?'قسط ثبت شد: '+fmt(asGold)+' گرم از بدهی طلا کم شد.':'تراکنش ثبت شد.');afterChange();
+ $('tAmount').value='';$('tDesc').value='';$('bSeller').value='';$('tTime').value=localDateTime();updateGold();
+ say('appStatus',gc?(cash?'فروش نقدی ثبت شد':'فروش اقساطی ثبت شد')+' و '+fmt(gc.final)+' به درآمد اضافه شد.':extra?'تراکنش ثبت شد و '+fmt(extra.amt)+' به '+(extra.kind==='Expense'?'هزینه':'درآمد')+' اضافه شد.':asGold!==null?'قسط ثبت شد: '+fmt(asGold)+' گرم از بدهی طلا کم شد.':'تراکنش ثبت شد.');afterChange();if(gc&&saved)showInvoice(saved);
 }catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
 let editingTx=null,pendingTx=null;
-function resetTx(){editingTx=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='ثبت تراکنش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
+function resetTx(){editingTx=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='خرید و فروش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
 $('cancelTx').onclick=resetTx;
 $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],button[data-tdel],button[data-tinv]');if(!b)return;const id=b.dataset.tedit||b.dataset.tdel||b.dataset.tinv;const t=transactions.find(x=>String(x.id)===String(id));if(!t)return;
  if(b.dataset.tinv){showInvoice(t);return;}
- if(b.dataset.tedit){editingTx=t.id;const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');updateGold();document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;}
+ if(b.dataset.tedit){editingTx=t.id;$('tOp').value='manual';const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');updateGold();document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;}
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
  transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد.');afterChange();};
 const PRC=['gPrice','bPrice','pPrice'];
-const txMode=()=>{if(editingTx!==null)return'';const a=$('tAsset').value,t=$('tType').value;return a==='gold'?(t==='Give'?'sell':'buy'):(t==='Receive'?'pay':'')};
+const txMode=()=>{if(editingTx!==null)return'';const o=$('tOp').value;return o==='manual'?'':o};
 function goldCalc(){const n=i=>Number($(i).value)||0,w=n('tAmount'),pr=n('gPrice'),wg=n('gWage'),pf=n('gProfit'),vat=n('gVat');
  const base=Math.round(w*pr),wage=Math.round(base*wg/100),profit=Math.round((base+wage)*pf/100),tax=Math.round((wage+profit)*vat/100);
  return{w:w,pr:pr,wg:wg,pf:pf,vat:vat,base:base,wage:wage,profit:profit,tax:tax,final:base+wage+profit+tax}}
@@ -343,9 +344,13 @@ function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gBrea
  const pp=Number($('pPrice').value)||0,gr=pp>0?Math.round(w/pp*1000)/1000:0,bal=goldBal($('tCustomer').value);
  $('pGrams').value=fmt(gr);$('pInfo').textContent='بدهی طلای مشتری: '+fmt(bal)+' گرم ← پس از پرداخت: '+fmt(Math.round((bal-gr)*1000)/1000)+' گرم';}
 function fillGoldPrice(){let r=null;try{r=JSON.parse(localStorage.getItem('goldRate18')||'null')}catch(e){}if(r&&r.price)PRC.forEach(i=>{if(!$(i).dataset.t)$(i).value=Math.round(r.price)})}
-function updateGold(){const m=txMode();$('goldBox').classList.toggle('hidden',m!=='sell');$('buyBox').classList.toggle('hidden',m!=='buy');$('payBox').classList.toggle('hidden',m!=='pay');if(m){fillGoldPrice();renderGold()}}
+function updateGold(){const o=$('tOp').value;if(o==='sell'){$('tAsset').value='gold';$('tType').value='Give'}else if(o==='buy'){$('tAsset').value='gold';$('tType').value='Receive'}else if(o==='pay'){$('tAsset').value='money';$('tType').value='Receive'}
+ const m=txMode();$('fCust').classList.toggle('hidden',m==='buy');$('fType').classList.toggle('hidden',o!=='manual');$('fAsset').classList.toggle('hidden',o!=='manual');
+ document.querySelector('label[for="tAmount"]').textContent=m==='pay'?'مبلغ پرداختی (تومان) *':(m==='sell'||m==='buy')?'وزن طلا (گرم) *':'مبلغ / وزن *';
+ $('opHint').textContent=m==='sell'?'فروش طلا به مشتری؛ بعد از ثبت، فاکتور صادر می‌شود.':m==='buy'?'خرید طلا؛ مبلغ کل به‌عنوان هزینه ثبت می‌شود.':m==='pay'?'پولی که مشتری می‌دهد بر حسب طلا حساب و از بدهی طلایش کم می‌شود.':'مانده مثبت یعنی مشتری بدهکار است؛ «دادم» مانده را زیاد و «گرفتم» کم می‌کند.';
+ $('goldBox').classList.toggle('hidden',m!=='sell');$('buyBox').classList.toggle('hidden',m!=='buy');$('payBox').classList.toggle('hidden',m!=='pay');if(m){fillGoldPrice();renderGold()}}
 try{const d=JSON.parse(localStorage.getItem('goldPct')||'{}');$('gVat').value=d.vat||'';$('gWage').value=d.wg||'';$('gProfit').value=d.pf||''}catch(e){}
-['tAsset','tType','tCustomer'].forEach(i=>$(i).addEventListener('change',updateGold));
+['tOp','tAsset','tType','tCustomer'].forEach(i=>$(i).addEventListener('change',updateGold));
 ['tAmount','gPrice','gWage','gProfit','gVat','bPrice','pPrice'].forEach(i=>$(i).addEventListener('input',renderGold));
 PRC.forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.t=1}));
 window.addEventListener('goldrate',()=>{fillGoldPrice();renderGold()});
