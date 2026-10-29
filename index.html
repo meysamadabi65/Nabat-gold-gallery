@@ -88,8 +88,8 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div class="grid" style="margin-top:8px"><div><label for="gPrice">قیمت هر گرم طلا (تومان)</label><input id="gPrice" type="number" inputmode="decimal" min="0" step="any"></div>
 <div><label for="gWage">درصد اجرت</label><input id="gWage" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
 <div><label for="gProfit">درصد سود</label><input id="gProfit" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
-<div><label for="gVat">درصد مالیات بر ارزش افزوده</label><input id="gVat" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div><div><label for="gPay">نحوه پرداخت</label><select id="gPay"><option value="cash">نقدی</option><option value="inst">اقساطی</option></select></div></div>
-<div class="muted" id="gBreak" style="margin-top:8px"></div>
+<div><label for="gVat">درصد مالیات بر ارزش افزوده</label><input id="gVat" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div><div><label for="gPaid">مبلغ پرداختی (تومان)</label><input id="gPaid" type="number" inputmode="decimal" min="0" step="any"></div></div>
+<div class="muted" id="gBreak" style="margin-top:8px"></div><div class="muted" id="gRest" style="margin-top:4px;font-weight:bold"></div>
 <label for="gFinal" style="margin-top:8px">مبلغ نهایی (تومان)</label><input id="gFinal" readonly>
 <div class="muted">مبلغ نهایی (با مالیات) کلاً به‌عنوان درآمد ثبت می‌شود. در حالت اقساطی، بدهی مشتری به‌صورت وزن طلا می‌ماند.</div></div>
 <div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">خرید کلاً به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="number" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div></div>
@@ -214,7 +214,7 @@ async function flush(){
 async function pull(){
  const [cr,tr,er]=await Promise.all([
    client.from('Customer').select('id,Name,Phone,Address,user_id').order('Name'),
-   client.from('Transaction').select('id,Time,Amount,Is_money,Name,Description,Customer_id,Type,user_id').order('Time',{ascending:false}),
+   client.from('Transaction').select('id,Time,Amount,Is_money,Name,Description,Customer_id,Type,user_id,Settled').order('Time',{ascending:false}),
    client.from('Cashflow').select('id,Time,Kind,Category,Amount,Description,user_id').order('Time',{ascending:false})
  ]);
  if(cr.error)throw cr.error;
@@ -298,9 +298,9 @@ $('addTransaction').onclick=()=>{try{
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
  if(type!=='Give'&&type!=='Receive')throw Error('نوع تراکنش نامعتبر است.');
- let gc=null,descText=$('tDesc').value.trim()||null;
+ let gc=null,restG=0,restT=0,descText=$('tDesc').value.trim()||null;
  const md=txMode(),pr=Number($(md==='buy'?'bPrice':md==='pay'?'pPrice':'gPrice').value)||0,cn=md==='buy'?$('bSeller').value.trim():(customer?customer.Name:'');let extra=null,asGold=null;
- if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | '+($('gPay').value==='cash'?'نقدی':'اقساطی')].filter(Boolean).join(' | ');}
+ if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');const paidA=Number($('gPaid').value)||0;if(paidA>gc.final)throw Error('مبلغ پرداختی از مبلغ نهایی بیشتر است.');restT=gc.final-paidA;restG=Math.round(restT/gc.pr*1000)/1000;descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی (باقی‌مانده '+fmt(restT)+' = '+fmt(restG)+' گرم)':'نقدی')].filter(Boolean).join(' | ');}
  else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr);extra={kind:'Expense',cat:'خرید طلا',amt:tot,desc:'خرید طلا'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)].filter(Boolean).join(' | ');}
  else if(md==='pay'&&$('pInst').checked){if(!(pr>0))throw Error('قیمت طلا را وارد کنید.');asGold=Math.round(amount/pr*1000)/1000;descText=[descText,'پرداخت قسط '+fmt(amount)+' تومان به قیمت هر گرم '+fmt(pr)+' = '+fmt(asGold)+' گرم طلا'].filter(Boolean).join(' | ');}
  const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:descText,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
@@ -312,16 +312,16 @@ $('addTransaction').onclick=()=>{try{
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));resetTx();say('appStatus','ویرایش تراکنش ذخیره شد.');afterChange();return;}
  const mk=rw=>{const id=newTmp();const o=Object.assign({id:id},rw);transactions.push(o);queue.push({k:'tInsert',tmp:id,row:rw});return o;};
  if(asGold!==null){row.Amount=asGold;row.Is_money=false;}
+ if(gc)row.Settled=true;
  const saved=md==='buy'?null:mk(row);
- const cash=gc&&$('gPay').value==='cash';
- if(cash)mk(Object.assign({},row,{Type:'Receive',Description:'پرداخت نقدی '+fmt(gc.final)+' تومان — تسویه فروش'}));
- if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.final,desc:'فروش طلا ('+($('gPay').value==='cash'?'نقدی':'اقساطی')+') به '+cn+' — '+fmt(gc.w)+' گرم'};
+ if(gc&&restG>0)mk(Object.assign({},row,{Amount:restG,Settled:false,Description:'مانده بدهی فروش: '+fmt(restT)+' تومان به قیمت هر گرم '+fmt(gc.pr)+' = '+fmt(restG)+' گرم طلا'}));
+ if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.final,desc:'فروش طلا ('+(restG>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم'};
  if(extra&&extra.amt>0){const eid=newTmp();const er={Time:dt,Kind:extra.kind,Category:extra.cat,Amount:extra.amt,Description:extra.desc,user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  if(gc){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value}))}catch(e){}}
- PRC.forEach(i=>{delete $(i).dataset.t});
+ PRC.forEach(i=>{delete $(i).dataset.t});delete $('gPaid').dataset.t;
  $('tAmount').value='';$('tDesc').value='';$('bSeller').value='';$('tTime').value=localDateTime();updateGold();
- say('appStatus',gc?(cash?'فروش نقدی ثبت شد':'فروش اقساطی ثبت شد')+' و '+fmt(gc.final)+' به درآمد اضافه شد.':extra?'تراکنش ثبت شد و '+fmt(extra.amt)+' به '+(extra.kind==='Expense'?'هزینه':'درآمد')+' اضافه شد.':asGold!==null?'قسط ثبت شد: '+fmt(asGold)+' گرم از بدهی طلا کم شد.':'تراکنش ثبت شد.');afterChange();if(gc&&saved){lastSale=saved;$('lastInvoice').classList.remove('hidden');try{showInvoice(saved)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e)+' — دکمه «نمایش فاکتور آخرین فروش» را بزن.')}}
+ say('appStatus',gc?(restG<=0?'فروش نقدی ثبت شد':'فروش اقساطی ثبت شد')+' و '+fmt(gc.final)+' به درآمد اضافه شد.':extra?'تراکنش ثبت شد و '+fmt(extra.amt)+' به '+(extra.kind==='Expense'?'هزینه':'درآمد')+' اضافه شد.':asGold!==null?'قسط ثبت شد: '+fmt(asGold)+' گرم از بدهی طلا کم شد.':'تراکنش ثبت شد.');afterChange();if(gc&&saved){lastSale=saved;$('lastInvoice').classList.remove('hidden');try{showInvoice(saved)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e)+' — دکمه «نمایش فاکتور آخرین فروش» را بزن.')}}
 }catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
 let editingTx=null,pendingTx=null;
 function resetTx(){editingTx=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='خرید و فروش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
@@ -339,7 +339,7 @@ function goldCalc(){const n=i=>Number($(i).value)||0,w=n('tAmount'),pr=n('gPrice
  const base=Math.round(w*pr),wage=Math.round(base*wg/100),profit=Math.round((base+wage)*pf/100),tax=Math.round((wage+profit)*vat/100);
  return{w:w,pr:pr,wg:wg,pf:pf,vat:vat,base:base,wage:wage,profit:profit,tax:tax,final:base+wage+profit+tax}}
 function goldBal(id){let g=0;for(const t of transactions)if(String(t.Customer_id)===String(id)&&t.Is_money===false)g+=signed(t);return Math.round(g*1000)/1000}
-function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);
+function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);if(!$('gPaid').dataset.t)$('gPaid').value=c.final;{const paid=Number($('gPaid').value)||0,rest=Math.max(0,c.final-paid);$('gRest').textContent=paid>c.final?'پرداختی از مبلغ نهایی بیشتر است':rest>0?'باقی‌مانده '+fmt(rest)+' تومان ← '+fmt(c.pr>0?Math.round(rest/c.pr*1000)/1000:0)+' گرم طلا بدهکار':'تسویه کامل (بدون بدهی)';}$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);
  const w=Number($('tAmount').value)||0;$('bTotal').value=fmt(Math.round(w*(Number($('bPrice').value)||0)));
  const pp=Number($('pPrice').value)||0,gr=pp>0?Math.round(w/pp*1000)/1000:0,bal=goldBal($('tCustomer').value);
  $('pGrams').value=fmt(gr);$('pInfo').textContent='بدهی طلای مشتری: '+fmt(bal)+' گرم ← پس از پرداخت: '+fmt(Math.round((bal-gr)*1000)/1000)+' گرم';}
@@ -353,14 +353,15 @@ try{const d=JSON.parse(localStorage.getItem('goldPct')||'{}');$('gVat').value=d.
 ['tOp','tAsset','tType','tCustomer'].forEach(i=>$(i).addEventListener('change',updateGold));
 ['tAmount','gPrice','gWage','gProfit','gVat','bPrice','pPrice'].forEach(i=>$(i).addEventListener('input',renderGold));
 PRC.forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.t=1}));
+$('gPaid').addEventListener('input',()=>{$('gPaid').dataset.t=1;renderGold()});
 window.addEventListener('goldrate',()=>{fillGoldPrice();renderGold()});
 updateGold();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 const enD=x=>String(x||'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٬/g,'').replace(/٫/g,'.');
-function parseSale(d){const m=enD(d).match(/قیمت هر گرم\s*([\d.]+)\s*\|\s*اجرت\s*([\d.]+)٪\s*\|\s*سود\s*([\d.]+)٪\s*\|\s*مالیات\s*([\d.]+)٪\s*\|\s*مبلغ نهایی\s*([\d.]+)/);return m?{pr:+m[1],wg:+m[2],pf:+m[3],vat:+m[4],pay:/اقساطی/.test(d)?'اقساطی':/نقدی/.test(d)?'نقدی':''}:null}
+function parseSale(d){const m=enD(d).match(/قیمت هر گرم\s*([\d.]+)\s*\|\s*اجرت\s*([\d.]+)٪\s*\|\s*سود\s*([\d.]+)٪\s*\|\s*مالیات\s*([\d.]+)٪\s*\|\s*مبلغ نهایی\s*([\d.]+)/);const pm=enD(d).match(/پرداختی\s*([\d.]+)/);return m?{paid:pm?+pm[1]:null,pr:+m[1],wg:+m[2],pf:+m[3],vat:+m[4],pay:/اقساطی/.test(d)?'اقساطی':/نقدی/.test(d)?'نقدی':''}:null}
 function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Customer_id))||{};const sale=t.Is_money===false&&t.Type==='Give'?parseSale(t.Description):null;let rows,total='';
  if(sale){const w=Number(t.Amount),base=Math.round(w*sale.pr),wage=Math.round(base*sale.wg/100),pf=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+pf)*sale.vat/100);
-  rows=`<tr><td>طلا — ${fmt(w)} گرم × ${fmt(sale.pr)}</td><td>${fmt(base)}</td></tr><tr><td>اجرت (${fmt(sale.wg)}٪)</td><td>${fmt(wage)}</td></tr><tr><td>سود (${fmt(sale.pf)}٪)</td><td>${fmt(pf)}</td></tr><tr><td>مالیات بر ارزش افزوده (${fmt(sale.vat)}٪)</td><td>${fmt(tax)}</td></tr><tr class="tot"><td>مبلغ نهایی (تومان)</td><td>${fmt(base+wage+pf+tax)}</td></tr>`;
+  rows=`<tr><td>طلا — ${fmt(w)} گرم × ${fmt(sale.pr)}</td><td>${fmt(base)}</td></tr><tr><td>اجرت (${fmt(sale.wg)}٪)</td><td>${fmt(wage)}</td></tr><tr><td>سود (${fmt(sale.pf)}٪)</td><td>${fmt(pf)}</td></tr><tr><td>مالیات بر ارزش افزوده (${fmt(sale.vat)}٪)</td><td>${fmt(tax)}</td></tr><tr class="tot"><td>مبلغ نهایی (تومان)</td><td>${fmt(base+wage+pf+tax)}</td></tr>`+(sale.paid!=null?`<tr><td>پرداختی</td><td>${fmt(sale.paid)}</td></tr>`+((base+wage+pf+tax-sale.paid)>0?`<tr class="tot"><td>باقی‌مانده — بدهی طلایی ${fmt(Math.round((base+wage+pf+tax-sale.paid)/sale.pr*1000)/1000)} گرم</td><td>${fmt(base+wage+pf+tax-sale.paid)}</td></tr>`:''):'');
   total='<div class="row2"><span>نحوه پرداخت: '+(sale.pay||'—')+'</span>'+(sale.pay==='اقساطی'?'<span>مانده بدهی طلای مشتری: '+fmt(goldBal(t.Customer_id))+' گرم</span>':'')+'</div>';}
  else rows=`<tr><td>${t.Type==='Give'?'دادم':'گرفتم'} — ${t.Is_money===false?'طلا':'پول'}</td><td>${fmt(t.Amount)}${t.Is_money===false?' گرم':' تومان'}</td></tr>`+(t.Description?`<tr><td colspan="2">${esc(t.Description)}</td></tr>`:'');
  const old=document.getElementById('invoiceView');if(old)old.remove();
@@ -382,7 +383,7 @@ $('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw
 $('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز ناموفق بود: '+msg(e))}};
 let lastSale=null;$('lastInvoice').onclick=()=>{try{if(lastSale)showInvoice(lastSale)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e))}};
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
-function signed(t){return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
+function signed(t){if(t.Settled)return 0;return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
 function reportFilter(){const from=$('rFrom').value,to=$('rTo').value,cid=$('rCustomer').value,type=$('rType').value;return{cid:cid,ok:t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==cid)return false;if(type&&t.Type!==type)return false;return true}}}
 function renderReport(){
  renderProfit();
@@ -395,7 +396,7 @@ function renderReport(){
  $('goldTotal').textContent=fmt(rows.reduce((s,r)=>s+r.gold,0));
 }
 function filteredHistory(){const from=$('fromDate').value,to=$('toDate').value,cid=$('historyCustomer').value,asset=$('historyAsset').value;return transactions.filter(t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==String(cid))return false;if(asset==='money'&&t.Is_money!==true)return false;if(asset==='gold'&&t.Is_money!==false)return false;return true;});}
-function renderHistory(){const rows=filteredHistory();$('historyBody').innerHTML=rows.map(t=>`<tr><td>${esc(new Date(t.Time).toLocaleString('fa-IR'))}${pendT(t)}</td><td>${esc(cname(t.Customer_id))}</td><td>${t.Type==='Give'?'دادم':'گرفتم'}</td><td>${t.Is_money===true?'پول':t.Is_money===false?'طلا':'نامشخص'}</td><td>${fmt(t.Amount)}</td><td>${esc(t.Description||'—')}</td><td class="actions"><button class="rowbtn secondary" data-tedit="${t.id}">ویرایش</button><button class="rowbtn secondary" data-tinv="${t.id}">فاکتور</button><button class="rowbtn danger" data-tdel="${t.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">تراکنشی پیدا نشد.</td></tr>';}
+function renderHistory(){const rows=filteredHistory();$('historyBody').innerHTML=rows.map(t=>`<tr><td>${esc(new Date(t.Time).toLocaleString('fa-IR'))}${pendT(t)}${t.Settled?' <span class="badge">✔ فروش</span>':''}</td><td>${esc(cname(t.Customer_id))}</td><td>${t.Type==='Give'?'دادم':'گرفتم'}</td><td>${t.Is_money===true?'پول':t.Is_money===false?'طلا':'نامشخص'}</td><td>${fmt(t.Amount)}</td><td>${esc(t.Description||'—')}</td><td class="actions"><button class="rowbtn secondary" data-tedit="${t.id}">ویرایش</button><button class="rowbtn secondary" data-tinv="${t.id}">فاکتور</button><button class="rowbtn danger" data-tdel="${t.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">تراکنشی پیدا نشد.</td></tr>';}
 $('filterHistory').onclick=renderHistory;
 function downloadCSV(filename,rows){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
 $('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','مانده طلا'],...Array.from($('reportBody').rows).map(r=>Array.from(r.cells).map(c=>c.textContent))];downloadCSV('customer-balances.csv',rows)};
