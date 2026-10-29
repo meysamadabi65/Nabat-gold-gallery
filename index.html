@@ -82,6 +82,14 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div><label for="tTime">تاریخ و ساعت</label><input id="tTime" type="datetime-local"></div>
 <div><label for="tDesc">توضیحات</label><input id="tDesc" placeholder="شرح تراکنش"></div>
 </div><p class="muted">مانده مثبت یعنی مشتری به شما بدهکار است؛ «دادم» مانده را زیاد و «گرفتم» مانده را کم می‌کند. واحد پول/وزن را در یادداشت مشخص کنید.</p>
+<div id="goldBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 محاسبه فروش طلا</b><div class="muted">وزن طلا (گرم) را در فیلد «مبلغ / وزن» بالا وارد کن.</div>
+<div class="grid" style="margin-top:8px"><div><label for="gPrice">قیمت هر گرم طلا (تومان)</label><input id="gPrice" type="number" inputmode="decimal" min="0" step="any"></div>
+<div><label for="gWage">درصد اجرت</label><input id="gWage" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+<div><label for="gProfit">درصد سود</label><input id="gProfit" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+<div><label for="gVat">درصد مالیات بر ارزش افزوده</label><input id="gVat" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div></div>
+<div class="muted" id="gBreak" style="margin-top:8px"></div>
+<label for="gFinal" style="margin-top:8px">مبلغ نهایی (تومان)</label><input id="gFinal" readonly>
+<div class="muted">اجرت و سود به‌عنوان درآمد ثبت می‌شود. مالیات روی (اجرت + سود) حساب می‌شود و جزو درآمد نیست.</div></div>
 <button id="addTransaction">ثبت تراکنش</button><button id="cancelTx" class="secondary hidden">انصراف از ویرایش</button>
 </section>
 <section id="reportTab" class="tab card hidden">
@@ -282,7 +290,9 @@ $('addTransaction').onclick=()=>{try{
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
  if(type!=='Give'&&type!=='Receive')throw Error('نوع تراکنش نامعتبر است.');
- const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:$('tDesc').value.trim()||null,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
+ let gc=null,descText=$('tDesc').value.trim()||null;
+ if(goldOn()){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)].filter(Boolean).join(' | ');}
+ const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:descText,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
  if(editingTx!==null){const t=transactions.find(x=>String(x.id)===String(editingTx));if(!t)throw Error('تراکنش پیدا نشد.');
   const f={Time:row.Time,Amount:row.Amount,Is_money:row.Is_money,Name:row.Name,Description:row.Description,Customer_id:row.Customer_id,Type:row.Type};
   Object.assign(t,f);
@@ -293,18 +303,34 @@ $('addTransaction').onclick=()=>{try{
  transactions.push(Object.assign({id:id},row));
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  queue.push({k:'tInsert',tmp:id,row:row});
- $('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();
- say('appStatus','تراکنش ثبت شد.');afterChange();
+ if(gc&&gc.gain>0){const eid=newTmp();const er={Time:dt,Kind:'Income',Category:'اجرت و سود طلا',Amount:gc.gain,Description:'فروش طلا به '+(customer?customer.Name:'')+' — '+fmt(gc.w)+' گرم',user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
+ if(gc){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value}))}catch(e){}gTouched=false;}
+ $('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();updateGold();
+ say('appStatus',gc&&gc.gain>0?'تراکنش ثبت شد و '+fmt(gc.gain)+' (اجرت + سود) به درآمد اضافه شد.':'تراکنش ثبت شد.');afterChange();
 }catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
 let editingTx=null,pendingTx=null;
-function resetTx(){editingTx=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='ثبت تراکنش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');}
+function resetTx(){editingTx=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='ثبت تراکنش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
 $('cancelTx').onclick=resetTx;
 $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],button[data-tdel]');if(!b)return;const id=b.dataset.tedit||b.dataset.tdel;const t=transactions.find(x=>String(x.id)===String(id));if(!t)return;
- if(b.dataset.tedit){editingTx=t.id;const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;}
+ if(b.dataset.tedit){editingTx=t.id;const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');updateGold();document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;}
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
  transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد.');afterChange();};
+let gTouched=false;
+const goldOn=()=>$('tAsset').value==='gold'&&$('tType').value==='Give'&&editingTx===null;
+function goldCalc(){const n=i=>Number($(i).value)||0,w=n('tAmount'),pr=n('gPrice'),wg=n('gWage'),pf=n('gProfit'),vat=n('gVat');
+ const base=Math.round(w*pr),wage=Math.round(base*wg/100),profit=Math.round((base+wage)*pf/100),tax=Math.round((wage+profit)*vat/100);
+ return{w:w,pr:pr,wg:wg,pf:pf,vat:vat,base:base,wage:wage,profit:profit,tax:tax,gain:wage+profit,final:base+wage+profit+tax}}
+function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);}
+function fillGoldPrice(){if(gTouched)return;try{const r=JSON.parse(localStorage.getItem('goldRate18')||'null');if(r&&r.price)$('gPrice').value=Math.round(r.price)}catch(e){}}
+function updateGold(){const on=goldOn();$('goldBox').classList.toggle('hidden',!on);if(on){fillGoldPrice();renderGold()}}
+try{const d=JSON.parse(localStorage.getItem('goldPct')||'{}');$('gVat').value=d.vat||'';$('gWage').value=d.wg||'';$('gProfit').value=d.pf||''}catch(e){}
+['tAsset','tType'].forEach(i=>$(i).addEventListener('change',updateGold));
+['tAmount','gPrice','gWage','gProfit','gVat'].forEach(i=>$(i).addEventListener('input',renderGold));
+$('gPrice').addEventListener('input',()=>{gTouched=true});
+window.addEventListener('goldrate',()=>{fillGoldPrice();renderGold()});
+updateGold();
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
 function signed(t){return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
 function reportFilter(){const from=$('rFrom').value,to=$('rTo').value,cid=$('rCustomer').value,type=$('rType').value;return{cid:cid,ok:t=>{const d=String(t.Time||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==cid)return false;if(type&&t.Type!==type)return false;return true}}}
@@ -430,7 +456,7 @@ async function loadMarketRates(){
     const j=await res.json();const item=(j.data||[]).find(x=>x.symbol==='GOLD_18K_IRR');
     if(!item||item.price==null)throw new Error('نرخ طلای ۱۸ عیار در منبع موجود نیست');
     let v=Number(item.price);if(v>=1e8)v=v/10;
-    const rec={price:v,time:Date.now()};try{localStorage.setItem('goldRate18',JSON.stringify(rec))}catch(e){}
+    const rec={price:v,time:Date.now()};try{localStorage.setItem('goldRate18',JSON.stringify(rec))}catch(e){}window.dispatchEvent(new Event('goldrate'));
     show(rec,false);
   }catch(e){
     let c=null;try{c=JSON.parse(localStorage.getItem('goldRate18')||'null')}catch(_){}
