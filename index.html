@@ -77,7 +77,7 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <h2 id="tFormTitle">خرید و فروش</h2>
 <label for="tOp">نوع عملیات</label><select id="tOp"><option value="sell">فروش طلا</option><option value="buy">خرید طلا</option><option value="pay">دریافت قسط (پول ← طلا)</option><option value="manual">تراکنش دستی (دادم / گرفتم)</option></select>
 <div class="grid">
-<div id="fCust"><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select></div>
+<div id="fCust"><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select><div id="quickCust" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:10px;margin-top:8px"><label for="qName">نام مشتری *</label><input id="qName"><label for="qPhone">تلفن</label><input id="qPhone" inputmode="tel"><div class="inline"><button id="qSave" type="button">ثبت مشتری</button><button id="qCancel" class="secondary" type="button">انصراف</button></div></div></div>
 <div id="fType" class="hidden"><label for="tType">نوع تراکنش *</label><select id="tType"><option value="Give">دادم (Give)</option><option value="Receive">گرفتم (Receive)</option></select></div>
 <div id="fAsset" class="hidden"><label for="tAsset">نوع دارایی *</label><select id="tAsset"><option value="money">پول</option><option value="gold">طلا</option></select></div>
 <div><label for="tAmount">مبلغ / وزن *</label><input id="tAmount" type="number" min="0.000001" step="any" inputmode="decimal" placeholder="مثلاً 2500000 یا 1.25"></div>
@@ -162,7 +162,7 @@ $('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'passwor
 $('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
 $('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
+const selRemap={};let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
 const cacheKey=()=>'ledgerCache:'+(currentUser&&currentUser.id);
 const newTmp=()=>-(Date.now()*1000+(tmpSeq++%1000));
 const isNet=e=>!navigator.onLine||/failed to fetch|networkerror|load failed|network request|fetch/i.test(msg(e));
@@ -171,8 +171,9 @@ const pendT=t=>queue.some(o=>(o.k==='tInsert'&&o.tmp===t.id)||(o.k==='tUpdate'&&
 function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify({customers,transactions,entries,queue}))}catch(e){say('appStatus','هشدار: حافظه دستگاه پر است و ذخیره محلی انجام نشد.')}}
 function loadCache(){try{const d=JSON.parse(localStorage.getItem(cacheKey())||'{}');customers=d.customers||[];transactions=d.transactions||[];entries=d.entries||[];queue=d.queue||[]}catch(e){customers=[];transactions=[];entries=[];queue=[]}}
 function updateNet(){const n=queue.length,off=!client||!navigator.onLine;let t=off?'آفلاین — تغییرات روی همین دستگاه ذخیره می‌شود و پس از اتصال همگام می‌شود.':n?'متصل؛ '+n+' تغییر هنوز همگام نشده است.':'متصل و همگام؛ '+customers.length+' مشتری و '+transactions.length+' تراکنش.';if(off&&n)t+=' ('+n+' مورد در انتظار)';if(syncErr)t+=' خطای همگام‌سازی: '+syncErr;say('netStatus',t);}
-function renderAll(){const a=$('tCustomer').value,h=$('historyCustomer').value,r=$('rCustomer').value;renderCustomers();renderCustomerOptions();$('rCustomer').value=r;$('tCustomer').value=a;$('historyCustomer').value=h;renderReport();renderHistory();renderDash();renderCash();updateNet();}
+function renderAll(){const fx=v=>selRemap[v]||v;const a=fx($('tCustomer').value),h=fx($('historyCustomer').value),r=fx($('rCustomer').value);renderCustomers();renderCustomerOptions();$('rCustomer').value=r;$('tCustomer').value=a;$('historyCustomer').value=h;renderReport();renderHistory();renderDash();renderCash();updateNet();}
 function remap(a,b){
+ selRemap[String(a)]=String(b);
  customers.forEach(c=>{if(c.id===a)c.id=b});
  transactions.forEach(t=>{if(t.Customer_id===a)t.Customer_id=b});
  queue.forEach(o=>{
@@ -287,11 +288,12 @@ $('customersBody').onclick=ev=>{const b=ev.target.closest('button[data-act]');if
 };
 function renderCustomers(){const q=$('customerSearch').value.trim().toLocaleLowerCase();$('customersBody').innerHTML=customers.filter(c=>String(c.Name||'').toLocaleLowerCase().includes(q)).map(c=>`<tr><td>${esc(c.Name)}${pend(c)}</td><td>${esc(c.Phone||'—')}</td><td>${esc(c.Address||'—')}</td><td class="actions"><button class="rowbtn secondary" data-act="edit" data-id="${c.id}">ویرایش</button><button class="rowbtn danger" data-act="del" data-id="${c.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="4">مشتری‌ای پیدا نشد.</td></tr>';}
 $('customerSearch').oninput=renderCustomers;
-function renderCustomerOptions(){const opts=customers.map(c=>`<option value="${c.id}">${esc(c.Name)}</option>`).join('');$('tCustomer').innerHTML='<option value="">انتخاب مشتری</option>'+opts;$('historyCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;$('rCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;}
+function renderCustomerOptions(){const opts=customers.map(c=>`<option value="${c.id}">${esc(c.Name)}</option>`).join('');$('tCustomer').innerHTML='<option value="">انتخاب مشتری</option>'+opts+'<option value="__new">➕ اضافه کردن مشتری</option>';$('historyCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;$('rCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;}
 $('addTransaction').onclick=()=>{try{
  if(!currentUser)throw Error('ابتدا وارد شوید.');
  const customerId=$('tCustomer').value;
  const amount=Number($('tAmount').value);
+ if(customerId==='__new')throw Error('اول مشتری جدید را ثبت کن یا مشتری را انتخاب کن.');
  if(!customerId&&txMode()!=='buy')throw Error('مشتری را انتخاب کنید.');
  if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
  const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();
@@ -381,6 +383,10 @@ function showRecovery(){$('recoveryBox').classList.remove('hidden');say('authSta
 if(recoveryMode)showRecovery();else if(/error_code=/.test(location.hash))say('authStatus','لینک تغییر رمز منقضی یا استفاده‌شده است؛ دوباره «فراموشی رمز عبور» را بزن.');
 $('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال ناموفق بود: '+msg(e))}};
 $('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز ناموفق بود: '+msg(e))}};
+function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qName').focus()}
+$('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
+$('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
+$('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
 let lastSale=null;$('lastInvoice').onclick=()=>{try{if(lastSale)showInvoice(lastSale)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e))}};
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
 function signed(t){if(t.Settled)return 0;return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
