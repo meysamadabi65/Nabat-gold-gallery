@@ -194,6 +194,7 @@ async function runOp(o){const T=n=>client.from(n);let r;
  else if(o.k==='cUpdate'){r=await T('Customer').update(o.fields).eq('id',o.id);if(r.error)throw r.error;if(o.fields.Name!==undefined){const {error:te}=await T('Transaction').update({Name:o.fields.Name}).eq('Customer_id',o.id);if(te)throw te;}}
  else if(o.k==='cDelete'){r=await T('Transaction').delete().eq('Customer_id',o.id);if(r.error)throw r.error;r=await T('Customer').delete().eq('id',o.id);if(r.error)throw r.error;}
  else if(o.k==='eInsert'){r=await T('Cashflow').insert(o.row).select('id').single();if(r.error)throw r.error;entries.forEach(e=>{if(e.id===o.tmp)e.id=r.data.id});}
+ else if(o.k==='eUpdate'){r=await T('Cashflow').update(o.fields).eq('id',o.eid);if(r.error)throw r.error;}
  else if(o.k==='eDelete'){r=await T('Cashflow').delete().eq('id',o.eid);if(r.error)throw r.error;}
  else if(o.k==='tUpdate'){r=await T('Transaction').update(o.fields).eq('id',o.tid);if(r.error)throw r.error;}
  else if(o.k==='tDelete'){r=await T('Transaction').delete().eq('id',o.tid);if(r.error)throw r.error;}
@@ -286,7 +287,7 @@ $('customersBody').onclick=ev=>{const b=ev.target.closest('button[data-act]');if
    const serverId = typeof cid==='number' && cid>0 ? cid : null;
    if(serverId!==null)queue.push({k:'cDelete',id:serverId});
    customers=customers.filter(x=>String(x.id)!==String(cid));
-   transactions=transactions.filter(t=>String(t.Customer_id)!==String(cid));
+   transactions.filter(t=>String(t.Customer_id)===String(cid)).forEach(t=>{adjustIncome(t);transactions=transactions.filter(x=>x!==t)});
    if(String(editingId)===String(cid))resetCustomerForm();
    say('appStatus','مشتری حذف شد.');afterChange();
  }
@@ -324,7 +325,7 @@ $('addTransaction').onclick=()=>{try{
  const saved=md==='buy'?null:mk(row);
  il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,Description:descText+(it.n?' | جنس: '+it.n:'')})));
  if(gc&&restG>0)mk(Object.assign({},row,{Amount:restG,Settled:false,Description:'مانده بدهی فروش: '+fmt(restT)+' تومان به قیمت هر گرم '+fmt(gc.pr)+' = '+fmt(restG)+' گرم طلا'}));
- if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.final,desc:'فروش طلا ('+(restG>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم'};
+ if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.final,desc:'فروش طلا ('+(restG>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم | فاکتور '+invNo};
  if(extra&&extra.amt>0){const eid=newTmp();const er={Time:dt,Kind:extra.kind,Category:extra.cat,Amount:extra.amt,Description:extra.desc,user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  if(gc){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value}))}catch(e){}}
@@ -341,7 +342,7 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
- transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد.');afterChange();};
+ const adj=adjustIncome(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='حذف'?' و درآمد (سود) مربوط به آن هم حذف شد.':adj==='کم'?' و درآمد مربوط به آن به نسبت وزن کم شد.':'.'));afterChange();};
 const PRC=['gPrice','bPrice','pPrice'];
 const itemWs=()=>[Number($('tAmount').value)||0].concat([...document.querySelectorAll('#extraItems .xw')].map(e=>Number(e.value)||0)).filter(v=>v>0);
 const totalW=()=>Math.round(itemWs().reduce((a,b)=>a+b,0)*1000)/1000;
@@ -402,6 +403,18 @@ function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qN
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
 $('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
+function adjustIncome(t){
+ const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];
+ if(!code||t.Is_money!==false||t.Type!=='Give'||/مانده بدهی فروش/.test(t.Description||''))return '';
+ const re=new RegExp('فاکتور\\s+'+code+'(?![A-Z0-9])');
+ const items=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی فروش/.test(x.Description||'')&&re.test(x.Description||''));
+ const W=items.reduce((a,x)=>a+Number(x.Amount||0),0),left=W-Number(t.Amount||0);
+ const e=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));if(!e||!(W>0))return '';
+ const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===e.id);
+ if(left<=0.0005){if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='eUpdate'&&o.eid===e.id));queue.push({k:'eDelete',eid:e.id})}entries=entries.filter(x=>x!==e);return 'حذف';}
+ const amt=Math.round(Number(e.Amount)*left/W);e.Amount=amt;
+ if(ins)ins.row.Amount=amt;else{const u=queue.find(o=>o.k==='eUpdate'&&o.eid===e.id);if(u)u.fields.Amount=amt;else queue.push({k:'eUpdate',eid:e.id,fields:{Amount:amt}})}
+ return 'کم';}
 let lastSale=null;$('lastInvoice').onclick=()=>{try{if(lastSale)showInvoice(lastSale)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e))}};
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
 function signed(t){if(t.Settled)return 0;return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
