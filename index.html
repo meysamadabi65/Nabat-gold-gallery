@@ -393,7 +393,7 @@ function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Custom
  const nmOf=x=>((String(x.Description||'').match(/جنس:\s*([^|]+)/)||[])[1]||'').trim();let rows,total='';
  if(sale){const w=Math.round(items.reduce((a,x)=>a+Number(x.Amount||0),0)*1000)/1000,base=Math.round(w*sale.pr),wage=Math.round(base*sale.wg/100),pf=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+pf)*sale.vat/100),fin=base+wage+pf+tax;
   let acc=0;const lines=items.map((x,i)=>{const a=i===items.length-1?fin-acc:Math.round(fin*Number(x.Amount||0)/(w||1));acc+=a;return `<tr><td>${esc(nmOf(x)||'طلا')}</td><td>${fmt(x.Amount)}</td><td>${fmt(a)}</td></tr>`});
-  rows='<tr class="tot"><td>نام جنس</td><td>وزن (گرم)</td><td>مبلغ با اجرت، سود و مالیات (تومان)</td></tr>'+lines.join('')+`<tr class="tot"><td>جمع کل فاکتور</td><td>${fmt(w)}</td><td>${fmt(fin)}</td></tr>`+(sale.paid!=null?`<tr><td colspan="2">پرداختی</td><td>${fmt(sale.paid)}</td></tr>`:'');
+  rows='<tr class="tot"><td>نام جنس</td><td>وزن (گرم)</td><td>مبلغ با اجرت، سود و مالیات (تومان)</td></tr>'+lines.join('')+`<tr class="tot"><td>جمع کل فاکتور</td><td>${fmt(w)}</td><td>${fmt(fin)}</td></tr>`+`<tr><td colspan="2">مجموع</td><td>${fmt(fin)}</td></tr>`;
   total='<div class="row2"><span>قیمت هر گرم: '+fmt(sale.pr)+' تومان؛ مبالغ با احتساب اجرت، سود و مالیات بر ارزش افزوده</span><span>نحوه پرداخت: '+(sale.pay||'—')+'</span></div>';}
  else rows=`<tr><td>${t.Type==='Give'?'دادم':'گرفتم'} — ${t.Is_money===false?'طلا':'پول'}</td><td>${fmt(t.Amount)}${t.Is_money===false?' گرم':' تومان'}</td></tr>`+(t.Description?`<tr><td colspan="2">${esc(t.Description)}</td></tr>`:'');
  const old=document.getElementById('invoiceView');if(old)old.remove();
