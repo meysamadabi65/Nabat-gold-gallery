@@ -91,20 +91,19 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div class="muted" id="gTotalW" style="margin-top:6px;font-weight:bold"></div></div>
 <div id="goldBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 محاسبه فروش طلا</b>
 <div class="grid" style="margin-top:8px"><div><label for="gPrice">قیمت هر گرم طلا (تومان)</label><input id="gPrice" type="text" inputmode="decimal" min="0" step="any"></div>
-<div><label for="gWage">درصد اجرت</label><input id="gWage" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
-<div><label for="gProfit">درصد سود</label><input id="gProfit" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
-<div><label for="gVat">درصد مالیات بر ارزش افزوده</label><input id="gVat" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div><div><label for="gPaid">مبلغ پرداختی (تومان)</label><input id="gPaid" type="text" inputmode="decimal" min="0" step="any"></div></div>
+<div><label for="gWage">درصد اجرت</label><input id="gWage" type="text" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+<div><label for="gProfit">درصد سود</label><input id="gProfit" type="text" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+<div><label for="gVat">درصد مالیات بر ارزش افزوده</label><input id="gVat" type="text" inputmode="decimal" min="0" step="any" placeholder="0"></div><div><label for="gPaid">مبلغ پرداختی (تومان)</label><input id="gPaid" type="text" inputmode="decimal" min="0" step="any"></div></div>
 <div class="muted" id="gBreak" style="margin-top:8px"></div><div class="muted" id="gRest" style="margin-top:4px;font-weight:bold"></div><div id="gDebtBox" class="hidden"><label for="gDebtType">باقی‌مانده بدهی مشتری به چه صورت ثبت شود؟</label><select id="gDebtType"><option value="gold">طلا (گرم) — با قیمت امروز به گرم تبدیل می‌شود</option><option value="money">پول (تومان)</option></select></div>
 <label for="gFinal" style="margin-top:8px">مبلغ نهایی (تومان)</label><input id="gFinal" readonly>
 <div class="muted">فقط مجموع اجرت، سود و مالیات به‌عنوان درآمد ثبت می‌شود (ارزش خود طلا درآمد حساب نمی‌شود). در حالت اقساطی، می‌توانید انتخاب کنید باقی‌مانده به‌صورت طلا یا پول بدهی بماند.</div></div>
-<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div><label for="bFee">درصد کارمزد خرید (٪) — فقط کارمزد هزینه حساب می‌شود</label><input id="bFee" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><div class="muted" id="bFeeAmt" style="margin-top:4px;font-weight:bold"></div></div>
-<div id="payBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>💳 دریافت قسط</b><div class="muted">می‌توانی قسط را نقدی، طلایی یا ترکیبی دریافت کنی. هر بخش جداگانه از مانده همان دارایی کم می‌شود.</div><div class="grid" style="margin-top:8px"><div><label for="pGoldGrams">مقدار طلای دریافتی (گرم)</label><input id="pGoldGrams" type="text" inputmode="decimal" placeholder="مثلاً 0.5"></div></div><div class="muted" id="pInfo"></div></div>
+<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div><label for="bFee">درصد کارمزد خرید (٪) — فقط کارمزد هزینه حساب می‌شود</label><input id="bFee" type="text" inputmode="decimal" min="0" step="any" placeholder="0"><div class="muted" id="bFeeAmt" style="margin-top:4px;font-weight:bold"></div></div>
+<div id="payBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>💳 پرداخت قسط</b><label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="pInst" checked style="width:auto;margin:0"> تبدیل پول به طلا و کم کردن از بدهی طلا</label><div class="grid"><div><label for="pPrice">قیمت هر گرم طلا (تومان)</label><input id="pPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="pGrams">معادل طلا (گرم)</label><input id="pGrams" readonly></div></div><div class="muted" id="pInfo"></div></div>
 <button id="addTransaction">ثبت تراکنش</button><button id="cancelTx" class="secondary hidden">انصراف از ویرایش</button><button id="lastInvoice" class="secondary hidden">نمایش فاکتور آخرین فروش</button>
 </section>
 <section id="reportTab" class="tab card hidden">
 <h2>گزارش مانده مشتری‌ها</h2>
-<p class="muted">مانده‌ها به‌صورت تجمعی تا تاریخ انتخاب‌شده محاسبه می‌شوند؛ تاریخ «از» فقط روی گزارش درآمد و هزینه اثر دارد.</p>
-<div class="grid"><div><label for="rFrom">از تاریخ</label><input id="rFrom" type="date"></div><div><label for="rTo">تا تاریخ</label><input id="rTo" type="date"></div><div><label for="rCustomer">مشتری</label><select id="rCustomer"><option value="">همه مشتری‌ها</option></select></div><div><label for="rType">نوع تراکنش</label><select id="rType"><option value="">همه</option><option value="Give">دادم</option><option value="Receive">گرفتم</option></select></div></div><button id="rClear" class="secondary">پاک کردن فیلتر</button>
+<div class="grid"><div><label for="rFrom">شروع بازه درآمد و هزینه</label><input id="rFrom" type="date"></div><div><label for="rTo">پایان بازه / تاریخ محاسبه مانده</label><input id="rTo" type="date"></div><div><label for="rCustomer">مشتری</label><select id="rCustomer"><option value="">همه مشتری‌ها</option></select></div></div><div class="muted">مانده پول و طلا از ابتدای سوابق تا پایان تاریخ انتخابی محاسبه می‌شود؛ درآمد و هزینه فقط در بازه انتخاب‌شده نمایش داده می‌شود.</div><button id="rClear" class="secondary">پاک کردن فیلتر</button>
 <h3>درآمد و هزینه در بازه انتخاب‌شده</h3><div class="balance" id="profitBox"></div>
 <div class="balance" style="margin-top:10px">
 <div class="metric">جمع مانده پول<strong id="moneyTotal">—</strong></div>
@@ -197,7 +196,7 @@ function remap(a,b){
 }
 async function runOp(o){const T=n=>client.from(n);let r;
  if(o.k==='cInsert'){r=await T('Customer').insert(o.row).select('id').single();if(r.error)throw r.error;remap(o.tmp,r.data.id);}
- else if(o.k==='cUpdate'){r=await T('Customer').update(o.fields).eq('id',o.id);if(r.error)throw r.error;if(o.fields.Name!==undefined){const {error:te}=await T('Transaction').update({Name:o.fields.Name}).eq('Customer_id',o.id);if(te)throw te;}}
+ else if(o.k==='cUpdate'){r=await T('Customer').update(o.fields).eq('id',o.id);if(r.error)throw r.error;if(o.fields.Name!==undefined){const {error:te}=await T('Transaction').update({Name:o.fields.Name}).eq('Customer_id',o.id);if(te)throw te;queue.forEach(q=>{if(q.k==='tInsert'&&q.row&&String(q.row.Customer_id)===String(o.id))q.row.Name=o.fields.Name;});}}
  else if(o.k==='cDelete'){r=await T('Transaction').delete().eq('Customer_id',o.id);if(r.error)throw r.error;r=await T('Customer').delete().eq('id',o.id);if(r.error)throw r.error;}
  else if(o.k==='eInsert'){r=await T('Cashflow').insert(o.row).select('id').single();if(r.error)throw r.error;entries.forEach(e=>{if(e.id===o.tmp)e.id=r.data.id});}
  else if(o.k==='eUpdate'){r=await T('Cashflow').update(o.fields).eq('id',o.eid);if(r.error)throw r.error;}
@@ -304,20 +303,63 @@ function renderCustomerOptions(){const opts=customers.map(c=>`<option value="${c
 $('addTransaction').onclick=()=>{try{
  if(!currentUser)throw Error('ابتدا وارد شوید.');
  const customerId=$('tCustomer').value;
- const amount=Number($('tAmount').value)||0;
- const md=txMode(),goldPaid=md==='pay'?(Number($('pGoldGrams').value)||0):0;
+ const amount=Number($('tAmount').value);
+ const md=txMode();
  if(customerId==='__new')throw Error('اول مشتری جدید را ثبت کن یا مشتری را انتخاب کن.');
  if(!customerId&&txMode()!=='buy')throw Error('مشتری را انتخاب کنید.');
- if(md==='pay'){if(amount<0||goldPaid<0||(!amount&&!goldPaid))throw Error('مبلغ نقدی یا وزن طلای دریافتی را وارد کنید.');}else if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
+ if(md==='sell'){if(!(totalW()>0))throw Error('مجموع وزن اقلام باید بیشتر از صفر باشد.');}else if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
  const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
  if(type!=='Give'&&type!=='Receive')throw Error('نوع تراکنش نامعتبر است.');
  let gc=null,invNo='',restG=0,restT=0,debtMoney=false,descText=$('tDesc').value.trim()||null;
- const pr=Number($(md==='buy'?'bPrice':'gPrice').value)||0,cn=md==='buy'?$('bSeller').value.trim():(customer?customer.Name:'');let extra=null;
+ const pr=Number($(md==='buy'?'bPrice':md==='pay'?'pPrice':'gPrice').value)||0,cn=md==='buy'?$('bSeller').value.trim():(customer?customer.Name:'');let extra=null,asGold=null;
  if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');const paidA=Number($('gPaid').value)||0;if(paidA>gc.final)throw Error('مبلغ پرداختی از مبلغ نهایی بیشتر است.');restT=gc.final-paidA;debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;invNo=Date.now().toString(36).slice(-6).toUpperCase();descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+invNo].filter(Boolean).join(' | ');}
- else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr),fp=Number($('bFee').value)||0,fee=Math.round(tot*fp/100);extra={kind:'Expense',cat:'کارمزد خرید طلا',amt:fee,desc:'کارمزد خرید طلا ('+fmt(fp)+'٪)'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)+(fee>0?' | کارمزد '+fmt(fp)+'٪ = '+fmt(fee):'')].filter(Boolean).join(' | ');}
+ else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr),fp=pctNum('bFee'),fee=Math.round(tot*fp/100);extra={kind:'Expense',cat:'کارمزد خرید طلا',amt:fee,desc:'کارمزد خرید طلا ('+fmt(fp)+'٪)'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)+(fee>0?' | کارمزد '+fmt(fp)+'٪ = '+fmt(fee):'')].filter(Boolean).join(' | ');}
+ else if(md==='pay'&&$('pInst').checked){if(!(pr>0))throw Error('قیمت طلا را وارد کنید.');asGold=Math.round(amount/pr*1000)/1000;descText=[descText,'پرداخت قسط '+fmt(amount)+' تومان به قیمت هر گرم '+fmt(pr)+' = '+fmt(asGold)+' گرم طلا'].filter(Boolean).join(' | ');}
  const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:descText,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
+ if(editingSale){
+  if(md!=='sell')throw Error('حالت ویرایش فاکتور نامعتبر است.');
+  const code=editingSale.code,re=new RegExp('فاکتور\\s+'+code+'(?![A-Z0-9])');
+  if(!customer)throw Error('مشتری انتخاب‌شده پیدا نشد.');
+  const oldItems=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+  if(editingSale.itemIds){const order=new Map(editingSale.itemIds.map((id,i)=>[String(id),i]));oldItems.sort((a,b)=>(order.get(String(a.id))??999)-(order.get(String(b.id))??999));}
+  const primary=oldItems.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||oldItems.find(x=>String(x.id)===String(editingSale.primaryId));
+  if(!primary)throw Error('ردیف اصلی فاکتور پیدا نشد؛ برای جلوگیری از به‌هم‌ریختن حساب، ویرایش لغو شد.');
+  const il=itemList();if(!il.length)throw Error('حداقل یک قلم با وزن معتبر وارد کنید.');
+  gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');
+  const paidA=Number($('gPaid').value)||0;if(paidA<0||paidA>gc.final)throw Error('مبلغ پرداختی باید بین صفر و مبلغ نهایی باشد.');
+  restT=gc.final-paidA;debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;
+  const metadata='قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+code;
+  const baseNote=$('tDesc').value.trim();
+  const common={Time:dt,Is_money:false,Name:customer.Name,Customer_id:Number(customerId),Type:'Give',Settled:true,user_id:currentUser.id};
+  const descFor=it=>[baseNote,metadata,it.n?'جنس: '+it.n:''].filter(Boolean).join(' | ');
+  const primaryFields=Object.assign({},common,{Amount:il[0].w,DebtGrams:restG,Description:descFor(il[0])});
+  txUpdateLocal(primary,primaryFields);
+  const other=oldItems.filter(x=>x!==primary);
+  for(let i=1;i<il.length;i++){
+   const fields=Object.assign({},common,{Amount:il[i].w,DebtGrams:null,Description:descFor(il[i])});
+   if(other[i-1])txUpdateLocal(other[i-1],fields);
+   else{const id=newTmp(),rw=Object.assign({},fields);transactions.push(Object.assign({id},rw));queue.push({k:'tInsert',tmp:id,row:rw});}
+  }
+  other.slice(Math.max(0,il.length-1)).forEach(deleteTxLocal);
+  const debtRow=transactions.find(x=>x.Is_money===true&&x.Type==='Give'&&/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+  if(debtMoney&&restT>0){
+   const df={Time:dt,Amount:restT,Is_money:true,Name:customer.Name,Description:'مانده بدهی پولی این فروش | فاکتور '+code,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id};
+   if(debtRow)txUpdateLocal(debtRow,df);else{const id=newTmp();transactions.push(Object.assign({id},df));queue.push({k:'tInsert',tmp:id,row:df});}
+  }else if(debtRow)deleteTxLocal(debtRow);
+  const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));
+  const incomeAmt=Math.round(gc.wage+gc.profit+gc.tax);
+  const incomeFields={Time:dt,Kind:'Income',Category:'فروش طلا',Amount:incomeAmt,Description:'اجرت، سود و مالیات فروش طلا ('+(restT>0?'اقساطی':'نقدی')+') به '+customer.Name+' — '+fmt(gc.w)+' گرم | فاکتور '+code,user_id:currentUser.id};
+  if(incomeAmt>0){if(income)setEntryLocal(income,incomeFields);else{const id=newTmp();entries.push(Object.assign({id},incomeFields));queue.push({k:'eInsert',tmp:id,row:incomeFields});}}
+  else if(income)deleteEntryLocal(income);
+  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
+  try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}
+  const savedPrimary=transactions.find(x=>String(x.id)===String(primary.id));
+  resetTx();say('appStatus','فاکتور با موفقیت بازحساب شد؛ وزن اقلام، بدهی پولی/طلایی و درآمد همگی به‌روزرسانی شدند.');afterChange();
+  if(savedPrimary){lastSale=savedPrimary;$('lastInvoice').classList.remove('hidden');try{showInvoice(savedPrimary)}catch(e){}}
+  return;
+ }
  if(editingTx!==null){const t=transactions.find(x=>String(x.id)===String(editingTx));if(!t)throw Error('تراکنش پیدا نشد.');
   const f={Time:row.Time,Amount:row.Amount,Is_money:row.Is_money,Name:row.Name,Description:row.Description,Customer_id:row.Customer_id,Type:row.Type};
   Object.assign(t,f);
@@ -325,13 +367,7 @@ $('addTransaction').onclick=()=>{try{
   if(ins)Object.assign(ins.row,f);else{const u=queue.find(o=>o.k==='tUpdate'&&o.tid===t.id);if(u)Object.assign(u.fields,f);else queue.push({k:'tUpdate',tid:t.id,fields:f});}
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));resetTx();say('appStatus','ویرایش تراکنش ذخیره شد.');afterChange();return;}
  const mk=rw=>{const id=newTmp();const o=Object.assign({id:id},rw);transactions.push(o);queue.push({k:'tInsert',tmp:id,row:rw});return o;};
- if(md==='pay'){
-  const common={Time:dt,Name:customer.Name,Customer_id:Number(customerId),Type:'Receive',user_id:currentUser.id};
-  if(amount>0)mk(Object.assign({},common,{Amount:amount,Is_money:true,Description:[descText,'دریافت قسط نقدی'].filter(Boolean).join(' | ')}));
-  if(goldPaid>0)mk(Object.assign({},common,{Amount:goldPaid,Is_money:false,Description:[descText,'دریافت قسط طلایی'].filter(Boolean).join(' | ')}));
-  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));$('tAmount').value='';$('pGoldGrams').value='';$('tDesc').value='';$('tTime').value=localDateTime();updateGold();
-  say('appStatus','قسط ثبت شد؛ '+(amount>0?fmt(amount)+' تومان نقدی ':'')+(amount>0&&goldPaid>0?'و ':'')+(goldPaid>0?fmt(goldPaid)+' گرم طلا ':'')+'از مانده همان دارایی کم شد.');afterChange();return;
- }
+ if(asGold!==null){row.Amount=asGold;row.Is_money=false;}
  if(gc){row.Settled=true;row.DebtGrams=restG;}
  const il=gc?itemList():[];if(il[0]&&il[0].n)row.Description=row.Description+' | جنس: '+il[0].n;
  const saved=md==='buy'?null:mk(row);if(debtMoney)mk({Time:dt,Amount:restT,Is_money:true,Name:customer?customer.Name:null,Description:'مانده بدهی پولی این فروش | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id});
@@ -341,31 +377,76 @@ $('addTransaction').onclick=()=>{try{
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  if(gc||md==='buy'){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}}
  PRC.forEach(i=>{delete $(i).dataset.t});delete $('gPaid').dataset.t;
- $('tAmount').value='';$('pGoldGrams').value='';$('tDesc').value='';$('bSeller').value='';resetItems();$('tTime').value=localDateTime();updateGold();
- say('appStatus',gc?(restT<=0?'فروش نقدی ثبت شد':'فروش اقساطی ثبت شد')+' و '+fmt(extra.amt)+' (اجرت، سود و مالیات) به درآمد اضافه شد.':extra?'تراکنش ثبت شد و '+fmt(extra.amt)+' به '+(extra.kind==='Expense'?'هزینه':'درآمد')+' اضافه شد.':'تراکنش ثبت شد.');afterChange();if(gc&&saved){lastSale=saved;$('lastInvoice').classList.remove('hidden');try{showInvoice(saved)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e)+' — دکمه «نمایش فاکتور آخرین فروش» را بزن.')}}
+ $('tAmount').value='';$('tDesc').value='';$('bSeller').value='';resetItems();$('tTime').value=localDateTime();updateGold();
+ say('appStatus',gc?(restT<=0?'فروش نقدی ثبت شد':'فروش اقساطی ثبت شد')+' و '+fmt(extra.amt)+' (اجرت، سود و مالیات) به درآمد اضافه شد.':extra?'تراکنش ثبت شد و '+fmt(extra.amt)+' به '+(extra.kind==='Expense'?'هزینه':'درآمد')+' اضافه شد.':asGold!==null?'قسط ثبت شد: '+fmt(asGold)+' گرم از بدهی طلا کم شد.':'تراکنش ثبت شد.');afterChange();if(gc&&saved){lastSale=saved;$('lastInvoice').classList.remove('hidden');try{showInvoice(saved)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e)+' — دکمه «نمایش فاکتور آخرین فروش» را بزن.')}}
 }catch(e){say('appStatus','ثبت تراکنش ناموفق بود: '+msg(e));}};
-let editingTx=null,pendingTx=null;
-function resetTx(){editingTx=null;$('tAmount').value='';$('pGoldGrams').value='';$('tDesc').value='';$('tTime').value=localDateTime();$('tFormTitle').textContent='خرید و فروش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
+function txUpdateLocal(t,fields){
+ Object.assign(t,fields);
+ const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===t.id);
+ if(ins){Object.assign(ins.row,fields);return;}
+ const u=queue.find(o=>o.k==='tUpdate'&&o.tid===t.id);
+ if(u)Object.assign(u.fields,fields);else if(Number(t.id)>0)queue.push({k:'tUpdate',tid:t.id,fields:Object.assign({},fields)});
+}
+function deleteTxLocal(t){
+ const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===t.id);
+ if(ins)queue=queue.filter(o=>o!==ins);
+ else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===t.id));if(Number(t.id)>0)queue.push({k:'tDelete',tid:t.id});}
+ transactions=transactions.filter(x=>x!==t&&x.id!==t.id);
+}
+function setEntryLocal(e,fields){
+ Object.assign(e,fields);
+ const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===e.id);
+ if(ins){Object.assign(ins.row,fields);return;}
+ const u=queue.find(o=>o.k==='eUpdate'&&o.eid===e.id);
+ if(u)Object.assign(u.fields,fields);else if(Number(e.id)>0)queue.push({k:'eUpdate',eid:e.id,fields:Object.assign({},fields)});
+}
+function deleteEntryLocal(e){
+ const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===e.id);
+ if(ins)queue=queue.filter(o=>o!==ins);
+ else{queue=queue.filter(o=>!(o.k==='eUpdate'&&o.eid===e.id));if(Number(e.id)>0)queue.push({k:'eDelete',eid:e.id});}
+ entries=entries.filter(x=>x!==e&&x.id!==e.id);
+}
+let editingTx=null,editingSale=null,pendingTx=null;
+function resetTx(){editingTx=null;editingSale=null;$('tAmount').value='';$('tDesc').value='';$('tTime').value=localDateTime();delete $('gPaid').dataset.t;resetItems();$('tFormTitle').textContent='خرید و فروش';$('addTransaction').textContent='ثبت تراکنش';$('cancelTx').classList.add('hidden');updateGold();}
 $('cancelTx').onclick=resetTx;
 $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],button[data-tdel],button[data-tinv]');if(!b)return;const id=b.dataset.tedit||b.dataset.tdel||b.dataset.tinv;const t=transactions.find(x=>String(x.id)===String(id));if(!t)return;
  if(b.dataset.tinv){showInvoice(t);return;}
- if(b.dataset.tedit){editingTx=t.id;$('tOp').value='manual';const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');updateGold();document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;}
+ if(b.dataset.tedit){
+  const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];
+  const sale=parseSale(t.Description||'');
+  if(code&&t.Is_money===false&&t.Type==='Give'&&!sale){say('appStatus','ساختار قدیمی این فاکتور برای بازحساب خودکار کافی نیست؛ برای جلوگیری از تغییر ناقص بدهی و درآمد، ویرایش انجام نشد.');return;}
+  if(code&&sale&&t.Is_money===false&&t.Type==='Give'){
+   const re=new RegExp('فاکتور\\s+'+code+'(?![A-Z0-9])');
+   const group=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+   const primary=group.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||group[0];
+   if(primary)group.splice(0,group.length,primary,...group.filter(x=>x!==primary));
+   if(!primary){say('appStatus','ردیف اصلی فاکتور پیدا نشد؛ ویرایش باز نشد.');return;}
+   editingSale={code:code,primaryId:primary.id,itemIds:group.map(x=>x.id)};editingTx=primary.id;$('tOp').value='sell';$('tCustomer').value=String(primary.Customer_id);$('tType').value='Give';$('tAsset').value='gold';
+   const d=new Date(primary.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);
+   const firstDesc=String(primary.Description||'');$('tDesc').value=firstDesc.split(/\s*\|\s*قیمت هر گرم/)[0]||'';
+   $('gPrice').value=sale.pr;$('gWage').value=sale.wg;$('gProfit').value=sale.pf;$('gVat').value=sale.vat;$('gPaid').value=sale.paid==null?'':sale.paid; $('gPaid').dataset.t='1';
+   $('gDebtType').value=/بدهی پولی/.test(firstDesc)?'money':'gold';
+   $('itemsBody').innerHTML='';
+   group.forEach(x=>{const tr=document.createElement('tr');const nm=(String(x.Description||'').match(/جنس:\s*([^|]+)/)||[])[1]||'';tr.innerHTML='<td><input class="xn" placeholder="مثلاً انگشتر"></td><td><input class="xw" type="number" inputmode="decimal" min="0" step="any" placeholder="گرم"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';tr.querySelector('.xn').value=nm.trim();tr.querySelector('.xw').value=x.Amount;tr.querySelector('.xw').addEventListener('input',syncAmt);tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{tr.querySelector('.xn').value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);});
+   if(!group.length)addItemRow();syncAmt();
+   $('tFormTitle').textContent='ویرایش فاکتور فروش';$('addTransaction').textContent='ذخیره و بازحساب فاکتور';$('cancelTx').classList.remove('hidden');updateGold();
+  }else{
+   editingSale=null;editingTx=t.id;$('tOp').value='manual';const d=new Date(t.Time);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$('tCustomer').value=String(t.Customer_id);$('tType').value=t.Type;$('tAsset').value=t.Is_money===false?'gold':'money';$('tAmount').value=t.Amount;$('tTime').value=isNaN(d)?localDateTime():d.toISOString().slice(0,16);$('tDesc').value=t.Description||'';$('tFormTitle').textContent='ویرایش تراکنش';$('addTransaction').textContent='ذخیره ویرایش';$('cancelTx').classList.remove('hidden');updateGold();
+  }
+  document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;
+ }
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
- pendingTx=null;const tid=t.id;
- const adj=adjustIncome(t);
- const invoiceAdj=adjustInvoiceAfterItemDelete(t);
- deleteTxLocal(t);
- if(editingTx===tid)resetTx();
- say('appStatus','تراکنش حذف شد'+(adj==='حذف'?' و درآمد مربوط به فاکتور حذف شد.':adj==='کم'?' و درآمد فاکتور متناسب با وزن اصلاح شد.':'')+(invoiceAdj?' مانده بدهی فاکتور هم اصلاح شد.':'.'));
- afterChange();};
+ pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
+ if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
+ const adj=adjustIncome(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='حذف'?' و درآمد (سود) مربوط به آن هم حذف شد.':adj==='کم'?' و درآمد مربوط به آن به نسبت وزن کم شد.':'.'));afterChange();};
 function sepInput(el){const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
  const fa=x=>String(x).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/٫/g,'.');
  const clean=x=>fa(x).replace(/[^\d.]/g,'').replace(/(\..*)\./g,'$1');
  const fmtS=x=>{const c=clean(x);if(!c)return '';const [i,f]=c.split('.');return i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(f!==undefined?'.'+f:'')};
  Object.defineProperty(el,'value',{get(){return clean(d.get.call(el))},set(v){d.set.call(el,fmtS(v==null?'':v))},configurable:true});
  el.addEventListener('input',()=>{const cur=d.get.call(el),pos=el.selectionStart||0,digs=clean(cur.slice(0,pos)).length,nv=fmtS(cur);if(nv===cur)return;d.set.call(el,nv);let n=0,i=0;for(;i<nv.length&&n<digs;i++)if(/[\d.]/.test(nv[i]))n++;try{el.setSelectionRange(i,i)}catch(e){}});}
-['tAmount','gPrice','bPrice','gPaid','cashAmount','pGoldGrams'].forEach(i=>{sepInput($(i));$(i).addEventListener('blur',()=>{$(i).value=$(i).value})});
-const PRC=['gPrice','bPrice'];
+['tAmount','gPrice','bPrice','pPrice','gPaid','cashAmount'].forEach(i=>{sepInput($(i));$(i).addEventListener('blur',()=>{$(i).value=$(i).value})});
+const PRC=['gPrice','bPrice','pPrice'];
 const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>({w:Number(tr.querySelector('.xw').value)||0,n:tr.querySelector('.xn').value.trim().replace(/\|/g,' ')})).filter(it=>it.w>0);
 const itemWs=()=>itemList().map(i=>i.w);
 function syncAmt(){const f=itemWs()[0]||0;$('tAmount').value=f||'';renderGold()}
@@ -373,25 +454,26 @@ function addItemRow(){const tr=document.createElement('tr');tr.innerHTML='<td><i
 function resetItems(){$('itemsBody').innerHTML='';addItemRow();syncAmt()}
 $('addItem').onclick=()=>{addItemRow();$('itemsBody').lastChild.querySelector('.xn').focus()};
 const totalW=()=>Math.round(itemWs().reduce((a,b)=>a+b,0)*1000)/1000;
-const txMode=()=>{if(editingTx!==null)return'';const o=$('tOp').value;return o==='manual'?'':o};
-function goldCalc(){const n=i=>Number($(i).value)||0,w=totalW(),pr=n('gPrice'),wg=n('gWage'),pf=n('gProfit'),vat=n('gVat');
+const txMode=()=>{if(editingSale)return'sell';if(editingTx!==null)return'';const o=$('tOp').value;return o==='manual'?'':o};
+function pctNum(id){const v=String($(id).value||'').replace(/[۰-۹٠-٩]/g,ch=>{const a='۰۱۲۳۴۵۶۷۸۹',b='٠١٢٣٤٥٦٧٨٩';return a.includes(ch)?String(a.indexOf(ch)):String(b.indexOf(ch))}).replace(/[٬,]/g,'').replace(/٫/g,'.');return Number(v)||0}
+['gWage','gProfit','gVat','bFee'].forEach(id=>$(id).addEventListener('input',()=>{const el=$(id),v=el.value,n=v.replace(/[۰-۹٠-٩]/g,ch=>{const a='۰۱۲۳۴۵۶۷۸۹',b='٠١٢٣٤٥٦٧٨٩';return a.includes(ch)?String(a.indexOf(ch)):String(b.indexOf(ch))}).replace(/[٬,]/g,'').replace(/٫/g,'.');if(v!==n){const pos=el.selectionStart;el.value=n;try{el.setSelectionRange(pos,pos)}catch(e){}}}));
+function goldCalc(){const n=i=>Number($(i).value)||0,w=totalW(),pr=n('gPrice'),wg=pctNum('gWage'),pf=pctNum('gProfit'),vat=pctNum('gVat');
  const base=Math.round(w*pr),wage=Math.round(base*wg/100),profit=Math.round((base+wage)*pf/100),tax=Math.round((wage+profit)*vat/100);
  return{w:w,pr:pr,wg:wg,pf:pf,vat:vat,base:base,wage:wage,profit:profit,tax:tax,final:base+wage+profit+tax}}
 function goldBal(id){let g=0;for(const t of transactions)if(String(t.Customer_id)===String(id)&&t.Is_money===false)g+=signed(t);return Math.round(g*1000)/1000}
-function moneyBal(id){let m=0;for(const t of transactions)if(String(t.Customer_id)===String(id)&&t.Is_money===true)m+=signed(t);return Math.round(m)}
 function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gTotalW').textContent=itemWs().length?'جمع وزن فاکتور: '+fmt(totalW())+' گرم ('+itemWs().length+' آیتم)':'';if(!$('gPaid').dataset.t)$('gPaid').value=c.final;{const paid=Number($('gPaid').value)||0,rest=Math.max(0,c.final-paid);$('gDebtBox').classList.toggle('hidden',!(rest>0));const dm=$('gDebtType').value==='money';$('gRest').textContent=paid>c.final?'پرداختی از مبلغ نهایی بیشتر است':rest>0?'باقی‌مانده '+fmt(rest)+' تومان ← '+(dm?'بدهی پولی':fmt(c.pr>0?Math.round(rest/c.pr*1000)/1000:0)+' گرم طلا بدهکار'):'تسویه کامل (بدون بدهی)';}$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);
- const w=Number($('tAmount').value)||0;{const bt=Math.round(w*(Number($('bPrice').value)||0));$('bTotal').value=fmt(bt);const bf=Math.round(bt*(Number($('bFee').value)||0)/100);$('bFeeAmt').textContent=bf>0?'کارمزد خرید: '+fmt(bf)+' تومان':'';}
- const cid=$('tCustomer').value,gp=Number($('pGoldGrams').value)||0,cp=Number($('tAmount').value)||0,gb=goldBal(cid),mb=moneyBal(cid);
- $('pInfo').textContent='مانده پول: '+fmt(mb)+' ← پس از دریافت: '+fmt(mb-cp)+' تومان | مانده طلا: '+fmt(gb)+' ← پس از دریافت: '+fmt(Math.round((gb-gp)*1000)/1000)+' گرم';}
+ const w=Number($('tAmount').value)||0;{const bt=Math.round(w*(Number($('bPrice').value)||0));$('bTotal').value=fmt(bt);const bf=Math.round(bt*pctNum('bFee')/100);$('bFeeAmt').textContent=bf>0?'کارمزد خرید: '+fmt(bf)+' تومان':'';}
+ const pp=Number($('pPrice').value)||0,gr=pp>0?Math.round(w/pp*1000)/1000:0,bal=goldBal($('tCustomer').value);
+ $('pGrams').value=fmt(gr);$('pInfo').textContent='بدهی طلای مشتری: '+fmt(bal)+' گرم ← پس از پرداخت: '+fmt(Math.round((bal-gr)*1000)/1000)+' گرم';}
 function fillGoldPrice(){let r=null;try{r=JSON.parse(localStorage.getItem('goldRate18')||'null')}catch(e){}if(r&&r.price)PRC.forEach(i=>{if(!$(i).dataset.t)$(i).value=Math.round(r.price)})}
 function updateGold(){const o=$('tOp').value;if(o==='sell'){$('tAsset').value='gold';$('tType').value='Give'}else if(o==='buy'){$('tAsset').value='gold';$('tType').value='Receive'}else if(o==='pay'){$('tAsset').value='money';$('tType').value='Receive'}
  const m=txMode();$('fCust').classList.toggle('hidden',m==='buy');$('itemsBox').classList.toggle('hidden',m!=='sell');$('fAmt').classList.toggle('hidden',m==='sell');$('fType').classList.toggle('hidden',o!=='manual');$('fAsset').classList.toggle('hidden',o!=='manual');
- document.querySelector('label[for="tAmount"]').textContent=m==='pay'?'مبلغ قسط نقدی (تومان)':(m==='sell'||m==='buy')?'وزن طلا (گرم) *':'مبلغ / وزن *';
- $('opHint').textContent=m==='sell'?'فروش طلا به مشتری؛ بعد از ثبت، فاکتور صادر می‌شود.':m==='buy'?'خرید طلا؛ فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود.':m==='pay'?'مبلغ نقدی و وزن طلای دریافتی را جدا وارد کن؛ هرکدام از مانده همان دارایی کم می‌شود.':'مانده مثبت یعنی مشتری بدهکار است؛ «دادم» مانده را زیاد و «گرفتم» کم می‌کند.';
+ document.querySelector('label[for="tAmount"]').textContent=m==='pay'?'مبلغ پرداختی (تومان) *':(m==='sell'||m==='buy')?'وزن طلا (گرم) *':'مبلغ / وزن *';
+ $('opHint').textContent=m==='sell'?'فروش طلا به مشتری؛ بعد از ثبت، فاکتور صادر می‌شود.':m==='buy'?'خرید طلا؛ فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود.':m==='pay'?'پولی که مشتری می‌دهد بر حسب طلا حساب و از بدهی طلایش کم می‌شود.':'مانده مثبت یعنی مشتری بدهکار است؛ «دادم» مانده را زیاد و «گرفتم» کم می‌کند.';
  $('goldBox').classList.toggle('hidden',m!=='sell');$('buyBox').classList.toggle('hidden',m!=='buy');$('payBox').classList.toggle('hidden',m!=='pay');if(m){fillGoldPrice();renderGold()}}
 try{const d=JSON.parse(localStorage.getItem('goldPct')||'{}');$('gVat').value=d.vat||'';$('gWage').value=d.wg||'';$('gProfit').value=d.pf||'';$('bFee').value=d.bf||''}catch(e){}
 ['tOp','tAsset','tType','tCustomer'].forEach(i=>$(i).addEventListener('change',updateGold));
-['tAmount','pGoldGrams','gPrice','gWage','gProfit','gVat','bPrice','bFee'].forEach(i=>$(i).addEventListener('input',renderGold));$('gDebtType').addEventListener('change',renderGold);
+['tAmount','gPrice','gWage','gProfit','gVat','bPrice','bFee','pPrice'].forEach(i=>$(i).addEventListener('input',renderGold));$('gDebtType').addEventListener('change',renderGold);
 PRC.forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.t=1}));
 $('gPaid').addEventListener('input',()=>{$('gPaid').dataset.t=1;renderGold()});
 window.addEventListener('goldrate',()=>{fillGoldPrice();renderGold()});
@@ -410,7 +492,7 @@ function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Custom
  else rows=`<tr><td>${t.Type==='Give'?'دادم':'گرفتم'} — ${t.Is_money===false?'طلا':'پول'}</td><td>${fmt(t.Amount)}${t.Is_money===false?' گرم':' تومان'}</td></tr>`+(t.Description?`<tr><td colspan="2">${esc(t.Description)}</td></tr>`:'');
  const old=document.getElementById('invoiceView');if(old)old.remove();
  const v=document.createElement('div');v.id='invoiceView';
- v.innerHTML=`<div class="noprint" style="display:flex;gap:8px;margin-bottom:10px"><button id="invPrint">چاپ / ذخیره PDF</button><button id="invClose" class="secondary">بستن</button></div><div style="text-align:center;margin:4px 0 12px"><img src="icon-192.png" alt="آرم گالری طلای نبات" style="width:76px;height:76px;object-fit:contain;display:block;margin:0 auto 6px" onerror="this.style.display='none'"><h2 style="margin:0">گالری طلای نبات</h2><div>${sale?'فاکتور فروش طلا':'رسید تراکنش'}</div></div><div class="row2"><span>تاریخ: ${esc(new Date(t.Time).toLocaleString('fa-IR'))}</span><span>شماره: ${t.id>0?t.id:'—'}</span></div><div class="row2"><span>مشتری: ${esc(c.Name||t.Name||'')}</span><span>${esc(c.Phone||'')}</span></div><table>${rows}</table>${total}<div class="row2" style="margin-top:40px"><span>امضای فروشنده</span><span>امضای خریدار</span></div>`;
+ v.innerHTML=`<div class="noprint" style="display:flex;gap:8px;margin-bottom:10px"><button id="invPrint">چاپ / ذخیره PDF</button><button id="invClose" class="secondary">بستن</button></div><div style="text-align:center;margin:4px 0 12px"><img src="icon-192.png" alt="آرم گالری طلای نبات" style="width:76px;height:76px;object-fit:contain;display:block;margin:0 auto 6px" onerror="this.style.display='none'"><h2 style="margin:0">گالری طلای نبات</h2><div>${sale?'فاکتور فروش طلا':'رسید تراکنش'}</div></div><div class="row2"><span>تاریخ: ${esc(new Date(t.Time).toLocaleString('fa-IR'))}</span><span>شماره: ${esc(code||'—')}</span></div><div class="row2"><span>مشتری: ${esc(c.Name||t.Name||'')}</span><span>${esc(c.Phone||'')}</span></div><table>${rows}</table>${total}<div class="row2" style="margin-top:40px"><span>امضای فروشنده</span><span>امضای خریدار</span></div>`;
  document.body.appendChild(v);document.getElementById('invClose').onclick=()=>v.remove();document.getElementById('invPrint').onclick=()=>window.print();}
 let bkTimer=null,lastBk=Number(localStorage.getItem('bkLast')||0),lastSig='',pendingRestore=null;
 function bkDownload(){if(!currentUser)return;const o={app:'nabat',v:1,userId:currentUser.id,email:currentUser.email,savedAt:Date.now(),customers:customers,transactions:transactions,entries:entries,queue:queue};lastSig=JSON.stringify([customers,transactions,entries,queue]);
@@ -429,35 +511,6 @@ function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qN
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
 $('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
-function txUpdateLocal(t,fields){
- Object.assign(t,fields);
- const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===t.id);
- if(ins){Object.assign(ins.row,fields);return;}
- const u=queue.find(o=>o.k==='tUpdate'&&o.tid===t.id);
- if(u)Object.assign(u.fields,fields);else if(Number(t.id)>0)queue.push({k:'tUpdate',tid:t.id,fields:Object.assign({},fields)});
-}
-function deleteTxLocal(t){
- const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===t.id);
- if(ins)queue=queue.filter(o=>o!==ins);
- else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===t.id));if(Number(t.id)>0)queue.push({k:'tDelete',tid:t.id});}
- transactions=transactions.filter(x=>x!==t&&x.id!==t.id);
-}
-function adjustInvoiceAfterItemDelete(t){
- if(t.Is_money!==false||t.Type!=='Give'||/مانده بدهی فروش/.test(t.Description||''))return false;
- const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];if(!code)return false;
- const re=new RegExp('فاکتور\\s+'+code+'(?![A-Z0-9])');
- const all=transactions.filter(x=>x.id!==t.id&&x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی فروش/.test(x.Description||'')&&re.test(x.Description||''));
- const oldWeight=all.reduce((a,x)=>a+Number(x.Amount||0),0)+Number(t.Amount||0);
- const debtRow=transactions.find(x=>x.Is_money===true&&x.Type==='Give'&&re.test(x.Description||''));
- const oldGoldDebt=all.reduce((a,x)=>a+Number(x.DebtGrams||0),0)+Number(t.DebtGrams||0);
- const newWeight=all.reduce((a,x)=>a+Number(x.Amount||0),0);
- const ratio=oldWeight>0?newWeight/oldWeight:0;
- if(all.length){
-   all.forEach((x,i)=>txUpdateLocal(x,{DebtGrams:i===0&&oldGoldDebt>0?Math.round(oldGoldDebt*ratio*1000)/1000:null}));
-   if(debtRow)txUpdateLocal(debtRow,{Amount:Math.round(Number(debtRow.Amount||0)*ratio)});
- }else if(debtRow){deleteTxLocal(debtRow);}
- return true;
-}
 function adjustIncome(t){
  const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];
  if(!code||t.Is_money!==false||t.Type!=='Give'||/مانده بدهی فروش/.test(t.Description||''))return '';
@@ -473,7 +526,7 @@ function adjustIncome(t){
 let lastSale=null;$('lastInvoice').onclick=()=>{try{if(lastSale)showInvoice(lastSale)}catch(e){say('appStatus','نمایش فاکتور ناموفق بود: '+msg(e))}};
 const cname=id=>customers.find(c=>String(c.id)===String(id))?.Name||'مشتری حذف‌شده/نامشخص';
 function signed(t){if(t.DebtGrams!=null&&t.DebtGrams!=='')return Number(t.DebtGrams);if(t.Settled)return 0;return t.Type==='Give'?Number(t.Amount||0):t.Type==='Receive'?-Number(t.Amount||0):0}
-function reportFilter(){const to=$('rTo').value,cid=$('rCustomer').value,type=$('rType').value;return{cid:cid,ok:t=>{const d=String(t.Time||'').slice(0,10);if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==cid)return false;if(type&&t.Type!==type)return false;return true}}}
+function reportFilter(){const to=$('rTo').value,cid=$('rCustomer').value;return{cid:cid,ok:t=>{const d=String(t.Time||'').slice(0,10);if(to&&d>to)return false;if(cid&&String(t.Customer_id)!==cid)return false;return true}}}
 function renderReport(){
  renderProfit();
  const map=new Map();const rf=reportFilter();
@@ -575,8 +628,8 @@ $('addCash').onclick=()=>{try{
  say('appStatus','ثبت شد.');afterChange();
 }catch(e){say('appStatus','ثبت ناموفق بود: '+msg(e));}};
 $('cashBody').onclick=ev=>{const b=ev.target.closest('button[data-del]');if(!b)return;const id=Number(b.dataset.del);if(pendingCash!==id){pendingCash=id;b.textContent='تأیید؟';setTimeout(()=>{if(pendingCash===id){pendingCash=null;renderCash()}},5000);return;}pendingCash=null;const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===id);if(ins)queue=queue.filter(o=>o!==ins);else if(id>0)queue.push({k:'eDelete',eid:id});entries=entries.filter(e=>e.id!==id);afterChange();};
-['rFrom','rTo','rCustomer','rType'].forEach(i=>{$(i).onchange=renderReport});
-$('rClear').onclick=()=>{['rFrom','rTo','rCustomer','rType'].forEach(i=>{$(i).value=''});renderReport();};
+['rFrom','rTo','rCustomer'].forEach(i=>{$(i).onchange=renderReport});
+$('rClear').onclick=()=>{['rFrom','rTo','rCustomer'].forEach(i=>{$(i).value=''});renderReport();};
 const cachedUser=()=>{try{return JSON.parse(localStorage.getItem('ledgerUser')||'null')}catch(e){return null}};
 function ensureLib(){return new Promise(r=>{if(window.supabase)return r(true);const s=document.createElement('script');s.src=CDN;s.onload=()=>r(!!window.supabase);s.onerror=()=>r(false);document.head.appendChild(s);});}
 window.addEventListener('offline',updateNet);
@@ -631,7 +684,7 @@ async function loadMarketRates(){
 }
 const rb=document.getElementById('refreshMarket');if(rb)rb.addEventListener('click',loadMarketRates);
 window.addEventListener('online',loadMarketRates);
-setInterval(()=>{if(navigator.onLine)loadMarketRates()},300000);
+setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')loadMarketRates()},300000);
 loadMarketRates();
 
 </script>
