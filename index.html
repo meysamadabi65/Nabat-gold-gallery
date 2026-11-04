@@ -312,9 +312,9 @@ $('addTransaction').onclick=()=>{try{
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
  if(type!=='Give'&&type!=='Receive')throw Error('نوع تراکنش نامعتبر است.');
- let gc=null,invNo='',restG=0,restT=0,debtMoney=false,descText=$('tDesc').value.trim()||null;
+ let gc=null,invNo='',credit=0,restG=0,restT=0,debtMoney=false,descText=$('tDesc').value.trim()||null;
  const pr=Number($(md==='buy'?'bPrice':md==='pay'?'pPrice':'gPrice').value)||0,cn=md==='buy'?$('bSeller').value.trim():(customer?customer.Name:'');let extra=null,asGold=null;
- if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');const paidA=Number($('gPaid').value)||0;if(paidA>gc.final)throw Error('مبلغ پرداختی از مبلغ نهایی بیشتر است.');restT=gc.final-paidA;debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;invNo=Date.now().toString(36).slice(-6).toUpperCase();descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+invNo].filter(Boolean).join(' | ');}
+ if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');const paidA=Number($('gPaid').value)||0;credit=Math.max(0,paidA-gc.final);restT=Math.max(0,gc.final-paidA);debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;invNo=nextInvNo();descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+invNo].filter(Boolean).join(' | ');}
  else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr),fp=pctNum('bFee'),fee=Math.round(tot*fp/100);extra={kind:'Expense',cat:'کارمزد خرید طلا',amt:fee,desc:'کارمزد خرید طلا ('+fmt(fp)+'٪)'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)+(fee>0?' | کارمزد '+fmt(fp)+'٪ = '+fmt(fee):'')].filter(Boolean).join(' | ');}
  else if(md==='pay'&&$('pInst').checked){if(!(pr>0))throw Error('قیمت طلا را وارد کنید.');asGold=Math.round(amount/pr*1000)/1000;descText=[descText,'پرداخت قسط '+fmt(amount)+' تومان به قیمت هر گرم '+fmt(pr)+' = '+fmt(asGold)+' گرم طلا'].filter(Boolean).join(' | ');}
  const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:descText,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
@@ -328,8 +328,8 @@ $('addTransaction').onclick=()=>{try{
   if(!primary)throw Error('ردیف اصلی فاکتور پیدا نشد؛ برای جلوگیری از به‌هم‌ریختن حساب، ویرایش لغو شد.');
   const il=itemList();if(!il.length)throw Error('حداقل یک قلم با وزن معتبر وارد کنید.');
   gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');
-  const paidA=Number($('gPaid').value)||0;if(paidA<0||paidA>gc.final)throw Error('مبلغ پرداختی باید بین صفر و مبلغ نهایی باشد.');
-  restT=gc.final-paidA;debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;
+  const paidA=Number($('gPaid').value)||0;if(paidA<0)throw Error('مبلغ پرداختی نمی‌تواند منفی باشد.');
+  restT=Math.max(0,gc.final-paidA);debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;
   const metadata='قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+code;
   const baseNote=$('tDesc').value.trim();
   const common={Time:dt,Is_money:false,Name:customer.Name,Customer_id:Number(customerId),Type:'Give',Settled:true,user_id:currentUser.id};
@@ -348,6 +348,7 @@ $('addTransaction').onclick=()=>{try{
    const df={Time:dt,Amount:restT,Is_money:true,Name:customer.Name,Description:'مانده بدهی پولی این فروش | فاکتور '+code,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id};
    if(debtRow)txUpdateLocal(debtRow,df);else{const id=newTmp();transactions.push(Object.assign({id},df));queue.push({k:'tInsert',tmp:id,row:df});}
   }else if(debtRow)deleteTxLocal(debtRow);
+  syncCredit(code,re,customerId,customer.Name,dt,Math.max(0,paidA-gc.final));
   const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));
   const incomeAmt=Math.round(gc.wage+gc.profit+gc.tax);
   const incomeFields={Time:dt,Kind:'Income',Category:'فروش طلا',Amount:incomeAmt,Description:'اجرت، سود و مالیات فروش طلا ('+(restT>0?'اقساطی':'نقدی')+') به '+customer.Name+' — '+fmt(gc.w)+' گرم | فاکتور '+code,user_id:currentUser.id};
@@ -371,6 +372,7 @@ $('addTransaction').onclick=()=>{try{
  if(gc){row.Settled=true;row.DebtGrams=restG;}
  const il=gc?itemList():[];if(il[0]&&il[0].n)row.Description=row.Description+' | جنس: '+il[0].n;
  const saved=md==='buy'?null:mk(row);if(debtMoney)mk({Time:dt,Amount:restT,Is_money:true,Name:customer?customer.Name:null,Description:'مانده بدهی پولی این فروش | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id});
+if(credit>0)mk({Time:dt,Amount:credit,Is_money:true,Name:customer?customer.Name:null,Description:'اضافه پرداختی این فاکتور (طلب مشتری) | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Receive',user_id:currentUser.id});
  il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,DebtGrams:null,Description:descText+(it.n?' | جنس: '+it.n:'')})));
  if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.wage+gc.profit+gc.tax,desc:'اجرت، سود و مالیات فروش طلا ('+(restT>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم | فاکتور '+invNo};
  if(extra&&extra.amt>0){const eid=newTmp();const er={Time:dt,Kind:extra.kind,Category:extra.cat,Amount:extra.amt,Description:extra.desc,user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
@@ -438,7 +440,7 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
- const adj=adjustIncome(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='حذف'?' و درآمد (سود) مربوط به آن هم حذف شد.':adj==='کم'?' و درآمد مربوط به آن به نسبت وزن کم شد.':'.'));afterChange();};
+ const adj=recalcSaleAfterDelete(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='همه'?' و بدهی/درآمد این فاکتور پاک شد.':adj==='بازحساب'?' و مبلغ فاکتور، بدهی مشتری و درآمد دوباره حساب شد.':'.'));afterChange();};
 function sepInput(el){const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
  const fa=x=>String(x).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/٫/g,'.');
  const clean=x=>fa(x).replace(/[^\d.]/g,'').replace(/(\..*)\./g,'$1');
@@ -461,7 +463,7 @@ function goldCalc(){const n=i=>Number($(i).value)||0,w=totalW(),pr=n('gPrice'),w
  const base=Math.round(w*pr),wage=Math.round(base*wg/100),profit=Math.round((base+wage)*pf/100),tax=Math.round((wage+profit)*vat/100);
  return{w:w,pr:pr,wg:wg,pf:pf,vat:vat,base:base,wage:wage,profit:profit,tax:tax,final:base+wage+profit+tax}}
 function goldBal(id){let g=0;for(const t of transactions)if(String(t.Customer_id)===String(id)&&t.Is_money===false)g+=signed(t);return Math.round(g*1000)/1000}
-function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gTotalW').textContent=itemWs().length?'جمع وزن فاکتور: '+fmt(totalW())+' گرم ('+itemWs().length+' آیتم)':'';if(!$('gPaid').dataset.t)$('gPaid').value=c.final;{const paid=Number($('gPaid').value)||0,rest=Math.max(0,c.final-paid);$('gDebtBox').classList.toggle('hidden',!(rest>0));const dm=$('gDebtType').value==='money';$('gRest').textContent=paid>c.final?'پرداختی از مبلغ نهایی بیشتر است':rest>0?'باقی‌مانده '+fmt(rest)+' تومان ← '+(dm?'بدهی پولی':fmt(c.pr>0?Math.round(rest/c.pr*1000)/1000:0)+' گرم طلا بدهکار'):'تسویه کامل (بدون بدهی)';}$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);
+function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gTotalW').textContent=itemWs().length?'جمع وزن فاکتور: '+fmt(totalW())+' گرم ('+itemWs().length+' آیتم)':'';if(!$('gPaid').dataset.t)$('gPaid').value=c.final;{const paid=Number($('gPaid').value)||0,rest=Math.max(0,c.final-paid);$('gDebtBox').classList.toggle('hidden',!(rest>0));const dm=$('gDebtType').value==='money';$('gRest').textContent=paid>c.final?'اضافه پرداختی '+fmt(paid-c.final)+' تومان ← مشتری طلبکار می‌شود':rest>0?'باقی‌مانده '+fmt(rest)+' تومان ← '+(dm?'بدهی پولی':fmt(c.pr>0?Math.round(rest/c.pr*1000)/1000:0)+' گرم طلا بدهکار'):'تسویه کامل (بدون بدهی)';}$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);
  const w=Number($('tAmount').value)||0;{const bt=Math.round(w*(Number($('bPrice').value)||0));$('bTotal').value=fmt(bt);const bf=Math.round(bt*pctNum('bFee')/100);$('bFeeAmt').textContent=bf>0?'کارمزد خرید: '+fmt(bf)+' تومان':'';}
  const pp=Number($('pPrice').value)||0,gr=pp>0?Math.round(w/pp*1000)/1000:0,bal=goldBal($('tCustomer').value);
  $('pGrams').value=fmt(gr);$('pInfo').textContent='بدهی طلای مشتری: '+fmt(bal)+' گرم ← پس از پرداخت: '+fmt(Math.round((bal-gr)*1000)/1000)+' گرم';}
@@ -511,6 +513,57 @@ function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qN
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
 $('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
+function nextInvNo(){let m=1000;for(const t of transactions){const c=(String(t.Description||'').match(/فاکتور\s+(\d{4,5})(?![A-Z0-9])/)||[])[1];if(c&&+c>m)m=+c}return String(m+1)}
+function syncCredit(code,re,customerId,custName,time,excess){
+ const row=transactions.find(x=>x.Is_money===true&&x.Type==='Receive'&&/اضافه پرداختی این فاکتور/.test(x.Description||'')&&re.test(x.Description||''));
+ if(excess>0){const d='اضافه پرداختی این فاکتور (طلب مشتری) | فاکتور '+code;
+  if(row)txUpdateLocal(row,{Amount:excess,Description:d,Customer_id:Number(customerId),Name:custName,Time:time});
+  else{const id=newTmp();const rw={Time:time,Amount:excess,Is_money:true,Name:custName,Description:d,Customer_id:Number(customerId),Type:'Receive',user_id:currentUser.id};transactions.push(Object.assign({id},rw));queue.push({k:'tInsert',tmp:id,row:rw});}
+ }else if(row)deleteTxLocal(row);
+}
+function recalcSaleAfterDelete(t){
+ const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];
+ if(!code||t.Is_money!==false||t.Type!=='Give'||/مانده بدهی پولی این فروش/.test(t.Description||''))return '';
+ const sale=parseSale(t.Description||'');if(!sale||!(sale.pr>0))return '';
+ const re=new RegExp('فاکتور\\s+'+code+'(?![A-Z0-9])');
+ const all=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+ const left=all.filter(x=>x!==t&&String(x.id)!==String(t.id));
+ const debtRow=transactions.find(x=>x.Is_money===true&&x.Type==='Give'&&/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+ if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0);return 'همه';}
+ const W=Math.round(left.reduce((a,x)=>a+Number(x.Amount||0),0)*1000)/1000;
+ const base=Math.round(W*sale.pr),wage=Math.round(base*sale.wg/100),profit=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+profit)*sale.vat/100);
+ const final=base+wage+profit+tax;
+ const paid=sale.paid!=null?sale.paid:(sale.pay==='نقدی'?final:0);
+ const restT=Math.max(0,final-paid);
+ const excess=Math.max(0,paid-final);
+ const debtMoney=restT>0&&(!!debtRow||/\(بدهی پولی\)/.test(enD(t.Description||'')));
+ const restG=debtMoney?0:Math.round(restT/sale.pr*1000)/1000;
+ const meta='قیمت هر گرم '+fmt(sale.pr)+' | اجرت '+fmt(sale.wg)+'٪ | سود '+fmt(sale.pf)+'٪ | مالیات '+fmt(sale.vat)+'٪ | مبلغ نهایی '+fmt(final)+' | پرداختی '+fmt(paid)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+code;
+ const oldMetaRe=/قیمت هر گرم[^|]*\|[^|]*\|[^|]*\|[^|]*\|\s*مبلغ نهایی[^|]*\|\s*پرداختی[^|]*\|[^|]*\|\s*فاکتور\s+[A-Z0-9]+/;
+ // نگه داشتن ردیف اصلی؛ اگر خودش حذف شد، اولین ردیف باقی‌مانده اصلی می‌شود
+ const hadPrimary=all.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined);
+ const primary=(hadPrimary&&hadPrimary!==t)?hadPrimary:left[0];
+ left.forEach(x=>{
+  const d=String(x.Description||'');const nm=(enD(d).match(/جنس:\s*([^|]+)/)||[])[1];
+  const note=d.split(/\s*\|\s*قیمت هر گرم/)[0];
+  const hasMeta=/قیمت هر گرم/.test(d);
+  const nd=[hasMeta?note:'',meta,nm?'جنس: '+nm.trim():''].filter(Boolean).join(' | ');
+  txUpdateLocal(x,{Description:nd,DebtGrams:x===primary?restG:null});
+ });
+ if(debtMoney&&restT>0){
+  const df={Amount:restT,Description:'مانده بدهی پولی این فروش | فاکتور '+code};
+  if(debtRow)txUpdateLocal(debtRow,df);
+  else{const c=customers.find(c=>String(c.id)===String(t.Customer_id))||{};const id=newTmp();const rw={Time:t.Time,Amount:restT,Is_money:true,Name:c.Name||t.Name,Description:df.Description,Customer_id:Number(t.Customer_id),Type:'Give',user_id:currentUser.id};transactions.push(Object.assign({id},rw));queue.push({k:'tInsert',tmp:id,row:rw});}
+ }else if(debtRow)deleteTxLocal(debtRow);
+ syncCredit(code,re,t.Customer_id,(customers.find(c=>String(c.id)===String(t.Customer_id))||{}).Name||t.Name,t.Time,excess);
+ const e=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));
+ const inc=wage+profit+tax;
+ if(e){
+  if(inc>0)setEntryLocal(e,{Amount:inc,Description:String(e.Description||'').replace(/—\s*[^—|]*گرم/,'— '+fmt(W)+' گرم')});
+  else deleteEntryLocal(e);
+ }
+ return 'بازحساب';
+}
 function adjustIncome(t){
  const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];
  if(!code||t.Is_money!==false||t.Type!=='Give'||/مانده بدهی فروش/.test(t.Description||''))return '';
