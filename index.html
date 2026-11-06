@@ -372,8 +372,8 @@ $('addTransaction').onclick=()=>{try{
  if(gc){row.Settled=true;row.DebtGrams=restG;}
  const il=gc?itemList():[];if(il[0]&&il[0].n)row.Description=row.Description+' | جنس: '+il[0].n;
  const saved=md==='buy'?null:mk(row);if(debtMoney)mk({Time:dt,Amount:restT,Is_money:true,Name:customer?customer.Name:null,Description:'مانده بدهی پولی این فروش | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id});
-if(credit>0)mk({Time:dt,Amount:credit,Is_money:true,Name:customer?customer.Name:null,Description:'اضافه پرداختی این فاکتور (طلب مشتری) | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Receive',user_id:currentUser.id});
  il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,DebtGrams:null,Description:descText+(it.n?' | جنس: '+it.n:'')})));
+ if(gc&&credit>0)syncCredit(invNo,new RegExp('فاکتور\\s+'+invNo+'(?![A-Z0-9])'),customerId,customer?customer.Name:null,dt,credit);
  if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.wage+gc.profit+gc.tax,desc:'اجرت، سود و مالیات فروش طلا ('+(restT>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم | فاکتور '+invNo};
  if(extra&&extra.amt>0){const eid=newTmp();const er={Time:dt,Kind:extra.kind,Category:extra.cat,Amount:extra.amt,Description:extra.desc,user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
@@ -515,11 +515,20 @@ $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer'
 $('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
 function nextInvNo(){let m=1000;for(const t of transactions){const c=(String(t.Description||'').match(/فاکتور\s+(\d{4,5})(?![A-Z0-9])/)||[])[1];if(c&&+c>m)m=+c}return String(m+1)}
 function syncCredit(code,re,customerId,custName,time,excess){
- const row=transactions.find(x=>x.Is_money===true&&x.Type==='Receive'&&/اضافه پرداختی این فاکتور/.test(x.Description||'')&&re.test(x.Description||''));
- if(excess>0){const d='اضافه پرداختی این فاکتور (طلب مشتری) | فاکتور '+code;
-  if(row)txUpdateLocal(row,{Amount:excess,Description:d,Customer_id:Number(customerId),Name:custName,Time:time});
-  else{const id=newTmp();const rw={Time:time,Amount:excess,Is_money:true,Name:custName,Description:d,Customer_id:Number(customerId),Type:'Receive',user_id:currentUser.id};transactions.push(Object.assign({id},rw));queue.push({k:'tInsert',tmp:id,row:rw});}
- }else if(row)deleteTxLocal(row);
+ // اعتبار اضافه‌پرداخت روی همان ردیف اصلی فروش ذخیره می‌شود؛ ردیف دریافت جداگانه نساز.
+ const oldRows=transactions.filter(x=>x.Is_money===true&&x.Type==='Receive'&&/اضافه پرداختی این فاکتور/.test(x.Description||'')&&re.test(x.Description||''));
+ oldRows.forEach(deleteTxLocal); // پاک‌سازی ردیف‌های اعتباری نسخه‌های قبلی
+ const saleRows=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+ if(!saleRows.length)return;
+ const primary=saleRows.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||saleRows[0];
+ let desc=String(primary.Description||'').replace(/\s*\|?\s*اعتبار مشتری\s*:\s*[\d,٬۰-۹٠-٩.]+\s*تومان?/g,'').trim();
+ if(excess>0)desc+=(desc?' | ':'')+'اعتبار مشتری: '+fmt(excess)+' تومان';
+ txUpdateLocal(primary,{Description:desc});
+}
+function saleCredit(t){
+ if(t.Is_money!==false||t.Type!=='Give')return 0;
+ const m=enD(t.Description||'').match(/اعتبار مشتری\s*:\s*([\d,]+)/);
+ return m?Number(m[1].replace(/,/g,''))||0:0;
 }
 function recalcSaleAfterDelete(t){
  const code=(String(t.Description||'').match(/فاکتور\s+([A-Z0-9]{4,8})/)||[])[1];
@@ -584,7 +593,7 @@ function renderReport(){
  renderProfit();
  const map=new Map();const rf=reportFilter();
  for(const c of customers){if(!rf.cid||String(c.id)===rf.cid)map.set(String(c.id),{name:c.Name,money:0,gold:0})}
- for(const t of transactions){if(!rf.ok(t))continue;const k=String(t.Customer_id);if(!map.has(k))map.set(k,{name:cname(t.Customer_id),money:0,gold:0});const r=map.get(k);if(t.Is_money===true)r.money+=signed(t);else if(t.Is_money===false)r.gold+=signed(t);}
+ for(const t of transactions){if(!rf.ok(t))continue;const k=String(t.Customer_id);if(!map.has(k))map.set(k,{name:cname(t.Customer_id),money:0,gold:0});const r=map.get(k);if(t.Is_money===true)r.money+=signed(t);else if(t.Is_money===false){r.gold+=signed(t);r.money-=saleCredit(t);}}
  const rows=[...map.values()].map(r=>({name:r.name,money:Math.round(r.money),gold:Math.round(r.gold*1000)/1000})).filter(r=>Math.abs(r.money)>=0.5||Math.abs(r.gold)>=0.005).sort((a,b)=>String(a.name).localeCompare(String(b.name),'fa'));
  $('reportBody').innerHTML=rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${fmt(r.money)}</td><td>${fmt(r.gold)}</td></tr>`).join('')||'<tr><td colspan="3">داده‌ای وجود ندارد.</td></tr>';
  $('moneyTotal').textContent=fmt(rows.reduce((s,r)=>s+r.money,0));
@@ -658,7 +667,7 @@ function renderCharts(){
 function renderDash(){
  renderCharts();
  let m=0,g=0;const bal=new Map();
- for(const t of transactions){const v=signed(t);if(t.Is_money===true){m+=v;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)+v)}else if(t.Is_money===false)g+=v}
+ for(const t of transactions){const v=signed(t);if(t.Is_money===true){m+=v;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)+v)}else if(t.Is_money===false){g+=v;const cr=saleCredit(t);m-=cr;bal.set(t.Customer_id,(bal.get(t.Customer_id)||0)-cr)}}
  const cur=jp(new Date()),mo=sumE(e=>jp(e.Time)===cur),all=sumE(()=>true);
  $('dashCards').innerHTML=metric('✨ سود این ماه',mo.p,'',true)+metric('📈 درآمد این ماه',mo.i)+metric('📉 هزینه این ماه',mo.x)+metric('💰 سود کل',all.p,pc(all.p))+metric('💵 مانده پول مشتری‌ها',m)+metric('🪙 مانده طلای مشتری‌ها',g)+metric('👥 تعداد مشتری',customers.length);
  const g2=new Map();for(const e of entries){const k=jp(e.Time);if(!g2.has(k))g2.set(k,{d:e.Time,i:0,x:0});const r=g2.get(k);if(e.Kind==='Income')r.i+=Number(e.Amount);else r.x+=Number(e.Amount)}
