@@ -538,7 +538,7 @@ function recalcSaleAfterDelete(t){
  const all=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
  const left=all.filter(x=>x!==t&&String(x.id)!==String(t.id));
  const debtRow=transactions.find(x=>x.Is_money===true&&x.Type==='Give'&&/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
- if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0);return 'همه';}
+ if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0);const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));if(income)deleteEntryLocal(income);return 'همه';}
  const W=Math.round(left.reduce((a,x)=>a+Number(x.Amount||0),0)*1000)/1000;
  const base=Math.round(W*sale.pr),wage=Math.round(base*sale.wg/100),profit=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+profit)*sale.vat/100);
  const final=base+wage+profit+tax;
