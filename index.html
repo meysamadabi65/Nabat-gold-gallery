@@ -27,6 +27,39 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 .toolbar{display:flex;align-items:center;gap:10px;padding:10px 12px}
 .toolbar #netStatus{flex:1;font-size:.8rem}
 .toolbar button{width:auto;margin:0;padding:8px 12px;font-size:.85rem}
+
+/* Nabat premium interface refresh — visual-only overrides */
+:root{font-family:Tahoma,Arial,sans-serif;color:#24342d;background:#f5f6f2;--forest:#173d32;--forest2:#245847;--gold:#c49a45;--gold-light:#f5ead0;--ink:#24342d;--muted:#718078;--line:#e5e9e2;--surface:#fff;--soft:#f4f7f3;--danger:#a9433d}
+body{background:radial-gradient(ellipse at 85% 0%,#e9eee4 0,transparent 36%),#f5f6f2;min-height:100vh}
+header{background:linear-gradient(115deg,#102e26 0%,#1d493b 58%,#2d5b47 100%);color:#fff;padding:23px 18px;box-shadow:0 5px 22px #173d3224;border-bottom:3px solid var(--gold)}
+header h1{font-size:1.35rem;letter-spacing:-.3px;margin-bottom:7px}header p{color:#e4eadf;font-size:.86rem}
+main{max-width:1080px;padding:20px 16px 34px}
+.card{border:1px solid #e7eae3;border-radius:17px;padding:19px;margin-bottom:16px;box-shadow:0 5px 18px #1b35240a;background:rgba(255,255,255,.96)}
+h2{color:var(--forest);font-size:1.04rem;font-weight:800;padding-bottom:10px;border-bottom:1px solid #edf0e9;margin-bottom:16px}
+label{color:#52645a;font-weight:700;font-size:.83rem;margin-bottom:7px}
+input,select,textarea{border:1px solid #dce3da;border-radius:11px;background:#fbfcfa;color:var(--ink);padding:12px 13px;min-height:44px;transition:border-color .18s,box-shadow .18s,background .18s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#b9954e;background:#fff;box-shadow:0 0 0 3px #c49a4520}
+textarea{min-height:88px}
+button{width:auto;min-height:40px;padding:10px 17px;margin-top:0;border:1px solid transparent;border-radius:11px;background:linear-gradient(135deg,#245846,#173d32);color:#fff;font-size:.88rem;font-weight:700;letter-spacing:0;box-shadow:0 3px 8px #173d3218;transition:transform .16s,box-shadow .16s,filter .16s;cursor:pointer}
+button:hover{filter:brightness(1.06);box-shadow:0 5px 13px #173d3225;transform:translateY(-1px)}button:active{transform:translateY(0);box-shadow:none}button:focus-visible{outline:3px solid #c49a4566;outline-offset:2px}
+button.secondary{background:#f5f7f3;color:#365346;border:1px solid #dce5db;box-shadow:none}button.secondary:hover{background:#edf2eb;border-color:#bdcdbd}
+button.danger{background:#fff4f2;color:#a33d36;border:1px solid #f0d2ce;box-shadow:none}button.danger:hover{background:#ffe9e6}
+.inline{gap:10px;flex-wrap:wrap}.inline>*{min-width:0}.inline button{flex:1}
+.grid{gap:14px}
+.tabs{display:flex;gap:7px;flex-wrap:nowrap;overflow-x:auto;padding:5px 3px 12px;margin:0 0 12px;scrollbar-width:thin;scrollbar-color:#c9d4c8 transparent}
+.tabs button{flex:0 0 auto;width:auto;min-height:42px;margin:0;padding:9px 15px;border-radius:12px;background:#fff;color:#53665b;border:1px solid #e1e7de;box-shadow:0 2px 7px #203d2608;font-size:.84rem}
+.tabs button.active{background:linear-gradient(135deg,#245846,#173d32);color:#fff;border-color:#245846;box-shadow:0 4px 12px #173d3228}
+.toolbar{padding:10px 0 14px;gap:10px}.toolbar button{min-height:36px;border-radius:10px}
+.status,.warn{border-radius:12px;padding:12px 14px}.status{background:#f1f6ef;border:1px solid #dfe9da;color:#405b49}.warn{background:#fff9ec;border:1px solid #efe0bb;color:#765b27}
+.balance{gap:12px}.metric{background:linear-gradient(145deg,#f7f9f5,#edf3eb);border:1px solid #e3eade;border-radius:13px;padding:15px}.metric strong{color:#244b3b;font-size:1.12rem}.metric.hero{background:linear-gradient(135deg,#1b4939,#102f27);border:1px solid #b8954b;color:#fff}.metric.hero strong{color:#f2d99f}
+.tablewrap{border:1px solid #e8ece5;border-radius:12px;background:#fff}table{font-size:.84rem}th{background:#f1f5ef;color:#385447;font-weight:800;white-space:nowrap}th,td{padding:11px 10px;border-bottom:1px solid #edf0ea}tbody tr:hover{background:#fafbf8}td .rowbtn{min-height:32px;padding:6px 10px;border-radius:8px;font-size:.76rem}.actions{white-space:nowrap}
+.badge{display:inline-block;background:#f8efd9;color:#87651f;padding:3px 7px;border-radius:20px;font-weight:700}
+small,.muted{color:var(--muted)}.pos{color:#24734d}.neg{color:#b4433b}
+#marketPrices{color:#214d3b!important;font-weight:800}#marketUpdated{color:#758278}
+footer{color:#89958c;padding:20px}
+@media(max-width:600px){main{padding:12px 10px 26px}header{padding:19px 14px}.card{padding:14px;border-radius:14px;margin-bottom:12px}.tabs{margin-left:-2px;margin-right:-2px}.tabs button{padding:9px 12px;font-size:.8rem}.inline{flex-direction:column;align-items:stretch}.inline>*{width:100%;flex:initial}.inline button{width:100%}.toolbar{flex-wrap:wrap}.toolbar #netStatus{flex-basis:100%}td .rowbtn{margin:2px 3px 2px 0}table{font-size:.79rem}th,td{padding:9px 8px}}
+@media(min-width:800px){.card{padding:22px}.tabs button{padding-left:18px;padding-right:18px}}
+
 </style>
 </head>
 <body>
