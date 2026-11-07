@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#6d28d9">
+<meta name="theme-color" content="#075b48">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>گالری طلای نبات</title>
 <style>
-:root{font-family:Tahoma,Arial,sans-serif;color:#1e1630;background:#f7f4fd}
+:root{font-family:Tahoma,Arial,sans-serif;color:#18352d;background:#f3f7f4;--green:#08745a;--green-dark:#064b3b;--gold:#c69a42;--ink:#18352d;--muted:#718078;--line:#dce8e0;--soft:#edf5ef}
+:focus-visible{outline:3px solid #d8b76d;outline-offset:2px}
+
 *{box-sizing:border-box}body{margin:0}header{background:#6d28d9;color:#fff;padding:18px 16px}
 header h1{font-size:1.25rem;margin:0 0 6px}header p{margin:0;font-size:.9rem;opacity:.9}
 main{max-width:980px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #e2d9f7;border-radius:14px;padding:16px;margin:0 0 14px;box-shadow:0 2px 8px #2a0f4d10}
@@ -27,6 +29,38 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 .toolbar{display:flex;align-items:center;gap:10px;padding:10px 12px}
 .toolbar #netStatus{flex:1;font-size:.8rem}
 .toolbar button{width:auto;margin:0;padding:8px 12px;font-size:.85rem}
+
+/* Nabat professional visual refresh */
+body{background:linear-gradient(180deg,#edf5ef 0,#f7f8f5 260px);color:var(--ink);line-height:1.65}
+header{background:linear-gradient(120deg,#064b3b 0%,#08745a 58%,#16846a 100%);padding:23px 18px;box-shadow:0 5px 18px #063e3025;border-bottom:3px solid var(--gold);position:relative;overflow:hidden}
+header:after{content:"✦";position:absolute;left:22px;top:-18px;font-size:110px;color:#ffffff12;pointer-events:none}
+header h1{font-size:1.45rem;letter-spacing:-.3px;margin-bottom:5px}header p{color:#e4f2e9;font-size:.9rem}
+main{max-width:1100px;padding:18px 14px 30px}
+.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:16px;box-shadow:0 5px 18px #18352d0b}
+h2{font-size:1.08rem;color:var(--green-dark);padding-bottom:9px;border-bottom:1px solid #edf1ed;margin-bottom:16px}
+label{color:#43594e;font-weight:600}
+input,select,textarea{border:1px solid #d5e1d8;border-radius:11px;padding:12px;background:#fcfdfb;transition:border-color .18s,box-shadow .18s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#399779;box-shadow:0 0 0 3px #08745a18;background:#fff}
+button{background:linear-gradient(135deg,#0b8062,#066149);color:#fff;border:1px solid #066149;border-radius:11px;padding:11px 15px;min-height:42px;font-weight:700;box-shadow:0 3px 8px #075b481b;transition:transform .15s,box-shadow .15s,filter .15s}
+button:hover{filter:brightness(1.06);box-shadow:0 5px 12px #075b4825;transform:translateY(-1px)}button:active{transform:translateY(0)}button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+button.secondary{background:#edf5ef;color:#17644f;border:1px solid #cfe0d4;box-shadow:none}
+button.danger{background:#fff1ef;color:#a3312b;border:1px solid #f0c9c4;box-shadow:none}
+.inline{gap:10px;align-items:stretch}.inline>*{min-width:0}
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:7px;background:#e7f0e9;border:1px solid #d8e5dc;border-radius:15px;margin-bottom:15px}
+.tabs button{width:100%;margin:0;padding:10px 7px;min-height:44px;background:transparent;color:#466357;border:1px solid transparent;box-shadow:none;font-size:.88rem}
+.tabs button:hover{background:#f7fbf7;transform:none}.tabs button.active{background:linear-gradient(135deg,#08745a,#07513f);color:#fff;border-color:#07513f;box-shadow:0 3px 9px #075b4825}
+.toolbar{border-radius:14px;background:#fff;align-items:center}.toolbar button{min-width:112px}
+.grid{gap:14px}.balance{gap:12px}.metric{background:linear-gradient(145deg,#f1f7f2,#e8f2eb);border:1px solid #dce9df;border-radius:13px;padding:14px}.metric strong{color:#075b48}.metric.hero{background:linear-gradient(135deg,#08745a,#064b3b);border:0}.metric.hero strong{color:#f4d58e}
+.status{background:#f1f7f2;border:1px solid #dce9df;color:#365a49;border-radius:11px}
+.warn{background:#fff9eb;border:1px solid #ead9ad;color:#735a25;border-radius:12px}
+.tablewrap{border:1px solid var(--line);border-radius:12px;background:#fff}table{font-size:.87rem}th{background:#edf5ef;color:#285744;font-weight:700;white-space:nowrap}td,th{padding:11px 10px;border-bottom:1px solid #e8eee9}tbody tr:nth-child(even){background:#fbfdfb}tbody tr:hover{background:#f2f8f3}
+td .rowbtn{min-height:32px;padding:6px 10px;border-radius:8px}
+.badge{color:#88631b;background:#fbf3df;border-radius:20px;padding:3px 8px}
+.pos{color:#08745a}.neg{color:#b23a32}
+footer{color:#78877e}
+@media(max-width:760px){main{padding:12px 10px 24px}.card{padding:14px;border-radius:14px}.tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.tabs button{font-size:.82rem;padding:9px 4px}.inline{flex-wrap:wrap}.inline>*{flex:1 1 calc(50% - 8px)}.toolbar{gap:8px;flex-wrap:wrap}.toolbar #netStatus{flex:1 1 100%;order:3}.toolbar button{flex:1 1 0}.tablewrap{border-radius:10px}}
+@media(max-width:390px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.inline>*{flex-basis:100%}header h1{font-size:1.25rem}}
+
 </style>
 </head>
 <body>
@@ -97,7 +131,7 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 <div class="muted" id="gBreak" style="margin-top:8px"></div><div class="muted" id="gRest" style="margin-top:4px;font-weight:bold"></div><div id="gDebtBox" class="hidden"><label for="gDebtType">باقی‌مانده بدهی مشتری به چه صورت ثبت شود؟</label><select id="gDebtType"><option value="gold">طلا (گرم) — با قیمت امروز به گرم تبدیل می‌شود</option><option value="money">پول (تومان)</option></select></div>
 <label for="gFinal" style="margin-top:8px">مبلغ نهایی (تومان)</label><input id="gFinal" readonly>
 <div class="muted">فقط مجموع اجرت، سود و مالیات به‌عنوان درآمد ثبت می‌شود (ارزش خود طلا درآمد حساب نمی‌شود). در حالت اقساطی، می‌توانید انتخاب کنید باقی‌مانده به‌صورت طلا یا پول بدهی بماند.</div></div>
-<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">درصد سود خرید طلا به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div><label for="bFee">درصد سود خرید طلا (٪) — بر اساس مبلغ کل خرید</label><input id="bFee" type="text" inputmode="decimal" min="0" step="any" placeholder="0"><div class="muted" id="bFeeAmt" style="margin-top:4px;font-weight:bold"></div></div>
+<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div><label for="bFee">درصد کارمزد خرید (٪) — فقط کارمزد هزینه حساب می‌شود</label><input id="bFee" type="text" inputmode="decimal" min="0" step="any" placeholder="0"><div class="muted" id="bFeeAmt" style="margin-top:4px;font-weight:bold"></div></div>
 <div id="payBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>💳 پرداخت قسط</b><label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="pInst" checked style="width:auto;margin:0"> تبدیل پول به طلا و کم کردن از بدهی طلا</label><div class="grid"><div><label for="pPrice">قیمت هر گرم طلا (تومان)</label><input id="pPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="pGrams">معادل طلا (گرم)</label><input id="pGrams" readonly></div></div><div class="muted" id="pInfo"></div></div>
 <button id="addTransaction">ثبت تراکنش</button><button id="cancelTx" class="secondary hidden">انصراف از ویرایش</button><button id="lastInvoice" class="secondary hidden">نمایش فاکتور آخرین فروش</button>
 </section>
@@ -333,7 +367,7 @@ $('addTransaction').onclick=()=>{try{
  let gc=null,invNo='',credit=0,restG=0,restT=0,debtMoney=false,descText=$('tDesc').value.trim()||null;
  const pr=Number($(md==='buy'?'bPrice':md==='pay'?'pPrice':'gPrice').value)||0,cn=md==='buy'?$('bSeller').value.trim():(customer?customer.Name:'');let extra=null,asGold=null;
  if(md==='sell'){gc=goldCalc();if(!(gc.pr>0))throw Error('قیمت طلا را وارد کنید.');const paidA=Number($('gPaid').value)||0;credit=Math.max(0,paidA-gc.final);restT=Math.max(0,gc.final-paidA);debtMoney=restT>0&&$('gDebtType').value==='money';restG=debtMoney?0:Math.round(restT/gc.pr*1000)/1000;invNo=nextInvNo();descText=[descText,'قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+invNo].filter(Boolean).join(' | ');}
- else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr),fp=pctNum('bFee'),fee=Math.round(tot*fp/100);extra={kind:'Expense',cat:'سود خرید طلا',amt:fee,desc:'سود خرید طلا ('+fmt(fp)+'٪)'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)+(fee>0?' | کارمزد '+fmt(fp)+'٪ = '+fmt(fee):'')].filter(Boolean).join(' | ');}
+ else if(md==='buy'){if(!(pr>0))throw Error('قیمت خرید طلا را وارد کنید.');const tot=Math.round(amount*pr),fp=pctNum('bFee'),fee=Math.round(tot*fp/100);extra={kind:'Expense',cat:'کارمزد خرید طلا',amt:fee,desc:'کارمزد خرید طلا ('+fmt(fp)+'٪)'+(cn?' از '+cn:'')+' — '+fmt(amount)+' گرم × '+fmt(pr)};descText=[descText,'خرید به قیمت هر گرم '+fmt(pr)+' | مبلغ '+fmt(tot)+(fee>0?' | کارمزد '+fmt(fp)+'٪ = '+fmt(fee):'')].filter(Boolean).join(' | ');}
  else if(md==='pay'&&$('pInst').checked){if(!(pr>0))throw Error('قیمت طلا را وارد کنید.');asGold=Math.round(amount/pr*1000)/1000;descText=[descText,'پرداخت قسط '+fmt(amount)+' تومان به قیمت هر گرم '+fmt(pr)+' = '+fmt(asGold)+' گرم طلا'].filter(Boolean).join(' | ');}
  const row={Time:dt,Amount:amount,Is_money:$('tAsset').value==='money',Name:customer?customer.Name:null,Description:descText,Customer_id:Number(customerId),Type:type,user_id:currentUser.id};
  if(editingSale){
@@ -482,7 +516,7 @@ function goldCalc(){const n=i=>Number($(i).value)||0,w=totalW(),pr=n('gPrice'),w
  return{w:w,pr:pr,wg:wg,pf:pf,vat:vat,base:base,wage:wage,profit:profit,tax:tax,final:base+wage+profit+tax}}
 function goldBal(id){let g=0;for(const t of transactions)if(String(t.Customer_id)===String(id)&&t.Is_money===false)g+=signed(t);return Math.round(g*1000)/1000}
 function renderGold(){const c=goldCalc();$('gFinal').value=fmt(c.final);$('gTotalW').textContent=itemWs().length?'جمع وزن فاکتور: '+fmt(totalW())+' گرم ('+itemWs().length+' آیتم)':'';if(!$('gPaid').dataset.t)$('gPaid').value=c.final;{const paid=Number($('gPaid').value)||0,rest=Math.max(0,c.final-paid);$('gDebtBox').classList.toggle('hidden',!(rest>0));const dm=$('gDebtType').value==='money';$('gRest').textContent=paid>c.final?'اضافه پرداختی '+fmt(paid-c.final)+' تومان ← مشتری طلبکار می‌شود':rest>0?'باقی‌مانده '+fmt(rest)+' تومان ← '+(dm?'بدهی پولی':fmt(c.pr>0?Math.round(rest/c.pr*1000)/1000:0)+' گرم طلا بدهکار'):'تسویه کامل (بدون بدهی)';}$('gBreak').textContent='ارزش طلا: '+fmt(c.base)+' | اجرت: '+fmt(c.wage)+' | سود: '+fmt(c.profit)+' | مالیات: '+fmt(c.tax);
- const w=Number($('tAmount').value)||0;{const bt=Math.round(w*(Number($('bPrice').value)||0));$('bTotal').value=fmt(bt);const bf=Math.round(bt*pctNum('bFee')/100);$('bFeeAmt').textContent=bf>0?'هزینه سود خرید: '+fmt(bf)+' تومان':'';}
+ const w=Number($('tAmount').value)||0;{const bt=Math.round(w*(Number($('bPrice').value)||0));$('bTotal').value=fmt(bt);const bf=Math.round(bt*pctNum('bFee')/100);$('bFeeAmt').textContent=bf>0?'کارمزد خرید: '+fmt(bf)+' تومان':'';}
  const pp=Number($('pPrice').value)||0,gr=pp>0?Math.round(w/pp*1000)/1000:0,bal=goldBal($('tCustomer').value);
  $('pGrams').value=fmt(gr);$('pInfo').textContent='بدهی طلای مشتری: '+fmt(bal)+' گرم ← پس از پرداخت: '+fmt(Math.round((bal-gr)*1000)/1000)+' گرم';}
 function fillGoldPrice(){let r=null;try{r=JSON.parse(localStorage.getItem('goldRate18')||'null')}catch(e){}if(r&&r.price)PRC.forEach(i=>{if(!$(i).dataset.t)$(i).value=Math.round(r.price)})}
