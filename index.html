@@ -30,6 +30,11 @@ footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
 .toolbar #netStatus{flex:1;font-size:.8rem}
 .toolbar button{width:auto;margin:0;padding:8px 12px;font-size:.85rem}
 
+
+.version-stamp{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:-3px 0 14px;padding:10px 12px;border:1px solid #e7d7ad;border-radius:12px;background:linear-gradient(110deg,#fffdf7,#f8f3e6);color:#6e592b;font-size:.82rem}
+.version-stamp strong{color:#075b48;font-size:.84rem;font-weight:700}
+.version-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#c69a42;box-shadow:0 0 0 3px #c69a4225}
+
 /* Nabat professional visual refresh */
 body{background:linear-gradient(180deg,#edf5ef 0,#f7f8f5 260px);color:var(--ink);line-height:1.65}
 header{background:linear-gradient(120deg,#064b3b 0%,#08745a 58%,#16846a 100%);padding:23px 18px;box-shadow:0 5px 18px #063e3025;border-bottom:3px solid var(--gold);position:relative;overflow:hidden}
@@ -68,6 +73,11 @@ footer{color:#78877e}
 <main>
 <div class="card" id="setup">
 <h2>ورود به دفتر حساب</h2>
+<div class="version-stamp" aria-label="آخرین ویرایش نرم‌افزار">
+  <span class="version-dot"></span>
+  <span>آخرین ویرایش نرم‌افزار</span>
+  <strong>۷ آبان ۱۴۰۵، ساعت ۱۷:۴۵</strong>
+</div>
 <div class="warn">اطلاعات اتصال فقط در همین مرورگر ذخیره می‌شود. کلید <b>service_role</b> یا کلید مخفی را اینجا وارد نکنید؛ فقط Project URL و کلید عمومی publishable.</div>
 <div class="grid" style="margin-top:12px">
 <div><label for="url">Project URL</label><input id="url" placeholder="https://....supabase.co" autocomplete="url"></div>
