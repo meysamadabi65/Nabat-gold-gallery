@@ -164,10 +164,28 @@ function setupClient(){
 function needClient(){ if(!client) setupClient(); return client; }
 function msg(e){return e?.message || String(e || 'خطای نامشخص');}
 $('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
-$('login').onclick=async()=>{try{const c=setupClient();const em=$('email').value.trim().toLowerCase(),pw=$('password').value;
- const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
- let r=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error)break;if(!/invalid login/i.test(msg(r.error)))break;}
- if(r.error)throw r.error;await onSignedIn(r.data.user,true)}catch(e){let h='';try{h=' (پروژه: '+new URL($('url').value.trim()).host+')'}catch(_){}say('authStatus','ورود انجام نشد: '+msg(e)+h)}};
+$('login').onclick=async()=>{
+ const em=$('email').value.trim().toLowerCase();
+ const offlineLogin=async()=>{
+  const u=cachedUser();
+  if(!u||!u.id||!u.email||String(u.email).trim().toLowerCase()!==em)return false;
+  await onSignedIn(u,true);
+  say('authStatus','ورود آفلاین انجام شد؛ اطلاعات ذخیره‌شده همین دستگاه نمایش داده می‌شود. پس از اتصال اینترنت، همگام‌سازی انجام خواهد شد.');
+  return true;
+ };
+ try{
+  if(!navigator.onLine){if(await offlineLogin())return;throw new Error('اینترنت قطع است و حساب قبلاً روی این دستگاه ذخیره نشده؛ برای اولین ورود باید اینترنت وصل باشد.');}
+  const c=setupClient(),pw=$('password').value;
+  const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  let r=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error)break;if(!/invalid login/i.test(msg(r.error)))break;}
+  if(r.error)throw r.error;
+  await onSignedIn(r.data.user,true);
+ }catch(e){
+  if(isNet(e)&&await offlineLogin())return;
+  let h='';try{h=' (پروژه: '+new URL($('url').value.trim()).host+')'}catch(_){}
+  say('authStatus','ورود انجام نشد: '+msg(e)+h);
+ }
+};
 $('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'password'};
 $('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
 $('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
