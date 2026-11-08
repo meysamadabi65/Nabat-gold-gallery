@@ -9,63 +9,117 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>گالری طلای نبات</title>
 <style>
-:root{font-family:Tahoma,Arial,sans-serif;color:#18352d;background:#f3f7f4;--green:#08745a;--green-dark:#064b3b;--gold:#c69a42;--ink:#18352d;--muted:#718078;--line:#dce8e0;--soft:#edf5ef}
+:root{
+  font-family:Tahoma,Arial,sans-serif;
+  --green:#08745a;--green-dark:#064b3b;--green-mid:#066149;--gold:#c69a42;
+  --ink:#18352d;--muted:#62736a;--line:#dce8e0;--line-soft:#e8eee9;--soft:#edf5ef;--soft-2:#f1f7f2;
+  --danger:#a3312b;
+  color:var(--ink);background:#f3f7f4;
+}
+*{box-sizing:border-box}
 :focus-visible{outline:3px solid #d8b76d;outline-offset:2px}
+body{margin:0;background:linear-gradient(180deg,#edf5ef 0,#f7f8f5 260px);color:var(--ink);line-height:1.65}
 
-*{box-sizing:border-box}body{margin:0}header{background:#6d28d9;color:#fff;padding:18px 16px}
-header h1{font-size:1.25rem;margin:0 0 6px}header p{margin:0;font-size:.9rem;opacity:.9}
-main{max-width:980px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #e2d9f7;border-radius:14px;padding:16px;margin:0 0 14px;box-shadow:0 2px 8px #2a0f4d10}
-h2{font-size:1.05rem;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-label{display:block;font-size:.88rem;margin-bottom:6px;color:#443a58}
-input,select,textarea,button{font:inherit;width:100%;border-radius:9px;padding:11px;border:1px solid #d6c9f5;background:#fff;color:#1e1630}
-textarea{min-height:75px;resize:vertical}button{border:0;background:#7c3aed;color:white;font-weight:bold;cursor:pointer;margin-top:10px}button.secondary{background:#f1ecfe;color:#5b21b6;border:1px solid #d6c9f5}button.danger{background:#8a2e2e}
-small,.muted{color:#6b5f7e;font-size:.82rem;line-height:1.7}.status{padding:10px;border-radius:9px;background:#f5f0ff;margin-top:10px;white-space:pre-wrap}
-.legend{display:flex;gap:14px;justify-content:center;font-size:.85rem;margin-top:4px}.legend i,.dl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.dl div{margin:5px 0;font-size:.9rem}.metric.hero{background:linear-gradient(135deg,#8b5cf6,#4c1d95);color:#fff}.metric.hero strong{color:#ffe08a;font-size:1.3rem}#invoiceView{position:fixed;inset:0;background:#fff;color:#111;z-index:9999;overflow:auto;padding:16px}#invoiceView table{width:100%;border-collapse:collapse;margin-top:10px}#invoiceView td{border:1px solid #bbb;padding:8px}#invoiceView .tot td{font-weight:bold;background:#f1f1f1}#invoiceView .row2{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:.9rem}@media print{body>*:not(#invoiceView){display:none!important}#invoiceView{position:static;overflow:visible;padding:0}.noprint{display:none!important}}.pos{color:#7c3aed}.neg{color:#b42318}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{width:auto;margin:0;padding:9px 14px}.tabs button.active{background:#5b21b6}
-table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:right;padding:9px;border-bottom:1px solid #ece4fb;vertical-align:top}th{background:#f6f2fe}
-.tablewrap{overflow-x:auto}.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.metric{background:#f6f1fe;padding:12px;border-radius:10px}.metric strong{display:block;font-size:1.1rem;margin-top:6px;overflow-wrap:anywhere}
-.inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.warn{background:#fff6e6;border:1px solid #efd7a6;padding:12px;border-radius:10px;line-height:1.8;font-size:.88rem}
-td .rowbtn{width:auto;margin:0 0 0 6px;padding:6px 10px;font-size:.8rem}.actions{white-space:nowrap}.badge{font-size:.75rem;color:#9a6b00}
-footer{text-align:center;color:#6b5f7e;font-size:.8rem;padding:12px}
-.toolbar{display:flex;align-items:center;gap:10px;padding:10px 12px}
+/* Header */
+header{position:relative;overflow:hidden;padding:23px 18px;color:#fff;background:linear-gradient(120deg,var(--green-dark) 0%,var(--green) 58%,#16846a 100%);border-bottom:3px solid var(--gold);box-shadow:0 5px 18px #063e3025}
+header:after{content:"✦";position:absolute;left:22px;top:-18px;font-size:110px;color:#ffffff12;pointer-events:none}
+header h1{font-size:1.45rem;letter-spacing:-.3px;margin:0 0 5px}
+header p{margin:0;font-size:.9rem;color:#e4f2e9}
+
+/* Layout */
+main{max-width:1100px;margin:auto;padding:18px 14px 30px}
+.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;margin:0 0 16px;box-shadow:0 5px 18px #18352d0b}
+h2{font-size:1.08rem;color:var(--green-dark);margin:0 0 16px;padding-bottom:9px;border-bottom:1px solid #edf1ed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.balance{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.inline{display:flex;gap:10px;align-items:stretch}.inline>*{flex:1;min-width:0}
+.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
+.ver-small{margin-right:8px;font-size:.68rem;opacity:.75}
+small,.muted{color:var(--muted);font-size:.82rem;line-height:1.7}
+
+/* Forms */
+label{display:block;margin-bottom:6px;font-size:.88rem;font-weight:600;color:#43594e}
+input,select,textarea,button{font:inherit;width:100%;border-radius:11px}
+input,select,textarea{padding:12px;border:1px solid #d5e1d8;background:#fcfdfb;color:var(--ink);transition:border-color .18s,box-shadow .18s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#399779;box-shadow:0 0 0 3px #08745a18;background:#fff}
+textarea{min-height:75px;resize:vertical}
+
+/* Buttons */
+button{margin-top:10px;min-height:42px;padding:11px 15px;border:1px solid var(--green-mid);background:linear-gradient(135deg,#0b8062,var(--green-mid));color:#fff;font-weight:700;cursor:pointer;box-shadow:0 3px 8px #075b481b;transition:transform .15s,box-shadow .15s,filter .15s}
+button:hover{filter:brightness(1.06);box-shadow:0 5px 12px #075b4825;transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+button.secondary{background:var(--soft);color:#17644f;border:1px solid #cfe0d4;box-shadow:none}
+button.danger{background:#fff1ef;color:var(--danger);border:1px solid #f0c9c4;box-shadow:none}
+td .rowbtn{width:auto;min-height:32px;margin:0 0 0 6px;padding:6px 10px;border-radius:8px;font-size:.8rem}
+
+/* Tabs */
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:15px;padding:7px;background:#e7f0e9;border:1px solid #d8e5dc;border-radius:15px}
+.tabs button{width:100%;min-height:44px;margin:0;padding:10px 7px;background:transparent;color:#466357;border:1px solid transparent;box-shadow:none;font-size:.88rem}
+.tabs button:hover{background:#f7fbf7;transform:none}
+.tabs button.active{background:linear-gradient(135deg,var(--green),#07513f);color:#fff;border-color:#07513f;box-shadow:0 3px 9px #075b4825}
+
+/* Toolbar, notices */
+.toolbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#fff}
 .toolbar #netStatus{flex:1;font-size:.8rem}
-.toolbar button{width:auto;margin:0;padding:8px 12px;font-size:.85rem}
-
-
+.toolbar button{width:auto;min-width:112px;margin:0;padding:8px 12px;font-size:.85rem}
+.status{margin-top:10px;padding:10px;background:var(--soft-2);border:1px solid #dce9df;border-radius:11px;color:#365a49;white-space:pre-wrap}
+.warn{padding:12px;background:#fff9eb;border:1px solid #ead9ad;border-radius:12px;color:#735a25;font-size:.88rem;line-height:1.8}
 .version-stamp{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:-3px 0 14px;padding:10px 12px;border:1px solid #e7d7ad;border-radius:12px;background:linear-gradient(110deg,#fffdf7,#f8f3e6);color:#6e592b;font-size:.82rem}
 .version-stamp strong{color:#075b48;font-size:.84rem;font-weight:700}
-.version-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#c69a42;box-shadow:0 0 0 3px #c69a4225}
+.version-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px #c69a4225}
 
-/* Nabat professional visual refresh */
-body{background:linear-gradient(180deg,#edf5ef 0,#f7f8f5 260px);color:var(--ink);line-height:1.65}
-header{background:linear-gradient(120deg,#064b3b 0%,#08745a 58%,#16846a 100%);padding:23px 18px;box-shadow:0 5px 18px #063e3025;border-bottom:3px solid var(--gold);position:relative;overflow:hidden}
-header:after{content:"✦";position:absolute;left:22px;top:-18px;font-size:110px;color:#ffffff12;pointer-events:none}
-header h1{font-size:1.45rem;letter-spacing:-.3px;margin-bottom:5px}header p{color:#e4f2e9;font-size:.9rem}
-main{max-width:1100px;padding:18px 14px 30px}
-.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:16px;box-shadow:0 5px 18px #18352d0b}
-h2{font-size:1.08rem;color:var(--green-dark);padding-bottom:9px;border-bottom:1px solid #edf1ed;margin-bottom:16px}
-label{color:#43594e;font-weight:600}
-input,select,textarea{border:1px solid #d5e1d8;border-radius:11px;padding:12px;background:#fcfdfb;transition:border-color .18s,box-shadow .18s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:#399779;box-shadow:0 0 0 3px #08745a18;background:#fff}
-button{background:linear-gradient(135deg,#0b8062,#066149);color:#fff;border:1px solid #066149;border-radius:11px;padding:11px 15px;min-height:42px;font-weight:700;box-shadow:0 3px 8px #075b481b;transition:transform .15s,box-shadow .15s,filter .15s}
-button:hover{filter:brightness(1.06);box-shadow:0 5px 12px #075b4825;transform:translateY(-1px)}button:active{transform:translateY(0)}button:disabled{opacity:.55;cursor:not-allowed;transform:none}
-button.secondary{background:#edf5ef;color:#17644f;border:1px solid #cfe0d4;box-shadow:none}
-button.danger{background:#fff1ef;color:#a3312b;border:1px solid #f0c9c4;box-shadow:none}
-.inline{gap:10px;align-items:stretch}.inline>*{min-width:0}
-.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:7px;background:#e7f0e9;border:1px solid #d8e5dc;border-radius:15px;margin-bottom:15px}
-.tabs button{width:100%;margin:0;padding:10px 7px;min-height:44px;background:transparent;color:#466357;border:1px solid transparent;box-shadow:none;font-size:.88rem}
-.tabs button:hover{background:#f7fbf7;transform:none}.tabs button.active{background:linear-gradient(135deg,#08745a,#07513f);color:#fff;border-color:#07513f;box-shadow:0 3px 9px #075b4825}
-.toolbar{border-radius:14px;background:#fff;align-items:center}.toolbar button{min-width:112px}
-.grid{gap:14px}.balance{gap:12px}.metric{background:linear-gradient(145deg,#f1f7f2,#e8f2eb);border:1px solid #dce9df;border-radius:13px;padding:14px}.metric strong{color:#075b48}.metric.hero{background:linear-gradient(135deg,#08745a,#064b3b);border:0}.metric.hero strong{color:#f4d58e}
-.status{background:#f1f7f2;border:1px solid #dce9df;color:#365a49;border-radius:11px}
-.warn{background:#fff9eb;border:1px solid #ead9ad;color:#735a25;border-radius:12px}
-.tablewrap{border:1px solid var(--line);border-radius:12px;background:#fff}table{font-size:.87rem}th{background:#edf5ef;color:#285744;font-weight:700;white-space:nowrap}td,th{padding:11px 10px;border-bottom:1px solid #e8eee9}tbody tr:nth-child(even){background:#fbfdfb}tbody tr:hover{background:#f2f8f3}
-td .rowbtn{min-height:32px;padding:6px 10px;border-radius:8px}
-.badge{color:#88631b;background:#fbf3df;border-radius:20px;padding:3px 8px}
-.pos{color:#08745a}.neg{color:#b23a32}
-footer{color:#78877e}
-@media(max-width:760px){main{padding:12px 10px 24px}.card{padding:14px;border-radius:14px}.tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.tabs button{font-size:.82rem;padding:9px 4px}.inline{flex-wrap:wrap}.inline>*{flex:1 1 calc(50% - 8px)}.toolbar{gap:8px;flex-wrap:wrap}.toolbar #netStatus{flex:1 1 100%;order:3}.toolbar button{flex:1 1 0}.tablewrap{border-radius:10px}}
-@media(max-width:390px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.inline>*{flex-basis:100%}header h1{font-size:1.25rem}}
+/* Tables */
+.tablewrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th,td{text-align:right;padding:11px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{background:var(--soft);color:#285744;font-weight:700;white-space:nowrap}
+tbody tr:nth-child(even){background:#fbfdfb}
+tbody tr:hover{background:#f2f8f3}
+.actions{white-space:nowrap}
+.badge{padding:3px 8px;background:#fbf3df;border-radius:20px;color:#88631b;font-size:.75rem}
+.pos{color:var(--green)}.neg{color:#b23a32}
 
+/* Dashboard metrics and chart */
+.metric{padding:14px;background:linear-gradient(145deg,#f1f7f2,#e8f2eb);border:1px solid #dce9df;border-radius:13px}
+.metric strong{display:block;margin-top:6px;font-size:1.1rem;color:#075b48;overflow-wrap:anywhere}
+.metric.hero{background:linear-gradient(135deg,var(--green),var(--green-dark));border:0;color:#fff}
+.metric.hero strong{font-size:1.3rem;color:#f4d58e}
+.legend{display:flex;gap:14px;justify-content:center;margin-top:4px;font-size:.85rem}
+.legend i,.dl i{display:inline-block;width:10px;height:10px;margin-left:6px;border-radius:3px}
+.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}
+.dl div{margin:5px 0;font-size:.9rem}
+
+/* Invoice / print */
+#invoiceView{position:fixed;inset:0;z-index:9999;overflow:auto;padding:16px;background:#fff;color:#111}
+#invoiceView table{width:100%;margin-top:10px;border-collapse:collapse}
+#invoiceView td{padding:8px;border:1px solid #bbb}
+#invoiceView .tot td{font-weight:bold;background:#f1f1f1}
+#invoiceView .row2{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:.9rem}
+@media print{
+  body>*:not(#invoiceView){display:none!important}
+  #invoiceView{position:static;overflow:visible;padding:0}
+  .noprint{display:none!important}
+}
+
+/* Responsive */
+@media(max-width:760px){
+  main{padding:12px 10px 24px}
+  .card{padding:14px;border-radius:14px}
+  .tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .tabs button{padding:9px 4px;font-size:.82rem}
+  .inline{flex-wrap:wrap}.inline>*{flex:1 1 calc(50% - 8px)}
+  .toolbar{gap:8px;flex-wrap:wrap}
+  .toolbar #netStatus{flex:1 1 100%;order:3}
+  .toolbar button{flex:1 1 0}
+  .tablewrap{border-radius:10px}
+}
+@media(max-width:390px){
+  .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .inline>*{flex-basis:100%}
+  header h1{font-size:1.25rem}
+}
 </style>
 </head>
 <body>
@@ -76,7 +130,7 @@ footer{color:#78877e}
 <div class="version-stamp" aria-label="آخرین ویرایش نرم‌افزار">
   <span class="version-dot"></span>
   <span>آخرین ویرایش نرم‌افزار</span>
-  <strong>۷ آبان ۱۴۰۵، ساعت ۱۷:۴۵</strong>
+  <strong data-ver>۱۷ آبان ۱۴۰۵، ساعت ۰۶:۴۴</strong>
 </div>
 <div class="warn">اطلاعات اتصال فقط در همین مرورگر ذخیره می‌شود. کلید <b>service_role</b> یا کلید مخفی را اینجا وارد نکنید؛ فقط Project URL و کلید عمومی publishable.</div>
 <div class="grid" style="margin-top:12px">
@@ -105,7 +159,7 @@ footer{color:#78877e}
 <button data-tab="reportTab">گزارش مانده</button>
 <button data-tab="historyTab">گردش حساب</button>
 </div>
-<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:#f6f1fe;border-radius:10px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم)</b><button id="refreshMarket" class="secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem">بروزرسانی</button></div><div id="marketPrices" style="font-size:1.3rem;font-weight:bold;margin-top:8px">—</div><div id="marketUpdated" class="muted"></div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div><h2>پشتیبان‌گیری</h2><div class="muted">پشتیبان‌گیری فقط دستی است؛ فایل در پوشه Downloads گوشی ذخیره می‌شود.</div><div class="inline"><button id="bkNow">پشتیبان‌گیری الان</button><button id="bkRestore" class="secondary">بازیابی از فایل</button></div><input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="muted" id="bkInfo"></div></section>
+<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:var(--soft);border-radius:10px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم)</b><button id="refreshMarket" class="secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem">بروزرسانی</button></div><div id="marketPrices" style="font-size:1.3rem;font-weight:bold;margin-top:8px">—</div><div id="marketUpdated" class="muted"></div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div><h2>پشتیبان‌گیری</h2><div class="muted">پشتیبان‌گیری فقط دستی است؛ فایل در پوشه Downloads گوشی ذخیره می‌شود.</div><div class="inline"><button id="bkNow">پشتیبان‌گیری الان</button><button id="bkRestore" class="secondary">بازیابی از فایل</button></div><input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="muted" id="bkInfo"></div></section>
 <section id="customerTab" class="tab card hidden">
 <h2 id="cFormTitle">ثبت مشتری</h2>
 <div class="grid">
@@ -121,19 +175,19 @@ footer{color:#78877e}
 <h2 id="tFormTitle">خرید و فروش</h2>
 <label for="tOp">نوع عملیات</label><select id="tOp"><option value="sell">فروش طلا</option><option value="buy">خرید طلا</option><option value="pay">دریافت قسط (پول ← طلا)</option><option value="manual">تراکنش دستی (دادم / گرفتم)</option></select>
 <div class="grid">
-<div id="fCust"><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select><div id="quickCust" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:10px;margin-top:8px"><label for="qName">نام مشتری *</label><input id="qName"><label for="qPhone">تلفن</label><input id="qPhone" inputmode="tel"><div class="inline"><button id="qSave" type="button">ثبت مشتری</button><button id="qCancel" class="secondary" type="button">انصراف</button></div></div></div>
+<div id="fCust"><label for="tCustomer">مشتری *</label><select id="tCustomer"><option value="">اول مشتری ثبت کنید</option></select><div id="quickCust" class="hidden" style="background:var(--soft);border-radius:10px;padding:10px;margin-top:8px"><label for="qName">نام مشتری *</label><input id="qName"><label for="qPhone">تلفن</label><input id="qPhone" inputmode="tel"><div class="inline"><button id="qSave" type="button">ثبت مشتری</button><button id="qCancel" class="secondary" type="button">انصراف</button></div></div></div>
 <div id="fType" class="hidden"><label for="tType">نوع تراکنش *</label><select id="tType"><option value="Give">دادم (Give)</option><option value="Receive">گرفتم (Receive)</option></select></div>
 <div id="fAsset" class="hidden"><label for="tAsset">نوع دارایی *</label><select id="tAsset"><option value="money">پول</option><option value="gold">طلا</option></select></div>
 <div id="fAmt"><label for="tAmount">مبلغ / وزن *</label><input id="tAmount" type="text" min="0.000001" step="any" inputmode="decimal" placeholder="مثلاً 2500000 یا 1.25"></div>
 <div><label for="tTime">تاریخ و ساعت</label><input id="tTime" type="datetime-local"></div>
 <div><label for="tDesc">توضیحات</label><input id="tDesc" placeholder="شرح تراکنش"></div>
 </div><p class="muted" id="opHint"></p>
-<div id="itemsBox" class="hidden" style="margin-top:12px;background:#fff;border:1px solid #e2d9f7;border-radius:12px;padding:12px">
+<div id="itemsBox" class="hidden" style="margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px">
 <b>اقلام فاکتور</b><div class="muted">نام و وزن هر جنس را جداگانه وارد کنید؛ مبلغ همه اقلام با هم محاسبه می‌شود.</div>
 <div class="tablewrap"><table><thead><tr><th>نام جنس</th><th>وزن (گرم)</th><th>حذف</th></tr></thead><tbody id="itemsBody"></tbody></table></div>
 <button id="addItem" type="button" class="secondary" style="font-size:1rem;padding:8px">＋ افزودن آیتم جدید</button>
 <div class="muted" id="gTotalW" style="margin-top:6px;font-weight:bold"></div></div>
-<div id="goldBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 محاسبه فروش طلا</b>
+<div id="goldBox" class="hidden" style="background:var(--soft);border-radius:10px;padding:12px;margin-top:12px"><b>🪙 محاسبه فروش طلا</b>
 <div class="grid" style="margin-top:8px"><div><label for="gPrice">قیمت هر گرم طلا (تومان)</label><input id="gPrice" type="text" inputmode="decimal" min="0" step="any"></div>
 <div><label for="gWage">درصد اجرت</label><input id="gWage" type="text" inputmode="decimal" min="0" step="any" placeholder="0"></div>
 <div><label for="gProfit">درصد سود</label><input id="gProfit" type="text" inputmode="decimal" min="0" step="any" placeholder="0"></div>
@@ -141,8 +195,8 @@ footer{color:#78877e}
 <div class="muted" id="gBreak" style="margin-top:8px"></div><div class="muted" id="gRest" style="margin-top:4px;font-weight:bold"></div><div id="gDebtBox" class="hidden"><label for="gDebtType">باقی‌مانده بدهی مشتری به چه صورت ثبت شود؟</label><select id="gDebtType"><option value="gold">طلا (گرم) — با قیمت امروز به گرم تبدیل می‌شود</option><option value="money">پول (تومان)</option></select></div>
 <label for="gFinal" style="margin-top:8px">مبلغ نهایی (تومان)</label><input id="gFinal" readonly>
 <div class="muted">فقط مجموع اجرت، سود و مالیات به‌عنوان درآمد ثبت می‌شود (ارزش خود طلا درآمد حساب نمی‌شود). در حالت اقساطی، می‌توانید انتخاب کنید باقی‌مانده به‌صورت طلا یا پول بدهی بماند.</div></div>
-<div id="buyBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div><label for="bFee">درصد کارمزد خرید (٪) — فقط کارمزد هزینه حساب می‌شود</label><input id="bFee" type="text" inputmode="decimal" min="0" step="any" placeholder="0"><div class="muted" id="bFeeAmt" style="margin-top:4px;font-weight:bold"></div></div>
-<div id="payBox" class="hidden" style="background:#f6f1fe;border-radius:10px;padding:12px;margin-top:12px"><b>💳 پرداخت قسط</b><label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="pInst" checked style="width:auto;margin:0"> تبدیل پول به طلا و کم کردن از بدهی طلا</label><div class="grid"><div><label for="pPrice">قیمت هر گرم طلا (تومان)</label><input id="pPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="pGrams">معادل طلا (گرم)</label><input id="pGrams" readonly></div></div><div class="muted" id="pInfo"></div></div>
+<div id="buyBox" class="hidden" style="background:var(--soft);border-radius:10px;padding:12px;margin-top:12px"><b>🪙 خرید طلا از مشتری</b><div class="muted">فقط کارمزد خرید به‌عنوان هزینه ثبت می‌شود و روی مانده مشتری اثری ندارد.</div><label for="bSeller">فروشنده (اختیاری)</label><input id="bSeller" placeholder="نام فروشنده"><div class="grid"><div><label for="bPrice">قیمت خرید هر گرم (تومان)</label><input id="bPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="bTotal">مبلغ خرید (تومان)</label><input id="bTotal" readonly></div></div><label for="bFee">درصد کارمزد خرید (٪) — فقط کارمزد هزینه حساب می‌شود</label><input id="bFee" type="text" inputmode="decimal" min="0" step="any" placeholder="0"><div class="muted" id="bFeeAmt" style="margin-top:4px;font-weight:bold"></div></div>
+<div id="payBox" class="hidden" style="background:var(--soft);border-radius:10px;padding:12px;margin-top:12px"><b>💳 پرداخت قسط</b><label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="pInst" checked style="width:auto;margin:0"> تبدیل پول به طلا و کم کردن از بدهی طلا</label><div class="grid"><div><label for="pPrice">قیمت هر گرم طلا (تومان)</label><input id="pPrice" type="text" inputmode="decimal" min="0" step="any"></div><div><label for="pGrams">معادل طلا (گرم)</label><input id="pGrams" readonly></div></div><div class="muted" id="pInfo"></div></div>
 <button id="addTransaction">ثبت تراکنش</button><button id="cancelTx" class="secondary hidden">انصراف از ویرایش</button><button id="lastInvoice" class="secondary hidden">نمایش فاکتور آخرین فروش</button>
 </section>
 <section id="reportTab" class="tab card hidden">
@@ -177,7 +231,7 @@ footer{color:#78877e}
 <div id="appStatus" class="status" role="status"></div>
 </div>
 </main>
-<footer>گالری طلای نبات</footer>
+<footer>گالری طلای نبات <span class="ver-small">آخرین ویرایش: <span data-ver>۱۷ آبان ۱۴۰۵، ساعت ۰۶:۴۴</span></span></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
@@ -552,11 +606,11 @@ function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Custom
  if(sale){const w=Math.round(items.reduce((a,x)=>a+Number(x.Amount||0),0)*1000)/1000,base=Math.round(w*sale.pr),wage=Math.round(base*sale.wg/100),pf=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+pf)*sale.vat/100),fin=base+wage+pf+tax;
   let acc=0;const lines=items.map((x,i)=>{const a=i===items.length-1?fin-acc:Math.round(fin*Number(x.Amount||0)/(w||1));acc+=a;return `<tr><td>${esc(nmOf(x)||'طلا')}</td><td>${fmt(x.Amount)}</td><td>${fmt(a)}</td></tr>`});
   rows='<tr class="tot"><td>نام جنس</td><td>وزن (گرم)</td><td>مبلغ با اجرت، سود و مالیات (تومان)</td></tr>'+lines.join('')+`<tr class="tot"><td>جمع کل فاکتور</td><td>${fmt(w)}</td><td>${fmt(fin)}</td></tr>`;
-  total='<div class="row2"><span>قیمت هر گرم: '+fmt(sale.pr)+' تومان؛ مبالغ با احتساب اجرت، سود و مالیات بر ارزش افزوده</span></div>';}
+  total='<div class="row2"><span>قیمت هر گرم طلای خام: '+fmt(sale.pr)+' تومان</span></div>';}
  else rows=`<tr><td>${t.Type==='Give'?'دادم':'گرفتم'} — ${t.Is_money===false?'طلا':'پول'}</td><td>${fmt(t.Amount)}${t.Is_money===false?' گرم':' تومان'}</td></tr>`+(t.Description?`<tr><td colspan="2">${esc(t.Description)}</td></tr>`:'');
  const old=document.getElementById('invoiceView');if(old)old.remove();
  const v=document.createElement('div');v.id='invoiceView';
- v.innerHTML=`<div class="noprint" style="display:flex;gap:8px;margin-bottom:10px"><button id="invPrint">چاپ / ذخیره PDF</button><button id="invClose" class="secondary">بستن</button></div><div style="text-align:center;margin:4px 0 12px"><img src="icon-192.png" alt="آرم گالری طلای نبات" style="width:76px;height:76px;object-fit:contain;display:block;margin:0 auto 6px" onerror="this.style.display='none'"><h2 style="margin:0">گالری طلای نبات</h2><div>${sale?'فاکتور فروش طلا':'رسید تراکنش'}</div></div><div class="row2"><span>تاریخ: ${esc(new Date(t.Time).toLocaleString('fa-IR'))}</span><span>شماره: ${esc(code||'—')}</span></div><div class="row2"><span>مشتری: ${esc(c.Name||t.Name||'')}</span><span>${esc(c.Phone||'')}</span></div><table>${rows}</table>${total}<div class="row2" style="margin-top:40px"><span>امضای فروشنده</span><span>امضای خریدار</span></div>`;
+ v.innerHTML=`<div class="noprint" style="display:flex;gap:8px;margin-bottom:10px"><button id="invPrint">چاپ / ذخیره PDF</button><button id="invClose" class="secondary">بستن</button></div><div style="text-align:center;margin:4px 0 12px"><img src="icon-192.png" alt="آرم گالری طلای نبات" style="width:76px;height:76px;object-fit:contain;display:block;margin:0 auto 6px" onerror="this.style.display='none'"><h2 style="margin:0">گالری طلای نبات</h2><div>${sale?'فاکتور فروش طلا':'رسید تراکنش'}</div></div><div class="row2"><span>تاریخ: ${esc(new Date(t.Time).toLocaleString('fa-IR'))}</span><span>شماره: ${esc(code||'—')}</span></div><div class="row2"><span>مشتری: ${esc(c.Name||t.Name||'')}</span><span>${esc(c.Phone||'')}</span></div><table>${rows}</table>${total}<div class="row2" style="margin-top:40px"><span>امضای فروشنده</span><span>امضای خریدار</span></div><div style="text-align:center;margin-top:28px;font-size:.9rem"><div style="font-weight:700">Scan me</div><svg width="120" height="120" role="img" aria-label="QR کانال ایتا" style="display:block;margin:6px auto" xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 37 37" shape-rendering="crispEdges"><rect x="-4" y="-4" width="37" height="37" fill="#fff"/><path d="M0 0h7v1h-7zM8 0h2v1h-2zM12 0h4v1h-4zM19 0h2v1h-2zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h6v1h-6zM16 1h3v1h-3zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h2v1h-2zM16 2h1v1h-1zM19 2h1v1h-1zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM14 3h2v1h-2zM17 3h1v1h-1zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h2v1h-2zM12 5h2v1h-2zM15 5h3v1h-3zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM8 7h1v1h-1zM15 7h3v1h-3zM19 7h2v1h-2zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM10 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM17 8h3v1h-3zM22 8h1v1h-1zM25 8h1v1h-1zM27 8h2v1h-2zM1 9h2v1h-2zM5 9h1v1h-1zM8 9h1v1h-1zM10 9h6v1h-6zM18 9h7v1h-7zM28 9h1v1h-1zM0 10h5v1h-5zM6 10h1v1h-1zM9 10h3v1h-3zM13 10h1v1h-1zM16 10h3v1h-3zM26 10h2v1h-2zM2 11h3v1h-3zM7 11h2v1h-2zM16 11h1v1h-1zM18 11h2v1h-2zM21 11h2v1h-2zM28 11h1v1h-1zM0 12h4v1h-4zM6 12h3v1h-3zM10 12h1v1h-1zM14 12h2v1h-2zM17 12h1v1h-1zM21 12h1v1h-1zM25 12h2v1h-2zM1 13h1v1h-1zM3 13h1v1h-1zM7 13h5v1h-5zM14 13h1v1h-1zM16 13h4v1h-4zM22 13h1v1h-1zM26 13h3v1h-3zM0 14h3v1h-3zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h4v1h-4zM15 14h5v1h-5zM21 14h1v1h-1zM26 14h3v1h-3zM1 15h2v1h-2zM4 15h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM14 15h1v1h-1zM16 15h1v1h-1zM19 15h6v1h-6zM27 15h1v1h-1zM0 16h2v1h-2zM3 16h1v1h-1zM5 16h4v1h-4zM10 16h3v1h-3zM14 16h2v1h-2zM18 16h4v1h-4zM24 16h2v1h-2zM27 16h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM8 17h2v1h-2zM11 17h2v1h-2zM14 17h1v1h-1zM16 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM25 17h3v1h-3zM0 18h1v1h-1zM6 18h4v1h-4zM11 18h6v1h-6zM20 18h2v1h-2zM23 18h2v1h-2zM26 18h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM13 19h2v1h-2zM17 19h3v1h-3zM21 19h4v1h-4zM26 19h1v1h-1zM1 20h6v1h-6zM8 20h3v1h-3zM13 20h3v1h-3zM17 20h2v1h-2zM20 20h7v1h-7zM8 21h5v1h-5zM16 21h3v1h-3zM20 21h1v1h-1zM24 21h5v1h-5zM0 22h7v1h-7zM8 22h2v1h-2zM11 22h1v1h-1zM14 22h1v1h-1zM17 22h4v1h-4zM22 22h1v1h-1zM24 22h2v1h-2zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h2v1h-2zM11 23h1v1h-1zM13 23h4v1h-4zM19 23h2v1h-2zM24 23h2v1h-2zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM9 24h2v1h-2zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h5v1h-5zM26 24h2v1h-2zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM12 25h1v1h-1zM15 25h2v1h-2zM19 25h3v1h-3zM23 25h3v1h-3zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM8 26h3v1h-3zM12 26h2v1h-2zM18 26h1v1h-1zM20 26h1v1h-1zM23 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h2v1h-2zM12 27h2v1h-2zM15 27h2v1h-2zM18 27h1v1h-1zM20 27h1v1h-1zM22 27h4v1h-4zM27 27h1v1h-1zM0 28h7v1h-7zM8 28h1v1h-1zM10 28h4v1h-4zM18 28h5v1h-5zM27 28h1v1h-1z" fill="#000"/></svg><div dir="ltr" style="margin-top:4px">09369418748 &nbsp;-&nbsp; 09039665534</div></div>`;
  document.body.appendChild(v);document.getElementById('invClose').onclick=()=>v.remove();document.getElementById('invPrint').onclick=()=>window.print();}
 let bkTimer=null,lastBk=Number(localStorage.getItem('bkLast')||0),lastSig='',pendingRestore=null;
 function bkDownload(){if(!currentUser)return;const o={app:'nabat',v:1,userId:currentUser.id,email:currentUser.email,savedAt:Date.now(),customers:customers,transactions:transactions,entries:entries,queue:queue};lastSig=JSON.stringify([customers,transactions,entries,queue]);
@@ -714,18 +768,18 @@ function renderCharts(){
  if(!ms.length){$('chartMonths').innerHTML='<div class="muted">با ثبت درآمد و هزینه، نمودار اینجا ظاهر می‌شود.</div>';$('chartCats').innerHTML='';return}
  const W=340,H=190,pad=24,base=H-28,top=16,mx=Math.max(1,...ms.flatMap(a=>[a[1].i,a[1].x])),slot=(W-pad*2)/ms.length,bw=Math.min(22,slot/3);
  let v=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">`;
- [0,.5,1].forEach(f=>{const y=base-(base-top)*f;v+=`<line x1="${pad}" x2="${W-pad}" y1="${y}" y2="${y}" stroke="#ece4fb"/>`});
- v+=`<text x="${W-pad}" y="${top-4}" text-anchor="start" font-size="10" fill="#6b5f7e">${fmt(mx)}</text>`;
+ [0,.5,1].forEach(f=>{const y=base-(base-top)*f;v+=`<line x1="${pad}" x2="${W-pad}" y1="${y}" y2="${y}" stroke="#e8eee9"/>`});
+ v+=`<text x="${W-pad}" y="${top-4}" text-anchor="start" font-size="10" fill="#62736a">${fmt(mx)}</text>`;
  ms.forEach((a,idx)=>{const r=a[1],cx=W-pad-slot*(idx+.5),hi=(base-top)*r.i/mx,hx=(base-top)*r.x/mx;
-  v+=`<rect x="${cx-bw-1}" y="${base-hi}" width="${bw}" height="${hi}" rx="4" fill="#d4a62a"/><rect x="${cx+1}" y="${base-hx}" width="${bw}" height="${hx}" rx="4" fill="#c9625a"/><text x="${cx}" y="${H-10}" text-anchor="middle" font-size="11" fill="#6b5f7e">${esc(new Intl.DateTimeFormat('fa-IR',{month:'short'}).format(new Date(r.d)))}</text>`});
+  v+=`<rect x="${cx-bw-1}" y="${base-hi}" width="${bw}" height="${hi}" rx="4" fill="#d4a62a"/><rect x="${cx+1}" y="${base-hx}" width="${bw}" height="${hx}" rx="4" fill="#c9625a"/><text x="${cx}" y="${H-10}" text-anchor="middle" font-size="11" fill="#62736a">${esc(new Intl.DateTimeFormat('fa-IR',{month:'short'}).format(new Date(r.d)))}</text>`});
  $('chartMonths').innerHTML=v+'</svg><div class="legend"><span><i style="background:#d4a62a"></i>درآمد</span><span><i style="background:#c9625a"></i>هزینه</span></div>';
  const cat=new Map();for(const e of entries)if(e.Kind==='Expense'){const c=e.Category||'بدون دسته';cat.set(c,(cat.get(c)||0)+Number(e.Amount))}
  let cs=[...cat.entries()].sort((a,b)=>b[1]-a[1]);const tot=cs.reduce((a,b)=>a+b[1],0);
  if(!tot){$('chartCats').innerHTML='<div class="muted">هنوز هزینه‌ای ثبت نشده.</div>';return}
  if(cs.length>5)cs=cs.slice(0,5).concat([['سایر',cs.slice(5).reduce((a,b)=>a+b[1],0)]]);
- const pal=['#7c3aed','#d4a62a','#c9625a','#4a7fb5','#8a6bbf','#8c9a93'];let off=25,arcs='',lg='';
+ const pal=['#08745a','#d4a62a','#c9625a','#4a7fb5','#7fb59d','#8c9a93'];let off=25,arcs='',lg='';
  cs.forEach((a,i)=>{const p=a[1]/tot*100;arcs+=`<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${pal[i]}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;off-=p;lg+=`<div><i style="background:${pal[i]}"></i>${esc(a[0])} <b>${fmt(Math.round(p))}٪</b></div>`});
- $('chartCats').innerHTML=`<div class="donut"><svg viewBox="0 0 42 42" style="width:150px;height:150px"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#f0eafd" stroke-width="6"/>${arcs}<text x="21" y="22.5" text-anchor="middle" font-size="4" fill="#1e1630">${fmt(tot)}</text></svg><div class="dl">${lg}</div></div>`;}
+ $('chartCats').innerHTML=`<div class="donut"><svg viewBox="0 0 42 42" style="width:150px;height:150px"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#e8f0ea" stroke-width="6"/>${arcs}<text x="21" y="22.5" text-anchor="middle" font-size="4" fill="#18352d">${fmt(tot)}</text></svg><div class="dl">${lg}</div></div>`;}
 function renderDash(){
  renderCharts();
  let m=0,g=0;const bal=new Map();
@@ -811,6 +865,14 @@ window.addEventListener('online',loadMarketRates);
 setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')loadMarketRates()},300000);
 loadMarketRates();
 
+</script>
+<script>
+/* آخرین ویرایش: از زمان آخرین تغییر خود فایل (Last-Modified) خوانده می‌شود؛ اگر در دسترس نبود، متن ثابت بالا می‌ماند. */
+(function(){try{var d=new Date(document.lastModified),els=document.querySelectorAll('[data-ver]');
+if(!els.length||isNaN(d)||Math.abs(Date.now()-d.getTime())<60000)return;
+var z='Asia/Tehran',p=new Intl.DateTimeFormat('fa-IR',{day:'numeric',month:'long',year:'numeric',timeZone:z}).format(d),
+t=new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:z}).format(d);
+els.forEach(function(el){el.textContent=p+'، ساعت '+t});}catch(e){}})();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
