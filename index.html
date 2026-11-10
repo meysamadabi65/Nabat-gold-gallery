@@ -121,6 +121,9 @@ tbody tr:hover{background:#f2f8f3}
   header h1{font-size:1.25rem}
 }
 
+#itemsBody .xrow{display:flex;align-items:center;gap:8px}
+#itemsBody .xrow select{flex:1;min-width:0}
+.xi{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:9px;border:1px solid var(--line);background:#fff}
 /* Back to top */
 #toTop{position:fixed;left:16px;bottom:20px;z-index:9000;width:46px;height:46px;min-height:0;margin:0;padding:0;border-radius:50%;font-size:1.3rem;line-height:1;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .2s,transform .2s,visibility .2s;box-shadow:0 4px 14px #063e3040}
 #toTop.show{opacity:1;visibility:visible;transform:none}
@@ -602,14 +605,15 @@ const PRC=['gPrice','bPrice','pPrice'];
 const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>{const id=tr.querySelector('.xp').value,p=invItems.find(x=>String(x.id)===String(id));return p?{id:p.id,w:Number(p.weight)||0,n:p.name,product:p}:null}).filter(Boolean);
 const itemWs=()=>itemList().map(i=>i.w);
 function syncAmt(){const sels=[...document.querySelectorAll('#itemsBody .xp')],chosen=sels.map(x=>x.value).filter(Boolean);sels.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));const f=itemWs()[0]||0;$('tAmount').value=f||'';renderGold()}
-function addItemRow(selectedId=''){const tr=document.createElement('tr');const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(selectedId));tr.innerHTML='<td><select class="xp"><option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('')+'</select></td><td><input class="xw" type="text" readonly placeholder="—"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';const sel=tr.querySelector('.xp');sel.value=selectedId||'';const update=()=>{const p=invItems.find(x=>String(x.id)===String(sel.value));tr.querySelector('.xw').value=p?p.weight:'';syncAmt()};sel.addEventListener('change',update);update();tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{sel.value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);}
+function setThumb(tr,p){const im=tr.querySelector('.xi');if(!im)return;if(p&&p.photo){im.src=p.photo;im.classList.remove('hidden')}else{im.removeAttribute('src');im.classList.add('hidden')}}
+function addItemRow(selectedId=''){const tr=document.createElement('tr');const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(selectedId));tr.innerHTML='<td><div class="xrow"><select class="xp"><option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('')+'</select><img class="xi hidden" alt="تصویر کالا"></div></td><td><input class="xw" type="text" readonly placeholder="—"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';const sel=tr.querySelector('.xp');sel.value=selectedId||'';const update=()=>{const p=invItems.find(x=>String(x.id)===String(sel.value));tr.querySelector('.xw').value=p?p.weight:'';setThumb(tr,p);syncAmt()};sel.addEventListener('change',update);update();tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{sel.value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);}
 function refreshItemOptions(){
  const rows=document.querySelectorAll('#itemsBody .xp');
  rows.forEach(sel=>{const cur=sel.value;
   const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(cur));
   sel.innerHTML='<option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('');
   sel.value=cur;
-  const p=invItems.find(x=>String(x.id)===String(sel.value));const tr=sel.closest('tr'),w=tr&&tr.querySelector('.xw');if(w)w.value=p?p.weight:'';
+  const p=invItems.find(x=>String(x.id)===String(sel.value));const tr=sel.closest('tr'),w=tr&&tr.querySelector('.xw');if(w)w.value=p?p.weight:'';if(tr)setThumb(tr,p);
  });
  const chosen=[...rows].map(x=>x.value).filter(Boolean);
  rows.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));
