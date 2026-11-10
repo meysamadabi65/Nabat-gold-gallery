@@ -258,6 +258,7 @@ tbody tr:hover{background:#f2f8f3}
 (() => {
 const $ = id => document.getElementById(id);
 let client = null, currentUser = null, customers = [], transactions = [];
+let invItems=[],invEditing=null,invPhotoData='',invPendingStatuses={};
 const say = (id,m) => { $(id).textContent = m; if(id==='appStatus')toast(m); };
 let toastEl=null,toastTimer=null;
 function toast(t){if(!t){if(toastEl)toastEl.style.opacity=0;return}
@@ -868,7 +869,7 @@ window.addEventListener('online',async()=>{
  } else if(cachedUser())await onSignedIn(cachedUser(), true);
 })();
 // Inventory backed by Supabase; local cache is used for quick display and queued status changes.
-let invItems=[],invEditing=null,invPhotoData='',invPendingStatuses={};
+
 const invKey=()=> 'nabatShowcaseItems:'+(currentUser&&currentUser.id||'guest');
 const invStatusKey=()=> 'nabatShowcaseStatusQueue:'+(currentUser&&currentUser.id||'guest');
 function invPhotoUrl(path){if(!path)return '';return client.storage.from('nabat-showcase').getPublicUrl(path).data.publicUrl;}
