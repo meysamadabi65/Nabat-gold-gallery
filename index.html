@@ -184,8 +184,8 @@ tbody tr:hover{background:#f2f8f3}
 <div><label for="tDesc">توضیحات</label><input id="tDesc" placeholder="شرح تراکنش"></div>
 </div><p class="muted" id="opHint"></p>
 <div id="itemsBox" class="hidden" style="margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px">
-<b>اقلام فاکتور</b><div class="muted">نام و وزن هر جنس را جداگانه وارد کنید؛ مبلغ همه اقلام با هم محاسبه می‌شود.</div>
-<div class="tablewrap"><table><thead><tr><th>نام جنس</th><th>وزن (گرم)</th><th>حذف</th></tr></thead><tbody id="itemsBody"></tbody></table></div>
+<b>اقلام فاکتور</b><div class="muted">جنس را از موجودی انتخاب کن؛ نام و وزن به‌صورت خودکار ثبت می‌شود. مبلغ همه اقلام با هم محاسبه می‌شود.</div>
+<div class="tablewrap"><table><thead><tr><th>انتخاب کالا از موجودی</th><th>وزن (گرم)</th><th>حذف</th></tr></thead><tbody id="itemsBody"></tbody></table></div>
 <button id="addItem" type="button" class="secondary" style="font-size:1rem;padding:8px">＋ افزودن آیتم جدید</button>
 <div class="muted" id="gTotalW" style="margin-top:6px;font-weight:bold"></div></div>
 <div id="goldBox" class="hidden" style="background:var(--soft);border-radius:10px;padding:12px;margin-top:12px"><b>🪙 محاسبه فروش طلا</b>
@@ -224,7 +224,7 @@ tbody tr:hover{background:#f2f8f3}
 </section>
 <section id="inventoryTab" class="tab card hidden">
 <h2 id="invFormTitle">ثبت طلا برای ویترین</h2>
-<div class="warn" style="margin-bottom:14px">این بخش فعلاً اطلاعات و عکس‌ها را فقط روی همین دستگاه ذخیره می‌کند؛ هنوز به سایت مشتریان یا Supabase متصل نیست. هیچ قیمتی در این بخش ثبت یا نمایش داده نمی‌شود.</div>
+<div class="warn" style="margin-bottom:14px">اطلاعات و عکس کالاها در Supabase ذخیره می‌شود و از دستگاه‌های دیگر هم در دسترس است. قیمت در موجودی ثبت نمی‌شود؛ کالای فروخته‌شده از فهرست انتخاب فروش خارج خواهد شد.</div>
 <div class="grid">
 <div><label for="invName">نام طلا *</label><input id="invName" placeholder="مثلاً انگشتر ظریف"></div>
 <div><label for="invCode">کد کالا</label><input id="invCode" placeholder="مثلاً N-102"></div>
@@ -235,7 +235,7 @@ tbody tr:hover{background:#f2f8f3}
 </div>
 <div id="invPhotoPreview" class="hidden" style="margin-top:10px"><img id="invPhotoImg" alt="پیش‌نمایش عکس طلا" style="display:block;max-width:180px;max-height:180px;object-fit:contain;border:1px solid var(--line);border-radius:12px;padding:4px"></div>
 <label for="invDesc" style="margin-top:12px">توضیحات</label><textarea id="invDesc" placeholder="مثلاً رنگ، نوع ساخت، نگین و مشخصات ظاهری"></textarea>
-<label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="invVisible" type="checkbox" checked style="width:auto;margin:0"> نمایش در ویترین مشتریان (تنظیم محلی فعلاً)</label>
+<label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="invVisible" type="checkbox" checked style="width:auto;margin:0"> نمایش در ویترین مشتریان</label>
 <div class="inline"><button id="invSave">ثبت طلا</button><button id="invCancel" class="secondary hidden" type="button">انصراف از ویرایش</button></div>
 <h2 style="margin-top:24px">فهرست طلاهای ثبت‌شده</h2>
 <div class="grid"><div><label for="invSearch">جست‌وجو</label><input id="invSearch" placeholder="نام یا کد کالا"></div><div><label for="invFilter">وضعیت نمایش</label><select id="invFilter"><option value="all">همه</option><option value="yes">نمایش در ویترین</option><option value="no">مخفی</option></select></div></div>
@@ -383,6 +383,7 @@ async function syncNow(){
    }
  }
  renderAll();
+ if(currentUser&&navigator.onLine)invFlushPendingStatuses().catch(()=>{});
 }
 const loadAll=syncNow;
 async function onSignedIn(user, force=false){
@@ -395,6 +396,7 @@ async function onSignedIn(user, force=false){
  if(dashBtn)dashBtn.click();
  window.scrollTo({top:0,behavior:'smooth'});
  await syncNow();
+ await invLoad();
 }
 $('refresh').onclick=syncNow;
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));});
@@ -437,14 +439,14 @@ $('customersBody').onclick=ev=>{const b=ev.target.closest('button[data-act]');if
 function renderCustomers(){const q=$('customerSearch').value.trim().toLocaleLowerCase();$('customersBody').innerHTML=customers.filter(c=>String(c.Name||'').toLocaleLowerCase().includes(q)).map(c=>`<tr><td>${esc(c.Name)}${pend(c)}</td><td>${esc(c.Phone||'—')}</td><td>${esc(c.Address||'—')}</td><td class="actions"><button class="rowbtn secondary" data-act="edit" data-id="${c.id}">ویرایش</button><button class="rowbtn danger" data-act="del" data-id="${c.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="4">مشتری‌ای پیدا نشد.</td></tr>';}
 $('customerSearch').oninput=renderCustomers;
 function renderCustomerOptions(){const opts=customers.map(c=>`<option value="${c.id}">${esc(c.Name)}</option>`).join('');$('tCustomer').innerHTML='<option value="">انتخاب مشتری</option>'+opts+'<option value="__new">➕ اضافه کردن مشتری</option>';$('historyCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;$('rCustomer').innerHTML='<option value="">همه مشتری‌ها</option>'+opts;}
-$('addTransaction').onclick=()=>{try{
+$('addTransaction').onclick=async()=>{try{
  if(!currentUser)throw Error('ابتدا وارد شوید.');
  const customerId=$('tCustomer').value;
  const amount=Number($('tAmount').value);
  const md=txMode();
  if(customerId==='__new')throw Error('اول مشتری جدید را ثبت کن یا مشتری را انتخاب کن.');
  if(!customerId&&txMode()!=='buy')throw Error('مشتری را انتخاب کنید.');
- if(md==='sell'){if(!(totalW()>0))throw Error('مجموع وزن اقلام باید بیشتر از صفر باشد.');}else if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
+ if(md==='sell'){if(!(totalW()>0))throw Error('حداقل یک کالا از موجودی انتخاب کن.');if(itemList().length!==$('itemsBody').children.length)throw Error('برای همه ردیف‌ها باید کالا از موجودی انتخاب شود.');if(new Set(itemList().map(x=>String(x.id))).size!==itemList().length)throw Error('یک کالا را نمی‌توان دوبار در یک فاکتور انتخاب کرد.');}else if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
  const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
@@ -470,7 +472,7 @@ $('addTransaction').onclick=()=>{try{
   const metadata='قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+code;
   const baseNote=$('tDesc').value.trim();
   const common={Time:dt,Is_money:false,Name:customer.Name,Customer_id:Number(customerId),Type:'Give',Settled:true,user_id:currentUser.id};
-  const descFor=it=>[baseNote,metadata,it.n?'جنس: '+it.n:''].filter(Boolean).join(' | ');
+  const descFor=it=>[baseNote,metadata,'جنس: '+it.n,'کالا: '+it.id].filter(Boolean).join(' | ');
   const primaryFields=Object.assign({},common,{Amount:il[0].w,DebtGrams:restG,Description:descFor(il[0])});
   txUpdateLocal(primary,primaryFields);
   const other=oldItems.filter(x=>x!==primary);
@@ -493,6 +495,9 @@ $('addTransaction').onclick=()=>{try{
   else if(income)deleteEntryLocal(income);
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
   try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}
+  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
+  const newProductIds=il.map(x=>String(x.id));
+  await invApplySaleProducts(oldProductIds,newProductIds);
   const savedPrimary=transactions.find(x=>String(x.id)===String(primary.id));
   resetTx();say('appStatus','فاکتور با موفقیت بازحساب شد؛ وزن اقلام، بدهی پولی/طلایی و درآمد همگی به‌روزرسانی شدند.');afterChange();
   if(savedPrimary){lastSale=savedPrimary;$('lastInvoice').classList.remove('hidden');try{showInvoice(savedPrimary)}catch(e){}}
@@ -507,12 +512,13 @@ $('addTransaction').onclick=()=>{try{
  const mk=rw=>{const id=newTmp();const o=Object.assign({id:id},rw);transactions.push(o);queue.push({k:'tInsert',tmp:id,row:rw});return o;};
  if(asGold!==null){row.Amount=asGold;row.Is_money=false;}
  if(gc){row.Settled=true;row.DebtGrams=restG;}
- const il=gc?itemList():[];if(il[0]&&il[0].n)row.Description=row.Description+' | جنس: '+il[0].n;
+ const il=gc?itemList():[];if(il[0])row.Description=row.Description+' | جنس: '+il[0].n+' | کالا: '+il[0].id;
  const saved=md==='buy'?null:mk(row);if(debtMoney)mk({Time:dt,Amount:restT,Is_money:true,Name:customer?customer.Name:null,Description:'مانده بدهی پولی این فروش | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id});
- il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,DebtGrams:null,Description:descText+(it.n?' | جنس: '+it.n:'')})));
+ il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,DebtGrams:null,Description:descText+' | جنس: '+it.n+' | کالا: '+it.id})));
  if(gc&&credit>0)syncCredit(invNo,new RegExp('فاکتور\\s+'+invNo+'(?![A-Z0-9])'),customerId,customer?customer.Name:null,dt,credit);
  if(gc)extra={kind:'Income',cat:'فروش طلا',amt:gc.wage+gc.profit+gc.tax,desc:'اجرت، سود و مالیات فروش طلا ('+(restT>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم | فاکتور '+invNo};
  if(extra&&extra.amt>0){const eid=newTmp();const er={Time:dt,Kind:extra.kind,Category:extra.cat,Amount:extra.amt,Description:extra.desc,user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
+ if(gc)await invApplySaleProducts([],il.map(x=>String(x.id)));
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  if(gc||md==='buy'){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}}
  PRC.forEach(i=>{delete $(i).dataset.t});delete $('gPaid').dataset.t;
@@ -566,7 +572,7 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
    $('gPrice').value=sale.pr;$('gWage').value=sale.wg;$('gProfit').value=sale.pf;$('gVat').value=sale.vat;$('gPaid').value=sale.paid==null?'':sale.paid; $('gPaid').dataset.t='1';
    $('gDebtType').value=/بدهی پولی/.test(firstDesc)?'money':'gold';
    $('itemsBody').innerHTML='';
-   group.forEach(x=>{const tr=document.createElement('tr');const nm=(String(x.Description||'').match(/جنس:\s*([^|]+)/)||[])[1]||'';tr.innerHTML='<td><input class="xn" placeholder="مثلاً انگشتر"></td><td><input class="xw" type="number" inputmode="decimal" min="0" step="any" placeholder="گرم"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';tr.querySelector('.xn').value=nm.trim();tr.querySelector('.xw').value=x.Amount;tr.querySelector('.xw').addEventListener('input',syncAmt);tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{tr.querySelector('.xn').value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);});
+   editingSale.productIds=group.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);group.forEach(x=>{const pid=(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]||'';addItemRow(pid);});
    if(!group.length)addItemRow();syncAmt();
    $('tFormTitle').textContent='ویرایش فاکتور فروش';$('addTransaction').textContent='ذخیره و بازحساب فاکتور';$('cancelTx').classList.remove('hidden');updateGold();
   }else{
@@ -577,7 +583,7 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
- const adj=recalcSaleAfterDelete(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='همه'?' و بدهی/درآمد این فاکتور پاک شد.':adj==='بازحساب'?' و مبلغ فاکتور، بدهی مشتری و درآمد دوباره حساب شد.':'.'));afterChange();};
+ const deletedProductId=(String(t.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1];if(deletedProductId)invApplySaleProducts([deletedProductId],[]);const adj=recalcSaleAfterDelete(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='همه'?' و بدهی/درآمد این فاکتور پاک شد.':adj==='بازحساب'?' و مبلغ فاکتور، بدهی مشتری و درآمد دوباره حساب شد.':'.'));afterChange();};
 function sepInput(el){const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
  const fa=x=>String(x).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/٫/g,'.');
  const clean=x=>fa(x).replace(/[^\d.]/g,'').replace(/(\..*)\./g,'$1');
@@ -586,12 +592,12 @@ function sepInput(el){const d=Object.getOwnPropertyDescriptor(HTMLInputElement.p
  el.addEventListener('input',()=>{const cur=d.get.call(el),pos=el.selectionStart||0,digs=clean(cur.slice(0,pos)).length,nv=fmtS(cur);if(nv===cur)return;d.set.call(el,nv);let n=0,i=0;for(;i<nv.length&&n<digs;i++)if(/[\d.]/.test(nv[i]))n++;try{el.setSelectionRange(i,i)}catch(e){}});}
 ['tAmount','gPrice','bPrice','pPrice','gPaid','cashAmount'].forEach(i=>{sepInput($(i));$(i).addEventListener('blur',()=>{$(i).value=$(i).value})});
 const PRC=['gPrice','bPrice','pPrice'];
-const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>({w:Number(tr.querySelector('.xw').value)||0,n:tr.querySelector('.xn').value.trim().replace(/\|/g,' ')})).filter(it=>it.w>0);
+const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>{const id=tr.querySelector('.xp').value,p=invItems.find(x=>String(x.id)===String(id));return p?{id:p.id,w:Number(p.weight)||0,n:p.name,product:p}:null}).filter(Boolean);
 const itemWs=()=>itemList().map(i=>i.w);
-function syncAmt(){const f=itemWs()[0]||0;$('tAmount').value=f||'';renderGold()}
-function addItemRow(){const tr=document.createElement('tr');tr.innerHTML='<td><input class="xn" placeholder="مثلاً انگشتر"></td><td><input class="xw" type="number" inputmode="decimal" min="0" step="any" placeholder="گرم"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';tr.querySelector('.xw').addEventListener('input',syncAmt);tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{tr.querySelector('.xn').value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);}
+function syncAmt(){const sels=[...document.querySelectorAll('#itemsBody .xp')],chosen=sels.map(x=>x.value).filter(Boolean);sels.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));const f=itemWs()[0]||0;$('tAmount').value=f||'';renderGold()}
+function addItemRow(selectedId=''){const tr=document.createElement('tr');const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(selectedId));tr.innerHTML='<td><select class="xp"><option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('')+'</select></td><td><input class="xw" type="text" readonly placeholder="—"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';const sel=tr.querySelector('.xp');sel.value=selectedId||'';const update=()=>{const p=invItems.find(x=>String(x.id)===String(sel.value));tr.querySelector('.xw').value=p?p.weight:'';syncAmt()};sel.addEventListener('change',update);update();tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{sel.value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);}
 function resetItems(){$('itemsBody').innerHTML='';addItemRow();syncAmt()}
-$('addItem').onclick=()=>{addItemRow();$('itemsBody').lastChild.querySelector('.xn').focus()};
+$('addItem').onclick=()=>{addItemRow();$('itemsBody').lastChild.querySelector('.xp').focus()};
 const totalW=()=>Math.round(itemWs().reduce((a,b)=>a+b,0)*1000)/1000;
 const txMode=()=>{if(editingSale)return'sell';if(editingTx!==null)return'';const o=$('tOp').value;return o==='manual'?'':o};
 function pctNum(id){const v=String($(id).value||'').replace(/[۰-۹٠-٩]/g,ch=>{const a='۰۱۲۳۴۵۶۷۸۹',b='٠١٢٣٤٥٦٧٨٩';return a.includes(ch)?String(a.indexOf(ch)):String(b.indexOf(ch))}).replace(/[٬,]/g,'').replace(/٫/g,'.');return Number(v)||0}
@@ -861,18 +867,31 @@ window.addEventListener('online',async()=>{
    });
  } else if(cachedUser())await onSignedIn(cachedUser(), true);
 })();
-// Showcase inventory: local-device draft storage only; no database or accounting writes.
-let invItems=[],invEditing=null,invPhotoData='';
+// Inventory backed by Supabase; local cache is used for quick display and queued status changes.
+let invItems=[],invEditing=null,invPhotoData='',invPendingStatuses={};
 const invKey=()=> 'nabatShowcaseItems:'+(currentUser&&currentUser.id||'guest');
-function invLoad(){try{invItems=JSON.parse(localStorage.getItem(invKey())||'[]');if(!Array.isArray(invItems))invItems=[];}catch(e){invItems=[];}invRender();}
-function invPersist(){try{localStorage.setItem(invKey(),JSON.stringify(invItems));$('invStatus').textContent='ذخیره شد روی همین دستگاه؛ هنوز با سایت مشتریان همگام نیست.';}catch(e){$('invStatus').textContent='ذخیره انجام نشد؛ احتمالاً حافظه مرورگر پر شده است. عکس کوچک‌تری انتخاب کن.';}}
+const invStatusKey=()=> 'nabatShowcaseStatusQueue:'+(currentUser&&currentUser.id||'guest');
+function invPhotoUrl(path){if(!path)return '';return client.storage.from('nabat-showcase').getPublicUrl(path).data.publicUrl;}
+function invMapRow(x){return{id:x.id,name:x.name,code:x.code||'',category:x.category||'سایر',weight:String(x.weight??''),karat:x.karat==null?'سایر':String(x.karat),desc:x.description||'',visible:!!x.is_visible,status:x.status||'available',image_path:x.image_path||'',photo:invPhotoUrl(x.image_path),updatedAt:x.updated_at};}
+function invCache(){try{localStorage.setItem(invKey(),JSON.stringify(invItems));}catch(e){}}
+async function invLoad(){
+ try{invItems=JSON.parse(localStorage.getItem(invKey())||'[]');if(!Array.isArray(invItems))invItems=[];}catch(e){invItems=[];}
+ invRender();
+ if(!client||!navigator.onLine||!currentUser){$('invStatus').textContent='نمایش نسخه ذخیره‌شده؛ برای دریافت آخرین موجودی اتصال اینترنت لازم است.';return;}
+ try{const cached=invItems.slice();const {data,error}=await client.from('ShowcaseProduct').select('*').order('created_at',{ascending:false});if(error)throw error;let rows=data||[];const legacy=cached.filter(x=>String(x.id||'').startsWith('i'));if(!rows.length&&legacy.length){for(const x of legacy){const image_path=x.photo&&String(x.photo).startsWith('data:')?await invUploadPhoto(x.photo,null):(x.image_path||null);const payload={user_id:currentUser.id,code:x.code||null,name:x.name,category:x.category||'سایر',weight:Number(x.weight),karat:Number.isFinite(Number(x.karat))?Number(x.karat):null,description:x.desc||null,image_path,is_visible:x.visible!==false,status:x.status==='sold'?'sold':'available'};const ins=await client.from('ShowcaseProduct').insert(payload).select().single();if(ins.error)throw ins.error;rows.push(ins.data);}}invItems=rows.map(invMapRow);invCache();invRender();$('invStatus').textContent=invItems.length+' کالا از فضای ابری دریافت شد.';await invFlushPendingStatuses();}
+ catch(e){$('invStatus').textContent='دریافت موجودی از سرور ناموفق بود: '+msg(e);}
+}
+function invRender(){if(!$('invList'))return;const q=$('invSearch').value.trim().toLocaleLowerCase(),f=$('invFilter').value;const rows=invItems.filter(x=>(!q||(x.name+' '+x.code).toLocaleLowerCase().includes(q))&&(f==='all'||(f==='yes'?x.visible:!x.visible)));$('invList').innerHTML=rows.map(x=>`<article class="card" style="margin:0;padding:12px"><div style="display:flex;gap:12px;align-items:flex-start">${x.photo?`<img src="${x.photo}" alt="${esc(x.name)}" style="width:92px;height:92px;object-fit:cover;border-radius:11px;border:1px solid var(--line)">`:'<div style="width:92px;height:92px;display:grid;place-items:center;background:var(--soft);border-radius:11px"><span style="font-size:2rem">💍</span></div>'}<div style="flex:1;min-width:0"><b>${esc(x.name)}</b><div class="muted">${esc(x.code||'بدون کد')} · ${esc(x.category)}</div><div class="muted">وزن: ${esc(x.weight)} گرم · عیار: ${esc(x.karat)}</div><span class="badge">${x.status==='sold'?'فروخته‌شده':x.status==='hidden'?'غیرفعال':x.visible?'نمایش در ویترین':'مخفی'}</span></div></div>${x.desc?`<p class="muted">${esc(x.desc)}</p>`:''}<div class="inline" style="margin-top:8px"><button class="rowbtn secondary" data-inv-edit="${x.id}" ${x.status==='sold'?'disabled':''}>ویرایش</button><button class="rowbtn secondary" data-inv-toggle="${x.id}" ${x.status==='sold'?'disabled':''}>${x.visible?'مخفی‌کردن':'نمایش'}</button><button class="rowbtn danger" data-inv-del="${x.id}" ${x.status==='sold'?'disabled':''}>حذف</button></div></article>`).join('')||'<p class="muted">موردی پیدا نشد.</p>';}
 function invReset(){invEditing=null;invPhotoData='';['invName','invCode','invWeight','invDesc','invPhoto'].forEach(id=>$(id).value='');$('invCategory').value='انگشتر';$('invKarat').value='18';$('invVisible').checked=true;$('invPhotoPreview').classList.add('hidden');$('invPhotoImg').src='';$('invFormTitle').textContent='ثبت طلا برای ویترین';$('invSave').textContent='ثبت طلا';$('invCancel').classList.add('hidden');}
-function invRender(){if(!$('invList'))return;const q=$('invSearch').value.trim().toLocaleLowerCase(),f=$('invFilter').value;const rows=invItems.filter(x=>(!q||(x.name+' '+x.code).toLocaleLowerCase().includes(q))&&(f==='all'||(f==='yes'?x.visible:!x.visible)));$('invList').innerHTML=rows.map(x=>`<article class="card" style="margin:0;padding:12px"><div style="display:flex;gap:12px;align-items:flex-start">${x.photo?`<img src="${x.photo}" alt="${esc(x.name)}" style="width:92px;height:92px;object-fit:cover;border-radius:11px;border:1px solid var(--line)">`:'<div style="width:92px;height:92px;display:grid;place-items:center;background:var(--soft);border-radius:11px"><span style="font-size:2rem">💍</span></div>'}<div style="flex:1;min-width:0"><b>${esc(x.name)}</b><div class="muted">${esc(x.code||'بدون کد')} · ${esc(x.category)}</div><div class="muted">وزن: ${esc(x.weight)} گرم · عیار: ${esc(x.karat)}</div><span class="badge">${x.visible?'نمایش در ویترین':'مخفی'}</span></div></div>${x.desc?`<p class="muted">${esc(x.desc)}</p>`:''}<div class="inline" style="margin-top:8px"><button class="rowbtn secondary" data-inv-edit="${x.id}">ویرایش</button><button class="rowbtn secondary" data-inv-toggle="${x.id}">${x.visible?'مخفی‌کردن':'نمایش'}</button><button class="rowbtn danger" data-inv-del="${x.id}">حذف</button></div></article>`).join('')||'<p class="muted">موردی پیدا نشد.</p>';}
 function invCompress(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('خواندن عکس ناموفق بود.'));reader.onload=()=>{const im=new Image();im.onerror=()=>reject(Error('فایل عکس معتبر نیست.'));im.onload=()=>{const scale=Math.min(1,900/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.72));};im.src=reader.result;};reader.readAsDataURL(file);});}
+async function invUploadPhoto(dataUrl,oldPath){if(!dataUrl)return oldPath||null;const blob=await(await fetch(dataUrl)).blob();const path=currentUser.id+'/'+crypto.randomUUID()+'.jpg';const {error}=await client.storage.from('nabat-showcase').upload(path,blob,{contentType:'image/jpeg',upsert:false});if(error)throw error;return path;}
+async function invFlushPendingStatuses(){if(!client||!navigator.onLine||!currentUser)return;try{invPendingStatuses=JSON.parse(localStorage.getItem(invStatusKey())||'{}')}catch(e){invPendingStatuses={}};const ids=Object.keys(invPendingStatuses);for(const id of ids){const {error}=await client.from('ShowcaseProduct').update({status:invPendingStatuses[id],updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',currentUser.id);if(!error)delete invPendingStatuses[id];}try{localStorage.setItem(invStatusKey(),JSON.stringify(invPendingStatuses))}catch(e){}}
+async function invApplySaleProducts(oldIds,newIds){const desired={};(oldIds||[]).forEach(id=>desired[String(id)]='available');(newIds||[]).forEach(id=>desired[String(id)]='sold');for(const [id,status] of Object.entries(desired)){const x=invItems.find(v=>String(v.id)===id);if(x)x.status=status;}invCache();invRender();if(!currentUser)return;try{invPendingStatuses=JSON.parse(localStorage.getItem(invStatusKey())||'{}')}catch(e){invPendingStatuses={}};Object.assign(invPendingStatuses,desired);try{localStorage.setItem(invStatusKey(),JSON.stringify(invPendingStatuses))}catch(e){}await invFlushPendingStatuses();}
 $('invPhoto').onchange=async()=>{const f=$('invPhoto').files[0];if(!f)return;try{invPhotoData=await invCompress(f);$('invPhotoImg').src=invPhotoData;$('invPhotoPreview').classList.remove('hidden');}catch(e){say('invStatus',msg(e));}};
-$('invSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد حساب شوید.');const name=$('invName').value.trim(),weight=$('invWeight').value.trim().replace(/,/g,'.').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));if(!name)throw Error('نام طلا را وارد کن.');if(!weight||!Number.isFinite(Number(weight))||Number(weight)<=0)throw Error('وزن معتبر وارد کن.');const old=invItems.find(x=>x.id===invEditing);const item={id:invEditing||('i'+Date.now()+Math.random().toString(16).slice(2,6)),name,code:$('invCode').value.trim(),category:$('invCategory').value,weight,karat:$('invKarat').value,desc:$('invDesc').value.trim(),visible:$('invVisible').checked,photo:invPhotoData||(old&&old.photo)||'',updatedAt:new Date().toISOString()};if(old)invItems=invItems.map(x=>x.id===invEditing?item:x);else invItems.unshift(item);invPersist();invReset();invRender();}catch(e){$('invStatus').textContent=msg(e);}};
+$('invSave').onclick=async()=>{try{if(!currentUser)throw Error('ابتدا وارد حساب شوید.');if(!client||!navigator.onLine)throw Error('برای ثبت یا ویرایش کالا باید اینترنت وصل باشد.');const name=$('invName').value.trim(),weight=$('invWeight').value.trim().replace(/,/g,'.').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));if(!name)throw Error('نام طلا را وارد کن.');if(!weight||!Number.isFinite(Number(weight))||Number(weight)<=0)throw Error('وزن معتبر وارد کن.');const old=invItems.find(x=>String(x.id)===String(invEditing));if(old&&old.status==='sold')throw Error('کالای فروخته‌شده قابل ویرایش نیست.');const image_path=await invUploadPhoto(invPhotoData,old&&old.image_path);const fields={code:$('invCode').value.trim()||null,name,category:$('invCategory').value,weight:Number(weight),karat:Number.isFinite(Number($('invKarat').value))?Number($('invKarat').value):null,description:$('invDesc').value.trim()||null,image_path,is_visible:$('invVisible').checked,status:old?old.status:'available',updated_at:new Date().toISOString()};let result;if(old){result=await client.from('ShowcaseProduct').update(fields).eq('id',old.id).eq('user_id',currentUser.id).select().single();}else{result=await client.from('ShowcaseProduct').insert(Object.assign({user_id:currentUser.id},fields)).select().single();}if(result.error)throw result.error;const mapped=invMapRow(result.data);if(old)invItems=invItems.map(x=>String(x.id)===String(old.id)?mapped:x);else invItems.unshift(mapped);invCache();invReset();invRender();$('invStatus').textContent='کالا در Supabase ذخیره شد.';}
+ catch(e){$('invStatus').textContent='ذخیره کالا ناموفق بود: '+msg(e);}};
 $('invCancel').onclick=invReset;$('invSearch').oninput=invRender;$('invFilter').onchange=invRender;
-$('invList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const id=b.dataset.invEdit||b.dataset.invToggle||b.dataset.invDel;const x=invItems.find(v=>v.id===id);if(!x)return;if(b.dataset.invEdit){invEditing=id;invPhotoData='';$('invName').value=x.name;$('invCode').value=x.code;$('invCategory').value=x.category;$('invWeight').value=x.weight;$('invKarat').value=x.karat;$('invDesc').value=x.desc;$('invVisible').checked=x.visible;$('invPhoto').value='';if(x.photo){$('invPhotoImg').src=x.photo;$('invPhotoPreview').classList.remove('hidden');}else $('invPhotoPreview').classList.add('hidden');$('invFormTitle').textContent='ویرایش طلا';$('invSave').textContent='ذخیره تغییرات';$('invCancel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}else if(b.dataset.invToggle){x.visible=!x.visible;invPersist();invRender();}else if(b.dataset.invDel&&confirm('این کالا از فهرست محلی حذف شود؟')){invItems=invItems.filter(v=>v.id!==id);invPersist();invRender();}};
+$('invList').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const id=b.dataset.invEdit||b.dataset.invToggle||b.dataset.invDel;const x=invItems.find(v=>String(v.id)===String(id));if(!x)return;if(x.status==='sold')return;if(b.dataset.invEdit){invEditing=id;invPhotoData='';$('invName').value=x.name;$('invCode').value=x.code;$('invCategory').value=x.category;$('invWeight').value=x.weight;$('invKarat').value=x.karat;$('invDesc').value=x.desc;$('invVisible').checked=x.visible;$('invPhoto').value='';if(x.photo){$('invPhotoImg').src=x.photo;$('invPhotoPreview').classList.remove('hidden');}else $('invPhotoPreview').classList.add('hidden');$('invFormTitle').textContent='ویرایش طلا';$('invSave').textContent='ذخیره تغییرات';$('invCancel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}else{if(!client||!navigator.onLine){$('invStatus').textContent='برای تغییر موجودی باید اینترنت وصل باشد.';return;}try{if(b.dataset.invToggle){const {error}=await client.from('ShowcaseProduct').update({is_visible:!x.visible,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;x.visible=!x.visible;invCache();invRender();}else if(b.dataset.invDel&&confirm('این کالا از موجودی حذف شود؟')){const {error}=await client.from('ShowcaseProduct').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw error;if(x.image_path)await client.storage.from('nabat-showcase').remove([x.image_path]);invItems=invItems.filter(v=>String(v.id)!==String(id));invCache();invRender();}}catch(err){$('invStatus').textContent='عملیات ناموفق بود: '+msg(err);}}};
 
 })();
  
