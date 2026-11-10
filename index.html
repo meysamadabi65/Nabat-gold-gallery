@@ -120,6 +120,11 @@ tbody tr:hover{background:#f2f8f3}
   .inline>*{flex-basis:100%}
   header h1{font-size:1.25rem}
 }
+
+/* Back to top */
+#toTop{position:fixed;left:16px;bottom:20px;z-index:9000;width:46px;height:46px;min-height:0;margin:0;padding:0;border-radius:50%;font-size:1.3rem;line-height:1;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .2s,transform .2s,visibility .2s;box-shadow:0 4px 14px #063e3040}
+#toTop.show{opacity:1;visibility:visible;transform:none}
+@media print{#toTop{display:none!important}}
 </style>
 </head>
 <body>
@@ -252,6 +257,7 @@ tbody tr:hover{background:#f2f8f3}
 <div id="appStatus" class="status" role="status"></div>
 </div>
 </main>
+<button id="toTop" type="button" aria-label="بازگشت به بالا" title="بازگشت به بالا">↑</button>
 <footer>گالری طلای نبات <span class="ver-small">آخرین ویرایش: <span data-ver>۱۷ آبان ۱۴۰۵، ساعت ۰۶:۴۴</span></span></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -597,6 +603,17 @@ const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>{cons
 const itemWs=()=>itemList().map(i=>i.w);
 function syncAmt(){const sels=[...document.querySelectorAll('#itemsBody .xp')],chosen=sels.map(x=>x.value).filter(Boolean);sels.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));const f=itemWs()[0]||0;$('tAmount').value=f||'';renderGold()}
 function addItemRow(selectedId=''){const tr=document.createElement('tr');const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(selectedId));tr.innerHTML='<td><select class="xp"><option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('')+'</select></td><td><input class="xw" type="text" readonly placeholder="—"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';const sel=tr.querySelector('.xp');sel.value=selectedId||'';const update=()=>{const p=invItems.find(x=>String(x.id)===String(sel.value));tr.querySelector('.xw').value=p?p.weight:'';syncAmt()};sel.addEventListener('change',update);update();tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{sel.value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);}
+function refreshItemOptions(){
+ const rows=document.querySelectorAll('#itemsBody .xp');
+ rows.forEach(sel=>{const cur=sel.value;
+  const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(cur));
+  sel.innerHTML='<option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('');
+  sel.value=cur;
+  const p=invItems.find(x=>String(x.id)===String(sel.value));const tr=sel.closest('tr'),w=tr&&tr.querySelector('.xw');if(w)w.value=p?p.weight:'';
+ });
+ const chosen=[...rows].map(x=>x.value).filter(Boolean);
+ rows.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));
+}
 function resetItems(){$('itemsBody').innerHTML='';addItemRow();syncAmt()}
 $('addItem').onclick=()=>{addItemRow();$('itemsBody').lastChild.querySelector('.xp').focus()};
 const totalW=()=>Math.round(itemWs().reduce((a,b)=>a+b,0)*1000)/1000;
@@ -882,7 +899,7 @@ async function invLoad(){
  try{const cached=invItems.slice();const {data,error}=await client.from('ShowcaseProduct').select('*').order('created_at',{ascending:false});if(error)throw error;let rows=data||[];const legacy=cached.filter(x=>String(x.id||'').startsWith('i'));if(!rows.length&&legacy.length){for(const x of legacy){const image_path=x.photo&&String(x.photo).startsWith('data:')?await invUploadPhoto(x.photo,null):(x.image_path||null);const payload={user_id:currentUser.id,code:x.code||null,name:x.name,category:x.category||'سایر',weight:Number(x.weight),karat:Number.isFinite(Number(x.karat))?Number(x.karat):null,description:x.desc||null,image_path,is_visible:x.visible!==false,status:x.status==='sold'?'sold':'available'};const ins=await client.from('ShowcaseProduct').insert(payload).select().single();if(ins.error)throw ins.error;rows.push(ins.data);}}invItems=rows.map(invMapRow);invCache();invRender();$('invStatus').textContent=invItems.length+' کالا از فضای ابری دریافت شد.';await invFlushPendingStatuses();}
  catch(e){$('invStatus').textContent='دریافت موجودی از سرور ناموفق بود: '+msg(e);}
 }
-function invRender(){if(!$('invList'))return;const q=$('invSearch').value.trim().toLocaleLowerCase(),f=$('invFilter').value;const rows=invItems.filter(x=>(!q||(x.name+' '+x.code).toLocaleLowerCase().includes(q))&&(f==='all'||(f==='yes'?x.visible:!x.visible)));$('invList').innerHTML=rows.map(x=>`<article class="card" style="margin:0;padding:12px"><div style="display:flex;gap:12px;align-items:flex-start">${x.photo?`<img src="${x.photo}" alt="${esc(x.name)}" style="width:92px;height:92px;object-fit:cover;border-radius:11px;border:1px solid var(--line)">`:'<div style="width:92px;height:92px;display:grid;place-items:center;background:var(--soft);border-radius:11px"><span style="font-size:2rem">💍</span></div>'}<div style="flex:1;min-width:0"><b>${esc(x.name)}</b><div class="muted">${esc(x.code||'بدون کد')} · ${esc(x.category)}</div><div class="muted">وزن: ${esc(x.weight)} گرم · عیار: ${esc(x.karat)}</div><span class="badge">${x.status==='sold'?'فروخته‌شده':x.status==='hidden'?'غیرفعال':x.visible?'نمایش در ویترین':'مخفی'}</span></div></div>${x.desc?`<p class="muted">${esc(x.desc)}</p>`:''}<div class="inline" style="margin-top:8px"><button class="rowbtn secondary" data-inv-edit="${x.id}" ${x.status==='sold'?'disabled':''}>ویرایش</button><button class="rowbtn secondary" data-inv-toggle="${x.id}" ${x.status==='sold'?'disabled':''}>${x.visible?'مخفی‌کردن':'نمایش'}</button><button class="rowbtn danger" data-inv-del="${x.id}" ${x.status==='sold'?'disabled':''}>حذف</button></div></article>`).join('')||'<p class="muted">موردی پیدا نشد.</p>';}
+function invRender(){try{refreshItemOptions()}catch(e){}if(!$('invList'))return;const q=$('invSearch').value.trim().toLocaleLowerCase(),f=$('invFilter').value;const rows=invItems.filter(x=>(!q||(x.name+' '+x.code).toLocaleLowerCase().includes(q))&&(f==='all'||(f==='yes'?x.visible:!x.visible)));$('invList').innerHTML=rows.map(x=>`<article class="card" style="margin:0;padding:12px"><div style="display:flex;gap:12px;align-items:flex-start">${x.photo?`<img src="${x.photo}" alt="${esc(x.name)}" style="width:92px;height:92px;object-fit:cover;border-radius:11px;border:1px solid var(--line)">`:'<div style="width:92px;height:92px;display:grid;place-items:center;background:var(--soft);border-radius:11px"><span style="font-size:2rem">💍</span></div>'}<div style="flex:1;min-width:0"><b>${esc(x.name)}</b><div class="muted">${esc(x.code||'بدون کد')} · ${esc(x.category)}</div><div class="muted">وزن: ${esc(x.weight)} گرم · عیار: ${esc(x.karat)}</div><span class="badge">${x.status==='sold'?'فروخته‌شده':x.status==='hidden'?'غیرفعال':x.visible?'نمایش در ویترین':'مخفی'}</span></div></div>${x.desc?`<p class="muted">${esc(x.desc)}</p>`:''}<div class="inline" style="margin-top:8px"><button class="rowbtn secondary" data-inv-edit="${x.id}" ${x.status==='sold'?'disabled':''}>ویرایش</button><button class="rowbtn secondary" data-inv-toggle="${x.id}" ${x.status==='sold'?'disabled':''}>${x.visible?'مخفی‌کردن':'نمایش'}</button><button class="rowbtn danger" data-inv-del="${x.id}" ${x.status==='sold'?'disabled':''}>حذف</button></div></article>`).join('')||'<p class="muted">موردی پیدا نشد.</p>';}
 function invReset(){invEditing=null;invPhotoData='';['invName','invCode','invWeight','invDesc','invPhoto'].forEach(id=>$(id).value='');$('invCategory').value='انگشتر';$('invKarat').value='18';$('invVisible').checked=true;$('invPhotoPreview').classList.add('hidden');$('invPhotoImg').src='';$('invFormTitle').textContent='ثبت طلا برای ویترین';$('invSave').textContent='ثبت طلا';$('invCancel').classList.add('hidden');}
 function invCompress(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('خواندن عکس ناموفق بود.'));reader.onload=()=>{const im=new Image();im.onerror=()=>reject(Error('فایل عکس معتبر نیست.'));im.onload=()=>{const scale=Math.min(1,900/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.72));};im.src=reader.result;};reader.readAsDataURL(file);});}
 async function invUploadPhoto(dataUrl,oldPath){if(!dataUrl)return oldPath||null;const blob=await(await fetch(dataUrl)).blob();const path=currentUser.id+'/'+crypto.randomUUID()+'.jpg';const {error}=await client.storage.from('nabat-showcase').upload(path,blob,{contentType:'image/jpeg',upsert:false});if(error)throw error;return path;}
@@ -927,6 +944,12 @@ if(!els.length||isNaN(d)||Math.abs(Date.now()-d.getTime())<60000)return;
 var z='Asia/Tehran',p=new Intl.DateTimeFormat('fa-IR',{day:'numeric',month:'long',year:'numeric',timeZone:z}).format(d),
 t=new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:z}).format(d);
 els.forEach(function(el){el.textContent=p+'، ساعت '+t});}catch(e){}})();
+</script>
+<script>
+(function(){var b=document.getElementById('toTop');if(!b)return;
+function t(){b.classList.toggle('show',(window.scrollY||document.documentElement.scrollTop)>300)}
+window.addEventListener('scroll',t,{passive:true});t();
+b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});})();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
