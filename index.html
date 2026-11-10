@@ -55,7 +55,7 @@ button.danger{background:#fff1ef;color:var(--danger);border:1px solid #f0c9c4;bo
 td .rowbtn{width:auto;min-height:32px;margin:0 0 0 6px;padding:6px 10px;border-radius:8px;font-size:.8rem}
 
 /* Tabs */
-.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:15px;padding:7px;background:#e7f0e9;border:1px solid #d8e5dc;border-radius:15px}
+.tabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:15px;padding:7px;background:#e7f0e9;border:1px solid #d8e5dc;border-radius:15px}
 .tabs button{width:100%;min-height:44px;margin:0;padding:10px 7px;background:transparent;color:#466357;border:1px solid transparent;box-shadow:none;font-size:.88rem}
 .tabs button:hover{background:#f7fbf7;transform:none}
 .tabs button.active{background:linear-gradient(135deg,var(--green),#07513f);color:#fff;border-color:#07513f;box-shadow:0 3px 9px #075b4825}
@@ -158,6 +158,7 @@ tbody tr:hover{background:#f2f8f3}
 <button data-tab="cashTab">درآمد و هزینه</button>
 <button data-tab="reportTab">گزارش مانده</button>
 <button data-tab="historyTab">گردش حساب</button>
+<button data-tab="inventoryTab">موجودی ویترین</button>
 </div>
 <section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:var(--soft);border-radius:10px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم)</b><button id="refreshMarket" class="secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem">بروزرسانی</button></div><div id="marketPrices" style="font-size:1.3rem;font-weight:bold;margin-top:8px">—</div><div id="marketUpdated" class="muted"></div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div><h2>پشتیبان‌گیری</h2><div class="muted">پشتیبان‌گیری فقط دستی است؛ فایل در پوشه Downloads گوشی ذخیره می‌شود.</div><div class="inline"><button id="bkNow">پشتیبان‌گیری الان</button><button id="bkRestore" class="secondary">بازیابی از فایل</button></div><input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="muted" id="bkInfo"></div></section>
 <section id="customerTab" class="tab card hidden">
@@ -220,6 +221,26 @@ tbody tr:hover{background:#f2f8f3}
 </div><button id="filterHistory" class="secondary">اعمال فیلتر</button>
 <div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>تاریخ</th><th>مشتری</th><th>نوع</th><th>دارایی</th><th>مبلغ/وزن</th><th>توضیحات</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>
 <button id="exportHistory" class="secondary">خروجی Excel گردش حساب</button>
+</section>
+<section id="inventoryTab" class="tab card hidden">
+<h2 id="invFormTitle">ثبت طلا برای ویترین</h2>
+<div class="warn" style="margin-bottom:14px">این بخش فعلاً اطلاعات و عکس‌ها را فقط روی همین دستگاه ذخیره می‌کند؛ هنوز به سایت مشتریان یا Supabase متصل نیست. هیچ قیمتی در این بخش ثبت یا نمایش داده نمی‌شود.</div>
+<div class="grid">
+<div><label for="invName">نام طلا *</label><input id="invName" placeholder="مثلاً انگشتر ظریف"></div>
+<div><label for="invCode">کد کالا</label><input id="invCode" placeholder="مثلاً N-102"></div>
+<div><label for="invCategory">دسته‌بندی</label><select id="invCategory"><option value="انگشتر">انگشتر</option><option value="زنجیر">زنجیر</option><option value="گردنبند">گردنبند</option><option value="دستبند">دستبند</option><option value="النگو">النگو</option><option value="گوشواره">گوشواره</option><option value="پلاک و آویز">پلاک و آویز</option><option value="سایر">سایر</option></select></div>
+<div><label for="invWeight">وزن (گرم) *</label><input id="invWeight" inputmode="decimal" placeholder="مثلاً ۲٫۵۰۰"></div>
+<div><label for="invKarat">عیار</label><select id="invKarat"><option value="18">۱۸</option><option value="24">۲۴</option><option value="21">۲۱</option><option value="750">۷۵۰</option><option value="سایر">سایر</option></select></div>
+<div><label for="invPhoto">عکس طلا</label><input id="invPhoto" type="file" accept="image/*"><small>عکس به‌صورت خودکار کم‌حجم می‌شود.</small></div>
+</div>
+<div id="invPhotoPreview" class="hidden" style="margin-top:10px"><img id="invPhotoImg" alt="پیش‌نمایش عکس طلا" style="display:block;max-width:180px;max-height:180px;object-fit:contain;border:1px solid var(--line);border-radius:12px;padding:4px"></div>
+<label for="invDesc" style="margin-top:12px">توضیحات</label><textarea id="invDesc" placeholder="مثلاً رنگ، نوع ساخت، نگین و مشخصات ظاهری"></textarea>
+<label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="invVisible" type="checkbox" checked style="width:auto;margin:0"> نمایش در ویترین مشتریان (تنظیم محلی فعلاً)</label>
+<div class="inline"><button id="invSave">ثبت طلا</button><button id="invCancel" class="secondary hidden" type="button">انصراف از ویرایش</button></div>
+<h2 style="margin-top:24px">فهرست طلاهای ثبت‌شده</h2>
+<div class="grid"><div><label for="invSearch">جست‌وجو</label><input id="invSearch" placeholder="نام یا کد کالا"></div><div><label for="invFilter">وضعیت نمایش</label><select id="invFilter"><option value="all">همه</option><option value="yes">نمایش در ویترین</option><option value="no">مخفی</option></select></div></div>
+<div id="invList" class="grid" style="margin-top:12px"></div>
+<div id="invStatus" class="status" role="status">هنوز کالایی ثبت نشده است.</div>
 </section>
 <section id="cashTab" class="tab card hidden"><h2>ثبت درآمد و هزینه</h2><div class="grid">
 <div><label for="cashKind">نوع</label><select id="cashKind"><option value="Income">درآمد</option><option value="Expense">هزینه</option></select></div>
@@ -369,7 +390,7 @@ async function onSignedIn(user, force=false){
  currentUser=user;
  try{localStorage.setItem('ledgerUser',JSON.stringify({id:user.id,email:user.email}))}catch(e){}
  $('setup').classList.add('hidden');$('app').classList.remove('hidden');say('authStatus','ورود موفق بود.');
- loadCache();renderAll();
+ loadCache();renderAll();invLoad();
  const dashBtn=document.querySelector('[data-tab="dashboardTab"]');
  if(dashBtn)dashBtn.click();
  window.scrollTo({top:0,behavior:'smooth'});
@@ -840,6 +861,19 @@ window.addEventListener('online',async()=>{
    });
  } else if(cachedUser())await onSignedIn(cachedUser(), true);
 })();
+// Showcase inventory: local-device draft storage only; no database or accounting writes.
+let invItems=[],invEditing=null,invPhotoData='';
+const invKey=()=> 'nabatShowcaseItems:'+(currentUser&&currentUser.id||'guest');
+function invLoad(){try{invItems=JSON.parse(localStorage.getItem(invKey())||'[]');if(!Array.isArray(invItems))invItems=[];}catch(e){invItems=[];}invRender();}
+function invPersist(){try{localStorage.setItem(invKey(),JSON.stringify(invItems));$('invStatus').textContent='ذخیره شد روی همین دستگاه؛ هنوز با سایت مشتریان همگام نیست.';}catch(e){$('invStatus').textContent='ذخیره انجام نشد؛ احتمالاً حافظه مرورگر پر شده است. عکس کوچک‌تری انتخاب کن.';}}
+function invReset(){invEditing=null;invPhotoData='';['invName','invCode','invWeight','invDesc','invPhoto'].forEach(id=>$(id).value='');$('invCategory').value='انگشتر';$('invKarat').value='18';$('invVisible').checked=true;$('invPhotoPreview').classList.add('hidden');$('invPhotoImg').src='';$('invFormTitle').textContent='ثبت طلا برای ویترین';$('invSave').textContent='ثبت طلا';$('invCancel').classList.add('hidden');}
+function invRender(){if(!$('invList'))return;const q=$('invSearch').value.trim().toLocaleLowerCase(),f=$('invFilter').value;const rows=invItems.filter(x=>(!q||(x.name+' '+x.code).toLocaleLowerCase().includes(q))&&(f==='all'||(f==='yes'?x.visible:!x.visible)));$('invList').innerHTML=rows.map(x=>`<article class="card" style="margin:0;padding:12px"><div style="display:flex;gap:12px;align-items:flex-start">${x.photo?`<img src="${x.photo}" alt="${esc(x.name)}" style="width:92px;height:92px;object-fit:cover;border-radius:11px;border:1px solid var(--line)">`:'<div style="width:92px;height:92px;display:grid;place-items:center;background:var(--soft);border-radius:11px"><span style="font-size:2rem">💍</span></div>'}<div style="flex:1;min-width:0"><b>${esc(x.name)}</b><div class="muted">${esc(x.code||'بدون کد')} · ${esc(x.category)}</div><div class="muted">وزن: ${esc(x.weight)} گرم · عیار: ${esc(x.karat)}</div><span class="badge">${x.visible?'نمایش در ویترین':'مخفی'}</span></div></div>${x.desc?`<p class="muted">${esc(x.desc)}</p>`:''}<div class="inline" style="margin-top:8px"><button class="rowbtn secondary" data-inv-edit="${x.id}">ویرایش</button><button class="rowbtn secondary" data-inv-toggle="${x.id}">${x.visible?'مخفی‌کردن':'نمایش'}</button><button class="rowbtn danger" data-inv-del="${x.id}">حذف</button></div></article>`).join('')||'<p class="muted">موردی پیدا نشد.</p>';}
+function invCompress(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('خواندن عکس ناموفق بود.'));reader.onload=()=>{const im=new Image();im.onerror=()=>reject(Error('فایل عکس معتبر نیست.'));im.onload=()=>{const scale=Math.min(1,900/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.72));};im.src=reader.result;};reader.readAsDataURL(file);});}
+$('invPhoto').onchange=async()=>{const f=$('invPhoto').files[0];if(!f)return;try{invPhotoData=await invCompress(f);$('invPhotoImg').src=invPhotoData;$('invPhotoPreview').classList.remove('hidden');}catch(e){say('invStatus',msg(e));}};
+$('invSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد حساب شوید.');const name=$('invName').value.trim(),weight=$('invWeight').value.trim().replace(/,/g,'.').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));if(!name)throw Error('نام طلا را وارد کن.');if(!weight||!Number.isFinite(Number(weight))||Number(weight)<=0)throw Error('وزن معتبر وارد کن.');const old=invItems.find(x=>x.id===invEditing);const item={id:invEditing||('i'+Date.now()+Math.random().toString(16).slice(2,6)),name,code:$('invCode').value.trim(),category:$('invCategory').value,weight,karat:$('invKarat').value,desc:$('invDesc').value.trim(),visible:$('invVisible').checked,photo:invPhotoData||(old&&old.photo)||'',updatedAt:new Date().toISOString()};if(old)invItems=invItems.map(x=>x.id===invEditing?item:x);else invItems.unshift(item);invPersist();invReset();invRender();}catch(e){$('invStatus').textContent=msg(e);}};
+$('invCancel').onclick=invReset;$('invSearch').oninput=invRender;$('invFilter').onchange=invRender;
+$('invList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const id=b.dataset.invEdit||b.dataset.invToggle||b.dataset.invDel;const x=invItems.find(v=>v.id===id);if(!x)return;if(b.dataset.invEdit){invEditing=id;invPhotoData='';$('invName').value=x.name;$('invCode').value=x.code;$('invCategory').value=x.category;$('invWeight').value=x.weight;$('invKarat').value=x.karat;$('invDesc').value=x.desc;$('invVisible').checked=x.visible;$('invPhoto').value='';if(x.photo){$('invPhotoImg').src=x.photo;$('invPhotoPreview').classList.remove('hidden');}else $('invPhotoPreview').classList.add('hidden');$('invFormTitle').textContent='ویرایش طلا';$('invSave').textContent='ذخیره تغییرات';$('invCancel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}else if(b.dataset.invToggle){x.visible=!x.visible;invPersist();invRender();}else if(b.dataset.invDel&&confirm('این کالا از فهرست محلی حذف شود؟')){invItems=invItems.filter(v=>v.id!==id);invPersist();invRender();}};
+
 })();
  
 async function loadMarketRates(){
