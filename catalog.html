@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#064b3b">
+<title>طلاهای موجود | گالری طلای نبات</title>
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  font-family:Tahoma,Arial,sans-serif;
+  --green:#08745a;--green-dark:#064b3b;--gold:#c69a42;--gold-soft:#f6ecd5;
+  --ink:#18352d;--muted:#62736a;--line:#dce8e0;--soft:#edf5ef;--bg:#f7f8f5;--danger:#a3312b;
+  color:var(--ink);background:var(--bg);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);line-height:1.65;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+:focus-visible{outline:3px solid #d8b76d;outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+header{padding:calc(20px + env(safe-area-inset-top,0px)) 18px 18px;color:#fff;background:linear-gradient(120deg,var(--green-dark),var(--green));border-bottom:3px solid var(--gold)}
+header h1{margin:0 0 4px;font-size:1.35rem}
+header p{margin:0;font-size:.9rem;color:#e4f2e9}
+
+.tools{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 14px 8px;border-bottom:1px solid var(--line)}
+.tools input{width:100%;min-height:46px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:var(--ink)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;min-height:38px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+
+main{max-width:1100px;margin:auto;padding:14px}
+.note{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.status{padding:28px 12px;text-align:center;color:var(--muted)}
+.status.err{color:var(--danger)}
+
+.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:960px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{position:relative;border-radius:16px;background:#fff;border:2px solid var(--line);overflow:hidden;transition:border-color .15s}
+.card.on{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.pick{display:block;width:100%;padding:0;border:0;background:none;text-align:right}
+.ph{position:relative;aspect-ratio:1/1;background:var(--soft);display:grid;place-items:center;font-size:2.6rem}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tick{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:#ffffffd9;border:2px solid var(--line);display:grid;place-items:center;font-size:1rem;color:#fff}
+.card.on .tick{background:var(--green);border-color:var(--green)}
+.info{padding:10px 12px 12px}
+.info b{display:block;font-size:.98rem;line-height:1.4;overflow-wrap:anywhere}
+.meta{margin-top:3px;color:var(--muted);font-size:.85rem}
+.wt{margin-top:6px;font-weight:700;color:var(--green-dark)}
+.zoom{position:absolute;top:8px;left:8px;width:34px;height:34px;min-height:0;padding:0;border:0;border-radius:50%;background:#ffffffd9;font-size:1rem;line-height:1}
+
+.bar{position:fixed;inset:auto 0 0 0;z-index:30;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--green-dark);color:#fff;display:flex;align-items:center;gap:12px;transform:translateY(110%);transition:transform .2s}
+.bar.show{transform:none}
+.bar .sum{flex:1;min-width:0;font-size:.92rem}
+.bar .sum b{display:block;font-size:1rem}
+.btn{min-height:46px;padding:0 20px;border:0;border-radius:12px;background:var(--gold);color:#2a2008;font-weight:700}
+.btn.alt{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:400}
+.btn.ghost{background:none;color:#fff;border:1px solid #ffffff55;font-weight:400;padding:0 14px}
+.btn.green{background:var(--green);color:#fff}
+
+dialog{border:0;padding:0;border-radius:18px;max-width:min(520px,94vw);width:100%;color:var(--ink);background:#fff}
+dialog::backdrop{background:#0a1a1470}
+.sheet{padding:18px;max-height:86vh;overflow:auto}
+.sheet h2{margin:0 0 10px;font-size:1.1rem}
+.sheet img.big{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:var(--soft)}
+.sel-list{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.sel-list li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:12px}
+.sel-list li span{flex:1;min-width:0;overflow-wrap:anywhere}
+.sel-list small{color:var(--muted);display:block}
+.x{width:34px;height:34px;min-height:0;padding:0;border:0;border-radius:50%;background:var(--soft)}
+label{display:block;margin:10px 0 4px;font-size:.9rem;color:var(--muted)}
+.sheet input{width:100%;min-height:46px;padding:0 12px;border:1px solid var(--line);border-radius:12px;font:inherit}
+.actions{display:grid;gap:8px;margin-top:14px}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.msg{min-height:1.4em;margin-top:8px;font-size:.88rem;color:var(--green-dark)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>طلاهای موجود گالری نبات</h1>
+  <p>طلاهای مورد علاقه‌ات را انتخاب کن و درخواستت را برای ما بفرست.</p>
+</header>
+
+<div class="tools">
+  <input id="q" type="search" placeholder="جستجوی نام یا کد…" aria-label="جستجو">
+  <div class="chips" id="chips" role="group" aria-label="دسته‌بندی"></div>
+</div>
+
+<main>
+  <p class="note" id="count"></p>
+  <div id="status" class="status">در حال دریافت لیست…</div>
+  <ul class="grid" id="grid"></ul>
+</main>
+
+<div class="bar" id="bar">
+  <div class="sum"><b id="selCount"></b><span id="selWeight"></span></div>
+  <button class="btn ghost" id="clear" type="button">پاک کردن</button>
+  <button class="btn" id="open" type="button">ارسال درخواست</button>
+</div>
+
+<dialog id="view"><div class="sheet" id="viewBody"></div></dialog>
+
+<dialog id="send">
+  <div class="sheet" id="sendBody">
+    <h2>درخواست شما</h2>
+    <ul class="sel-list" id="selList"></ul>
+    <label for="cPhone">شماره تماس *</label>
+    <div class="row">
+      <input id="cPhone" type="tel" inputmode="tel" autocomplete="tel" style="min-width:0">
+      <button class="btn alt" id="checkPhone" type="button" style="flex:0 0 auto;padding:0 14px">بررسی شماره</button>
+    </div>
+    <div id="custFields" class="hidden">
+      <label for="cName">نام شما *</label>
+      <input id="cName" autocomplete="name">
+      <label for="cAddress">نشانی (اختیاری)</label>
+      <input id="cAddress" autocomplete="street-address">
+    </div>
+    <div class="actions">
+      <button class="btn green hidden" id="submitReq" type="button">ثبت درخواست</button>
+      <button class="btn alt" id="closeSend" type="button">بستن</button>
+    </div>
+    <div class="msg" id="sendMsg" role="status"></div>
+  </div>
+  <div class="sheet hidden" id="doneBody">
+    <h2>درخواست ثبت شد</h2>
+    <p>طلاهای انتخابی‌ات برای ما ثبت شد. به‌زودی با شما تماس می‌گیریم.</p>
+    <div class="actions"><button class="btn alt" id="doneClose" type="button">بستن</button></div>
+  </div>
+</dialog>
+
+<script>
+/* ===== تنظیمات: این مقدارها را پر کن ===== */
+const CFG = {
+  URL:  'https://walqvjkqkyruuweqwqih.supabase.co',   // مثال: https://abcd1234.supabase.co  (همان Project URL برنامه اصلی)
+  KEY:  'sb_publishable_pWVFSUrM9eq6jYlWIk9kxQ_jFuTQp8D',   // کلید عمومی (anon / publishable) همان پروژه
+  SHOP: 'گالری طلای نبات'
+};
+/* ========================================= */
+
+const $ = id => document.getElementById(id);
+const fa = n => Number(n).toLocaleString('fa-IR',{maximumFractionDigits:3});
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SEL_KEY = 'nabatCatalogSelection';
+
+let items = [], cat = 'all', query = '';
+let sel = new Set();
+try { sel = new Set((JSON.parse(localStorage.getItem(SEL_KEY) || '[]')).map(String)); } catch (e) {}
+const saveSel = () => { try { localStorage.setItem(SEL_KEY, JSON.stringify([...sel])); } catch (e) {} };
+
+const photo = p => p ? CFG.URL.replace(/\/+$/,'') + '/storage/v1/object/public/nabat-showcase/' + encodeURI(p) : '';
+const byId = id => items.find(x => String(x.id) === String(id));
+const chosen = () => items.filter(x => sel.has(String(x.id)));
+const karatText = k => (k == null || k === '') ? '' : 'عیار ' + fa(k);
+
+async function load() {
+  const st = $('status');
+  if (!CFG.URL || !CFG.KEY) {
+    st.className = 'status err';
+    st.textContent = 'اتصال هنوز تنظیم نشده است. آدرس و کلید پروژه را در ابتدای همین فایل وارد کنید.';
+    return;
+  }
+  try {
+    const url = CFG.URL.replace(/\/+$/,'') + '/rest/v1/ShowcaseProduct'
+      + '?select=id,user_id,name,code,category,weight,karat,description,image_path'
+      + '&is_visible=eq.true&status=eq.available&order=created_at.desc&limit=500';
+    const res = await fetch(url, { headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    items = (await res.json()).map(x => ({ ...x, photo: photo(x.image_path) }));
+    const ids = new Set(items.map(x => String(x.id)));
+    sel = new Set([...sel].filter(id => ids.has(id)));
+    saveSel();
+    st.className = 'status';
+    render();
+  } catch (e) {
+    st.className = 'status err';
+    st.textContent = 'دریافت لیست انجام نشد. اینترنت را بررسی کن و دوباره تلاش کن.';
+  }
+}
+
+function renderChips() {
+  const cats = ['all', ...new Set(items.map(x => x.category || 'سایر'))];
+  $('chips').innerHTML = cats.map(c =>
+    `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${c === cat}">${c === 'all' ? 'همه' : esc(c)}</button>`).join('');
+}
+
+function render() {
+  renderChips();
+  const q = query.trim().toLocaleLowerCase();
+  const rows = items.filter(x =>
+    (cat === 'all' || (x.category || 'سایر') === cat) &&
+    (!q || (String(x.name) + ' ' + (x.code || '')).toLocaleLowerCase().includes(q)));
+  $('count').textContent = items.length ? fa(rows.length) + ' مورد' : '';
+  $('status').classList.toggle('hidden', rows.length > 0 || !!items.length);
+  if (!items.length) { $('status').textContent = 'فعلاً طلایی برای نمایش موجود نیست.'; $('status').classList.remove('hidden'); }
+  else if (!rows.length) { $('status').textContent = 'موردی با این جستجو پیدا نشد.'; $('status').classList.remove('hidden'); }
+  $('grid').innerHTML = rows.map(x => {
+    const on = sel.has(String(x.id));
+    return `<li class="card${on ? ' on' : ''}" data-id="${esc(x.id)}">
+      <button class="pick" type="button" data-pick="${esc(x.id)}" aria-pressed="${on}">
+        <div class="ph">${x.photo ? `<img src="${esc(x.photo)}" alt="${esc(x.name)}" loading="lazy">` : '💍'}<span class="tick">${on ? '✓' : ''}</span></div>
+        <div class="info"><b>${esc(x.name)}</b>
+          <div class="meta">${esc(x.category || 'سایر')}${x.karat != null ? ' · ' + karatText(x.karat) : ''}</div>
+          <div class="wt">${fa(x.weight)} گرم</div></div>
+      </button>
+      <button class="zoom" type="button" data-zoom="${esc(x.id)}" aria-label="مشاهده بزرگ‌تر">⤢</button>
+    </li>`;
+  }).join('');
+  updateBar();
+}
+
+function updateBar() {
+  const c = chosen();
+  const w = c.reduce((s, x) => s + Number(x.weight || 0), 0);
+  $('bar').classList.toggle('show', c.length > 0);
+  $('selCount').textContent = fa(c.length) + ' مورد انتخاب شده';
+  $('selWeight').textContent = 'مجموع وزن: ' + fa(w) + ' گرم';
+}
+
+function toggle(id) {
+  id = String(id);
+  sel.has(id) ? sel.delete(id) : sel.add(id);
+  saveSel();
+  const li = $('grid').querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (li) {
+    const on = sel.has(id);
+    li.classList.toggle('on', on);
+    li.querySelector('.pick').setAttribute('aria-pressed', on);
+    li.querySelector('.tick').textContent = on ? '✓' : '';
+  }
+  updateBar();
+}
+
+$('grid').addEventListener('click', e => {
+  const z = e.target.closest('[data-zoom]');
+  if (z) return openView(z.dataset.zoom);
+  const p = e.target.closest('[data-pick]');
+  if (p) toggle(p.dataset.pick);
+});
+$('chips').addEventListener('click', e => {
+  const b = e.target.closest('[data-cat]'); if (!b) return;
+  cat = b.dataset.cat; render();
+});
+$('q').addEventListener('input', e => { query = e.target.value; render(); });
+$('clear').onclick = () => { sel.clear(); saveSel(); render(); };
+
+function openView(id) {
+  const x = byId(id); if (!x) return;
+  const on = sel.has(String(x.id));
+  $('viewBody').innerHTML =
+    (x.photo ? `<img class="big" src="${esc(x.photo)}" alt="${esc(x.name)}">` : '') +
+    `<h2 style="margin-top:12px">${esc(x.name)}</h2>
+     <div class="meta">${esc(x.category || 'سایر')}${x.karat != null ? ' · ' + karatText(x.karat) : ''} · ${fa(x.weight)} گرم${x.code ? ' · کد ' + esc(x.code) : ''}</div>
+     ${x.description ? `<p>${esc(x.description)}</p>` : ''}
+     <div class="actions"><button class="btn ${on ? 'alt' : ''}" id="viewPick" type="button">${on ? 'حذف از انتخاب‌ها' : 'انتخاب این مورد'}</button>
+     <button class="btn alt" id="viewClose" type="button">بستن</button></div>`;
+  $('viewPick').onclick = () => { toggle(x.id); $('view').close(); };
+  $('viewClose').onclick = () => $('view').close();
+  $('view').showModal();
+}
+$('view').addEventListener('click', e => { if (e.target === $('view')) $('view').close(); });
+
+/* ---- ارسال درخواست ---- */
+function renderSelList() {
+  $('selList').innerHTML = chosen().map(x =>
+    `<li><span><b>${esc(x.name)}</b><small>${fa(x.weight)} گرم${x.karat != null ? ' · ' + karatText(x.karat) : ''}</small></span>
+     <button class="x" type="button" data-rm="${esc(x.id)}" aria-label="حذف ${esc(x.name)}">✕</button></li>`).join('');
+}
+$('open').onclick = () => {
+  try { $('cPhone').value = localStorage.getItem('nabatCatalogPhone') || ''; } catch (e) {}
+  $('cName').value = ''; $('cAddress').value = '';
+  setChecked(false);
+  $('sendMsg').textContent = '';
+  $('sendBody').classList.remove('hidden'); $('doneBody').classList.add('hidden');
+  renderSelList();
+  $('send').showModal();
+};
+$('selList').addEventListener('click', e => {
+  const b = e.target.closest('[data-rm]'); if (!b) return;
+  toggle(b.dataset.rm);
+  if (!sel.size) { $('send').close(); return; }
+  renderSelList();
+});
+$('closeSend').onclick = () => $('send').close();
+$('send').addEventListener('click', e => { if (e.target === $('send')) $('send').close(); });
+function rememberContact() {
+  try { localStorage.setItem('nabatCatalogPhone', $('cPhone').value.trim()); } catch (e) {}
+}
+const say = t => { $('sendMsg').textContent = t; };
+let checked = false;
+function setChecked(v) {
+  checked = v;
+  $('custFields').classList.toggle('hidden', !v);
+  $('submitReq').classList.toggle('hidden', !v);
+}
+$('cPhone').addEventListener('input', () => { if (checked) { setChecked(false); say(''); } });
+const toLatin = v => v.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+$('checkPhone').onclick = async () => {
+  const phone = toLatin($('cPhone').value.trim());
+  if (phone.replace(/\D/g, '').length < 10) return say('شماره تماس معتبر وارد کن.');
+  const btn = $('checkPhone'); btn.disabled = true; say('در حال بررسی…');
+  $('cName').value = ''; $('cAddress').value = '';
+  try {
+    const res = await fetch(CFG.URL.replace(/\/+$/, '') + '/rest/v1/rpc/lookup_customer', {
+      method: 'POST',
+      headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_phone: phone })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const r = (await res.json() || [])[0];
+    if (r) { $('cName').value = r.name || ''; $('cAddress').value = r.address || ''; say('شماره‌ات پیدا شد. اطلاعات را بررسی کن و درخواست را ثبت کن.'); }
+    else say('این شماره هنوز ثبت نشده. نام و نشانی را وارد کن (نشانی اختیاری است).');
+  } catch (e) { say('بررسی شماره انجام نشد. اطلاعات را خودت وارد کن.'); }
+  setChecked(true); btn.disabled = false;
+};
+$('submitReq').onclick = async () => {
+  const c = chosen();
+  if (!c.length) return;
+  const name = $('cName').value.trim(), phone = toLatin($('cPhone').value.trim());
+  if (!checked) return say('اول شماره را بررسی کن.');
+  if (!name) return say('نام را وارد کن.');
+  if (phone.replace(/\D/g, '').length < 7) return say('شماره تماس معتبر وارد کن.');
+  const owner = (c.find(x => x.user_id) || {}).user_id;
+  if (!owner) return say('ثبت انجام نشد. صفحه را دوباره باز کن.');
+  const btn = $('submitReq'); btn.disabled = true; say('در حال ثبت…');
+  try {
+    const res = await fetch(CFG.URL.replace(/\/+$/, '') + '/rest/v1/ShowcaseRequest', {
+      method: 'POST',
+      headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({
+        user_id: owner, customer_name: name, customer_phone: phone, customer_address: $('cAddress').value.trim() || null,
+        items: c.map(x => ({ id: x.id, name: x.name, code: x.code || null, weight: Number(x.weight), karat: x.karat })),
+        total_weight: c.reduce((s, x) => s + Number(x.weight || 0), 0)
+      })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    rememberContact(); sel.clear(); saveSel(); render(); say('');
+    $('sendBody').classList.add('hidden'); $('doneBody').classList.remove('hidden');
+  } catch (e) { say('ثبت انجام نشد. اینترنت را بررسی کن و دوباره تلاش کن.'); }
+  finally { btn.disabled = false; }
+};
+$('doneClose').onclick = () => $('send').close();
+
+load();
+</script>
+</body>
+</html>
