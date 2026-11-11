@@ -309,7 +309,7 @@ $('checkPhone').onclick = async () => {
     const res = await fetch(CFG.URL.replace(/\/+$/, '') + '/rest/v1/rpc/lookup_customer', {
       method: 'POST',
       headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_phone: phone })
+      body: JSON.stringify({ p_phone: phone, p_owners: [...new Set(chosen().map(x => x.user_id).filter(Boolean))] })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const r = (await res.json() || [])[0];
@@ -325,18 +325,20 @@ $('submitReq').onclick = async () => {
   if (!checked) return say('اول شماره را بررسی کن.');
   if (!name) return say('نام را وارد کن.');
   if (phone.replace(/\D/g, '').length < 7) return say('شماره تماس معتبر وارد کن.');
-  const owner = (c.find(x => x.user_id) || {}).user_id;
-  if (!owner) return say('ثبت انجام نشد. صفحه را دوباره باز کن.');
+  const groups = {};
+  c.forEach(x => { if (x.user_id) (groups[x.user_id] = groups[x.user_id] || []).push(x); });
+  const owners = Object.keys(groups);
+  if (!owners.length) return say('ثبت انجام نشد. صفحه را دوباره باز کن.');
   const btn = $('submitReq'); btn.disabled = true; say('در حال ثبت…');
   try {
     const res = await fetch(CFG.URL.replace(/\/+$/, '') + '/rest/v1/ShowcaseRequest', {
       method: 'POST',
       headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({
-        user_id: owner, customer_name: name, customer_phone: phone, customer_address: $('cAddress').value.trim() || null,
-        items: c.map(x => ({ id: x.id, name: x.name, code: x.code || null, weight: Number(x.weight), karat: x.karat })),
-        total_weight: c.reduce((s, x) => s + Number(x.weight || 0), 0)
-      })
+      body: JSON.stringify(owners.map(o => ({
+        user_id: o, customer_name: name, customer_phone: phone, customer_address: $('cAddress').value.trim() || null,
+        items: groups[o].map(x => ({ id: x.id, name: x.name, code: x.code || null, weight: Number(x.weight), karat: x.karat })),
+        total_weight: groups[o].reduce((s, x) => s + Number(x.weight || 0), 0)
+      })))
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     rememberContact(); sel.clear(); saveSel(); render(); say('');
