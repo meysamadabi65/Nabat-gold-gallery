@@ -26,6 +26,12 @@ header p{margin:0;font-size:.9rem;color:#e4f2e9}
 
 .tools{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 14px 8px;border-bottom:1px solid var(--line)}
 .tools input{width:100%;min-height:46px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:var(--ink)}
+.srow{display:flex;gap:8px}
+.srow input{flex:1;min-width:0}
+.fbtn{flex:0 0 auto;min-height:46px;padding:0 16px;border:1px solid var(--line);border-radius:12px;background:#fff;display:flex;align-items:center;gap:6px}
+.fbtn .n{min-width:22px;height:22px;border-radius:11px;background:var(--gold);color:#2a2008;font-size:.8rem;display:grid;place-items:center;padding:0 6px}
+.chk{display:flex;align-items:center;gap:10px;margin-top:14px;color:var(--ink);font-size:1rem}
+.chk input{width:22px;min-height:0;height:22px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:0 0 auto;min-height:38px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:#fff}
@@ -90,7 +96,10 @@ label{display:block;margin:10px 0 4px;font-size:.9rem;color:var(--muted)}
 </header>
 
 <div class="tools">
-  <input id="q" type="search" placeholder="جستجوی نام یا کد…" aria-label="جستجو">
+  <div class="srow">
+    <input id="q" type="search" placeholder="جستجوی نام یا کد…" aria-label="جستجو">
+    <button class="fbtn" id="openFilters" type="button">فیلتر <span class="n hidden" id="fCount"></span></button>
+  </div>
   <div class="chips" id="chips" role="group" aria-label="دسته‌بندی"></div>
 </div>
 
@@ -105,6 +114,28 @@ label{display:block;margin:10px 0 4px;font-size:.9rem;color:var(--muted)}
   <button class="btn ghost" id="clear" type="button">پاک کردن</button>
   <button class="btn" id="open" type="button">ارسال درخواست</button>
 </div>
+
+<dialog id="filters">
+  <div class="sheet">
+    <h2>فیلترها</h2>
+    <label>وضعیت طلا</label>
+    <div class="chips" id="fCond" style="padding-top:0">
+      <button class="chip" type="button" data-cond="all" aria-pressed="true">همه</button>
+      <button class="chip" type="button" data-cond="new" aria-pressed="false">نو</button>
+      <button class="chip" type="button" data-cond="used" aria-pressed="false">کارکرده</button>
+    </div>
+    <label>وزن (گرم)</label>
+    <div class="row">
+      <input id="fMin" inputmode="decimal" placeholder="از" aria-label="حداقل وزن">
+      <input id="fMax" inputmode="decimal" placeholder="تا" aria-label="حداکثر وزن">
+    </div>
+    <label class="chk"><input type="checkbox" id="fNoWage"> فقط طلای بدون اجرت</label>
+    <div class="actions">
+      <button class="btn green" id="fShow" type="button">نمایش نتیجه</button>
+      <button class="btn alt" id="fReset" type="button">حذف فیلترها</button>
+    </div>
+  </div>
+</dialog>
 
 <dialog id="view"><div class="sheet" id="viewBody"></div></dialog>
 
@@ -150,7 +181,8 @@ const fa = n => Number(n).toLocaleString('fa-IR',{maximumFractionDigits:3});
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SEL_KEY = 'nabatCatalogSelection';
 
-let items = [], cat = 'all', query = '', noWage = false;
+let items = [], cat = 'all', query = '', noWage = false, cond = 'all', wMin = '', wMax = '';
+const condText = x => x.item_condition === 'used' ? ' · کارکرده' : x.item_condition === 'new' ? ' · نو' : '';
 const wagePct = x => (x.sell_wage_percent == null || x.sell_wage_percent === '') ? null : Number(x.sell_wage_percent);
 const wageText = x => { const p = wagePct(x); if (p === null) return ''; if (p === 0) return 'بدون اجرت'; return 'اجرت ' + fa(p) + '٪ (' + fa(Number(x.weight) * p / 100) + ' گرم)'; };
 let sel = new Set();
@@ -171,7 +203,7 @@ async function load() {
   }
   try {
     const url = CFG.URL.replace(/\/+$/,'') + '/rest/v1/ShowcaseProduct'
-      + '?select=id,user_id,name,code,category,weight,karat,description,image_path,sell_wage_percent'
+      + '?select=id,user_id,name,code,category,weight,karat,description,image_path,sell_wage_percent,item_condition'
       + '&is_visible=eq.true&status=eq.available&order=created_at.desc&limit=500';
     const res = await fetch(url, { headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY } });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -189,7 +221,7 @@ async function load() {
 
 function renderChips() {
   const cats = ['all', ...new Set(items.map(x => x.category || 'سایر'))];
-  $('chips').innerHTML = `<button type="button" class="chip" data-nowage aria-pressed="${noWage}">فقط بدون اجرت</button>` + cats.map(c =>
+  $('chips').innerHTML = cats.map(c =>
     `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${c === cat}">${c === 'all' ? 'همه' : esc(c)}</button>`).join('');
 }
 
@@ -198,24 +230,34 @@ function render() {
   const q = query.trim().toLocaleLowerCase();
   const rows = items.filter(x =>
     (cat === 'all' || (x.category || 'سایر') === cat) && (!noWage || wagePct(x) === 0) &&
+    (cond === 'all' || x.item_condition === cond) &&
+    (wMin === '' || Number(x.weight) >= wMin) && (wMax === '' || Number(x.weight) <= wMax) &&
     (!q || (String(x.name) + ' ' + (x.code || '')).toLocaleLowerCase().includes(q)));
   $('count').textContent = items.length ? fa(rows.length) + ' مورد' : '';
   $('status').classList.toggle('hidden', rows.length > 0 || !!items.length);
   if (!items.length) { $('status').textContent = 'فعلاً طلایی برای نمایش موجود نیست.'; $('status').classList.remove('hidden'); }
-  else if (!rows.length) { $('status').textContent = 'موردی با این جستجو پیدا نشد.'; $('status').classList.remove('hidden'); }
+  else if (!rows.length) { $('status').textContent = 'موردی با این جستجو و فیلتر پیدا نشد.'; $('status').classList.remove('hidden'); }
   $('grid').innerHTML = rows.map(x => {
     const on = sel.has(String(x.id));
     return `<li class="card${on ? ' on' : ''}" data-id="${esc(x.id)}">
       <button class="pick" type="button" data-pick="${esc(x.id)}" aria-pressed="${on}">
         <div class="ph">${x.photo ? `<img src="${esc(x.photo)}" alt="${esc(x.name)}" loading="lazy">` : '💍'}<span class="tick">${on ? '✓' : ''}</span></div>
         <div class="info"><b>${esc(x.name)}</b>
-          <div class="meta">${esc(x.category || 'سایر')}${x.karat != null ? ' · ' + karatText(x.karat) : ''}</div>
+          <div class="meta">${esc(x.category || 'سایر')}${x.karat != null ? ' · ' + karatText(x.karat) : ''}${condText(x)}</div>
           <div class="wt">${fa(x.weight)} گرم</div>${wageText(x) ? `<div class="wage${wagePct(x) === 0 ? ' zero' : ''}">${wageText(x)}</div>` : ''}</div>
       </button>
       <button class="zoom" type="button" data-zoom="${esc(x.id)}" aria-label="مشاهده بزرگ‌تر">⤢</button>
     </li>`;
   }).join('');
+  updateFilterUi(rows.length);
   updateBar();
+}
+
+function updateFilterUi(n) {
+  const k = (cond !== 'all') + (wMin !== '') + (wMax !== '') + noWage;
+  $('fCount').textContent = fa(k); $('fCount').classList.toggle('hidden', !k);
+  $('fShow').textContent = 'نمایش ' + fa(n) + ' مورد';
+  $('fCond').querySelectorAll('[data-cond]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cond === cond));
 }
 
 function updateBar() {
@@ -247,11 +289,19 @@ $('grid').addEventListener('click', e => {
   if (p) toggle(p.dataset.pick);
 });
 $('chips').addEventListener('click', e => {
-  if (e.target.closest('[data-nowage]')) { noWage = !noWage; render(); return; }
   const b = e.target.closest('[data-cat]'); if (!b) return;
   cat = b.dataset.cat; render();
 });
 $('q').addEventListener('input', e => { query = e.target.value; render(); });
+const numOrEmpty = v => { const n = parseFloat(toLatin(String(v)).replace(/[٫,]/g, '.')); return Number.isFinite(n) && n >= 0 ? n : ''; };
+$('openFilters').onclick = () => $('filters').showModal();
+$('filters').addEventListener('click', e => { if (e.target === $('filters')) $('filters').close(); });
+$('fShow').onclick = () => $('filters').close();
+$('fCond').addEventListener('click', e => { const b = e.target.closest('[data-cond]'); if (!b) return; cond = b.dataset.cond; render(); });
+$('fMin').addEventListener('input', e => { wMin = numOrEmpty(e.target.value); render(); });
+$('fMax').addEventListener('input', e => { wMax = numOrEmpty(e.target.value); render(); });
+$('fNoWage').addEventListener('change', e => { noWage = e.target.checked; render(); });
+$('fReset').onclick = () => { cond = 'all'; wMin = wMax = ''; noWage = false; cat = 'all'; $('fMin').value = $('fMax').value = ''; $('fNoWage').checked = false; render(); };
 $('clear').onclick = () => { sel.clear(); saveSel(); render(); };
 
 function openView(id) {
@@ -260,7 +310,7 @@ function openView(id) {
   $('viewBody').innerHTML =
     (x.photo ? `<img class="big" src="${esc(x.photo)}" alt="${esc(x.name)}">` : '') +
     `<h2 style="margin-top:12px">${esc(x.name)}</h2>
-     <div class="meta">${esc(x.category || 'سایر')}${x.karat != null ? ' · ' + karatText(x.karat) : ''} · ${fa(x.weight)} گرم${x.code ? ' · کد ' + esc(x.code) : ''}</div>
+     <div class="meta">${esc(x.category || 'سایر')}${x.karat != null ? ' · ' + karatText(x.karat) : ''}${condText(x)} · ${fa(x.weight)} گرم${x.code ? ' · کد ' + esc(x.code) : ''}</div>
      ${wageText(x) ? `<div class="wage${wagePct(x) === 0 ? ' zero' : ''}">${wageText(x)}</div>` : ''}
      ${x.description ? `<p>${esc(x.description)}</p>` : ''}
      <div class="actions"><button class="btn ${on ? 'alt' : ''}" id="viewPick" type="button">${on ? 'حذف از انتخاب‌ها' : 'انتخاب این مورد'}</button>
