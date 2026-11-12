@@ -521,6 +521,7 @@ $('addTransaction').onclick=async()=>{try{
   if(!customer)throw Error('مشتری انتخاب‌شده پیدا نشد.');
   const oldItems=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
   if(editingSale.itemIds){const order=new Map(editingSale.itemIds.map((id,i)=>[String(id),i]));oldItems.sort((a,b)=>(order.get(String(a.id))??999)-(order.get(String(b.id))??999));}
+  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
   const primary=oldItems.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||oldItems.find(x=>String(x.id)===String(editingSale.primaryId));
   if(!primary)throw Error('ردیف اصلی فاکتور پیدا نشد؛ برای جلوگیری از به‌هم‌ریختن حساب، ویرایش لغو شد.');
   const il=itemList();if(!il.length)throw Error('حداقل یک قلم با وزن معتبر وارد کنید.');
@@ -553,7 +554,6 @@ $('addTransaction').onclick=async()=>{try{
   else if(income)deleteEntryLocal(income);
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
   try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}
-  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
   const newProductIds=il.map(x=>String(x.id));
   await invApplySaleProducts(oldProductIds,newProductIds);
   const savedPrimary=transactions.find(x=>String(x.id)===String(primary.id));
@@ -727,11 +727,11 @@ $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='_
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
 $('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
 function nextInvNo(){let m=1000;for(const t of transactions){const c=(String(t.Description||'').match(/فاکتور\s+(\d{4,5})(?![A-Z0-9])/)||[])[1];if(c&&+c>m)m=+c}return String(m+1)}
-function syncCredit(code,re,customerId,custName,time,excess){
+function syncCredit(code,re,customerId,custName,time,excess,exclude){
  // اعتبار اضافه‌پرداخت روی همان ردیف اصلی فروش ذخیره می‌شود؛ ردیف دریافت جداگانه نساز.
  const oldRows=transactions.filter(x=>x.Is_money===true&&x.Type==='Receive'&&/اضافه پرداختی این فاکتور/.test(x.Description||'')&&re.test(x.Description||''));
  oldRows.forEach(deleteTxLocal); // پاک‌سازی ردیف‌های اعتباری نسخه‌های قبلی
- const saleRows=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+ const saleRows=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||'')&&(!exclude||(x!==exclude&&String(x.id)!==String(exclude.id))));
  if(!saleRows.length)return;
  const primary=saleRows.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||saleRows[0];
  let desc=String(primary.Description||'').replace(/\s*\|?\s*اعتبار مشتری\s*:\s*[\d,٬۰-۹٠-٩.]+\s*تومان?/g,'').trim();
@@ -751,7 +751,7 @@ function recalcSaleAfterDelete(t){
  const all=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
  const left=all.filter(x=>x!==t&&String(x.id)!==String(t.id));
  const debtRow=transactions.find(x=>x.Is_money===true&&x.Type==='Give'&&/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
- if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0);const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));if(income)deleteEntryLocal(income);return 'همه';}
+ if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0,t);const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));if(income)deleteEntryLocal(income);return 'همه';}
  const W=Math.round(left.reduce((a,x)=>a+Number(x.Amount||0),0)*1000)/1000;
  const base=Math.round(W*sale.pr),wage=Math.round(base*sale.wg/100),profit=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+profit)*sale.vat/100);
  const final=base+wage+profit+tax;
@@ -769,7 +769,7 @@ function recalcSaleAfterDelete(t){
   const d=String(x.Description||'');const nm=(enD(d).match(/جنس:\s*([^|]+)/)||[])[1];
   const note=d.split(/\s*\|\s*قیمت هر گرم/)[0];
   const hasMeta=/قیمت هر گرم/.test(d);
-  const nd=[hasMeta?note:'',meta,nm?'جنس: '+nm.trim():''].filter(Boolean).join(' | ');
+  const pid=(d.match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1];const nd=[hasMeta?note:'',meta,nm?'جنس: '+nm.trim():'',pid?'کالا: '+pid:''].filter(Boolean).join(' | ');
   txUpdateLocal(x,{Description:nd,DebtGrams:x===primary?restG:null});
  });
  if(debtMoney&&restT>0){
@@ -777,7 +777,7 @@ function recalcSaleAfterDelete(t){
   if(debtRow)txUpdateLocal(debtRow,df);
   else{const c=customers.find(c=>String(c.id)===String(t.Customer_id))||{};const id=newTmp();const rw={Time:t.Time,Amount:restT,Is_money:true,Name:c.Name||t.Name,Description:df.Description,Customer_id:Number(t.Customer_id),Type:'Give',user_id:currentUser.id};transactions.push(Object.assign({id},rw));queue.push({k:'tInsert',tmp:id,row:rw});}
  }else if(debtRow)deleteTxLocal(debtRow);
- syncCredit(code,re,t.Customer_id,(customers.find(c=>String(c.id)===String(t.Customer_id))||{}).Name||t.Name,t.Time,excess);
+ syncCredit(code,re,t.Customer_id,(customers.find(c=>String(c.id)===String(t.Customer_id))||{}).Name||t.Name,t.Time,excess,t);
  const e=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));
  const inc=wage+profit+tax;
  if(e){
