@@ -301,7 +301,44 @@ function setupClient(){
  return client;
 }
 function needClient(){ if(!client) setupClient(); return client; }
-function msg(e){return e?.message || String(e || 'خطای نامشخص');}
+function rawMsg(e){return e?.message || String(e || '');}
+const FRIENDLY_RULES=[
+ [/invalid login credentials/,'ایمیل یا رمز عبور درست نیست.'],
+ [/email not confirmed/,'ایمیل هنوز تأیید نشده است. لینک تأییدی که برایت ارسال شده را باز کن.'],
+ [/user already registered|already been registered/,'این ایمیل قبلاً ثبت شده است. وارد شو یا «فراموشی رمز» را بزن.'],
+ [/password should be at least|weak.?password|password is too short/,'رمز عبور کوتاه یا ضعیف است. حداقل ۶ کاراکتر بنویس.'],
+ [/signups? (is |are )?(not allowed|disabled)|signup.*disabled/,'ساخت حساب جدید غیرفعال است. با مدیر تماس بگیر.'],
+ [/unable to validate email|invalid.*email|email address.*invalid/,'ایمیل واردشده معتبر نیست.'],
+ [/rate limit|too many requests|security purposes|\b429\b/,'تعداد تلاش‌ها زیاد شد. چند دقیقه صبر کن و دوباره امتحان کن.'],
+ [/jwt expired|refresh.?token|auth session missing|session.*(missing|expired)/,'نشست ورود تمام شده است. دوباره وارد شو.'],
+ [/invalid api key|no api key|apikey/,'کلید عمومی پروژه درست نیست. در تنظیمات اتصال، کلید را دوباره وارد کن.'],
+ [/invalid url|failed to construct .url|unexpected token '?<|is not valid json/,'آدرس پروژه درست نیست. باید شبیه https://xxxx.supabase.co باشد.'],
+ [/timeout|timed out|abort/,'پاسخ سرور دیر رسید. اینترنت کند است؛ دوباره تلاش کن.'],
+ [/failed to fetch|networkerror|load failed|network request failed|fetch failed|err_/,'ارتباط با سرور برقرار نشد. اینترنت یا فیلترشکن را بررسی کن و چند لحظه بعد دوباره تلاش کن.'],
+ [/bad gateway|gateway|service unavailable|internal server error|upstream|\b50[0234]\b|paused/,'سرور در دسترس نیست یا در حال بازیابی است. چند دقیقه بعد دوباره تلاش کن.'],
+ [/row-level security|permission denied|not authorized|forbidden|\b403\b|42501/,'دسترسی به این بخش مجاز نیست. اگر تازه تنظیمات دیتابیس را عوض کرده‌ای، یک بار خارج و دوباره وارد شو.'],
+ [/does not exist|could not find the .* (table|column)|schema cache|42p01|42703|pgrst20[45]/,'ساختار دیتابیس هنوز به‌روز نشده است. SQL راهنما را در Supabase اجرا کن.'],
+ [/duplicate key|already exists|23505/,'این مورد قبلاً ثبت شده است.'],
+ [/violates check constraint|invalid input syntax|23514|22p02/,'مقدار واردشده معتبر نیست. ورودی‌ها را دوباره بررسی کن.']
+];
+function friendly(e){
+ const raw=rawMsg(e),m=raw.toLowerCase();
+ try{console.error('[app error]',e)}catch(_){}
+ if(/[\u0600-\u06FF]/.test(raw))return raw;
+ if(!navigator.onLine)return 'اینترنت قطع است. اتصال دستگاه را بررسی کن و دوباره تلاش کن.';
+ for(const [re,t] of FRIENDLY_RULES)if(re.test(m))return t;
+ return 'مشکلی پیش آمد. دوباره تلاش کن؛ اگر تکرار شد به پشتیبان خبر بده.';
+}
+function msg(e){return friendly(e);}
+async function internetWorks(){
+ const probe=u=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),4000);return fetch(u,{mode:'no-cors',cache:'no-store',signal:c.signal}).finally(()=>clearTimeout(t))};
+ try{await Promise.any([probe('https://www.gstatic.com/generate_204'),probe('https://www.cloudflare.com/cdn-cgi/trace'),probe('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/package.json')]);return true}catch(_){return false}
+}
+async function explain(e){
+ if(!isNet(e))return msg(e);
+ if(!navigator.onLine||!(await internetWorks()))return 'اینترنت دستگاه وصل نیست یا کار نمی‌کند. اتصال را بررسی کن و دوباره تلاش کن.';
+ return 'اینترنت وصل است ولی ارتباط با سرور برقرار نشد. اگر فیلترشکن داری آن را عوض یا خاموش کن؛ ممکن است سرور هم موقتاً در دسترس نباشد. چند دقیقه بعد دوباره تلاش کن.';
+}
 $('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
 $('login').onclick=async()=>{
  const em=$('email').value.trim().toLowerCase();
@@ -313,26 +350,27 @@ $('login').onclick=async()=>{
   return true;
  };
  try{
+  say('authStatus','در حال ورود…');
   if(!navigator.onLine){if(await offlineLogin())return;throw new Error('اینترنت قطع است و حساب قبلاً روی این دستگاه ذخیره نشده؛ برای اولین ورود باید اینترنت وصل باشد.');}
   const c=setupClient(),pw=$('password').value;
   const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-  let r=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error)break;if(!/invalid login/i.test(msg(r.error)))break;}
+  let r=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error)break;if(!/invalid login/i.test(rawMsg(r.error)))break;}
   if(r.error)throw r.error;
   await onSignedIn(r.data.user,true);
  }catch(e){
   if(isNet(e)&&await offlineLogin())return;
-  let h='';try{h=' (پروژه: '+new URL($('url').value.trim()).host+')'}catch(_){}
-  say('authStatus','ورود انجام نشد: '+msg(e)+h);
+  if(isNet(e))say('authStatus','در حال بررسی اتصال…');
+  say('authStatus',await explain(e));
  }
 };
 $('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'password'};
-$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد: '+msg(e))}};
+$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
 $('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const selRemap={};let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
 const cacheKey=()=>'ledgerCache:'+(currentUser&&currentUser.id);
 const newTmp=()=>-(Date.now()*1000+(tmpSeq++%1000));
-const isNet=e=>!navigator.onLine||/failed to fetch|networkerror|load failed|network request|fetch/i.test(msg(e));
+const isNet=e=>!navigator.onLine||/failed to fetch|networkerror|load failed|network request|fetch/i.test(rawMsg(e));
 const pend=c=>queue.some(o=>(o.k==='cInsert'&&o.tmp===c.id)||o.id===c.id)?' <span class="badge">⏳</span>':'';
 const pendT=t=>queue.some(o=>(o.k==='tInsert'&&o.tmp===t.id)||(o.k==='tUpdate'&&o.tid===t.id))?' <span class="badge">⏳</span>':'';
 function persist(){try{localStorage.setItem(cacheKey(),JSON.stringify({customers,transactions,entries,queue}))}catch(e){say('appStatus','هشدار: حافظه دستگاه پر است و ذخیره محلی انجام نشد.')}}
@@ -376,7 +414,7 @@ async function flush(){
    return true;
  }catch(e){
    if(isNet(e))syncErr='';
-   else syncErr=msg(e)+' — سیاست‌های RLS و نام ستون‌ها را بررسی کنید.';
+   else syncErr=msg(e);
    return false;
  }finally{flushing=false;}
 }
@@ -682,8 +720,8 @@ $('bkRestore').onclick=()=>{if(pendingRestore){const d=pendingRestore;pendingRes
 let recoveryMode=/type=recovery/.test(location.hash);
 function showRecovery(){$('recoveryBox').classList.remove('hidden');say('authStatus','رمز جدید خودت را تعیین کن.')}
 if(recoveryMode)showRecovery();else if(/error_code=/.test(location.hash))say('authStatus','لینک تغییر رمز منقضی یا استفاده‌شده است؛ دوباره «فراموشی رمز عبور» را بزن.');
-$('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال ناموفق بود: '+msg(e))}};
-$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز ناموفق بود: '+msg(e))}};
+$('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال انجام نشد. '+await explain(e))}};
+$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
 function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qName').focus()}
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
