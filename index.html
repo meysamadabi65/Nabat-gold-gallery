@@ -997,7 +997,7 @@ function reqStartSale(id){
  $('itemsBody').innerHTML='';ids.forEach(i=>addItemRow(i));syncAmt();
  const dg=v=>String(v||'').replace(/\D/g,'').slice(-10);
  const c=customers.find(x=>dg(x.Phone)&&dg(x.Phone)===dg(r.customer_phone))||customers.find(x=>String(x.Name||'').trim()===String(r.customer_name||'').trim());
- if(c)$('tCustomer').value=String(c.id);
+ let cid=c?c.id:null;if(!cid&&String(r.customer_name||'').trim()){const row={Name:String(r.customer_name).trim(),Phone:String(r.customer_phone||'').trim()||null,Address:String(r.customer_address||'').trim()||null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();persist();renderAll();cid=id;say('appStatus','مشتری «'+row.Name+'» به لیست مشتری‌ها اضافه شد.');syncNow();}if(cid!==null)$('tCustomer').value=String(cid);updateGold();
  document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});
 }
 async function reqPrune(soldIds){
