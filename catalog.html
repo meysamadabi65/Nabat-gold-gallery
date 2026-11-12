@@ -381,6 +381,35 @@ $('submitReq').onclick = async () => {
   if (!checked) return say('اول شماره را بررسی کن.');
   if (!name) return say('نام را وارد کن.');
   if (phone.replace(/\D/g, '').length < 7) return say('شماره تماس معتبر وارد کن.');
+  // بررسی لحظه‌ای موجودی: کالاهایی که در این فاصله فروخته شده‌اند حذف می‌شوند
+  const b0 = $('submitReq'); b0.disabled = true; say('در حال بررسی موجودی…');
+  let gone = [];
+  try {
+    const ids = c.map(x => String(x.id));
+    const inList = encodeURIComponent('(' + ids.map(i => '"' + i.replace(/["\\]/g, '') + '"').join(',') + ')');
+    const r = await fetch(CFG.URL.replace(/\/+$/, '') + '/rest/v1/ShowcaseProduct?select=id,status,is_visible&id=in.' + inList,
+      { headers: { apikey: CFG.KEY, Authorization: 'Bearer ' + CFG.KEY } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    const ok = new Set(rows.filter(x => x.status === 'available' && x.is_visible === true).map(x => String(x.id)));
+    gone = ids.filter(id => !ok.has(id));
+  } catch (e) {
+    b0.disabled = false;
+    return say('بررسی موجودی انجام نشد. اینترنت را بررسی کن و دوباره تلاش کن.');
+  }
+  if (gone.length) {
+    b0.disabled = false;
+    gone.forEach(id => sel.delete(id));
+    saveSel(); render();
+    if (!sel.size) {
+      $('send').close();
+      alert('کالاهای انتخابی‌ات در این فاصله فروخته شدند و از درخواست حذف شدند. لطفاً کالاهای دیگر را انتخاب کن.');
+    } else {
+      renderSelList();
+      say(gone.length + ' کالا در این فاصله فروخته شد و از درخواست حذف شد. اگر مایلی، با بقیه کالاها دوباره ثبت کن.');
+    }
+    return;
+  }
   const groups = {};
   c.forEach(x => { if (x.user_id) (groups[x.user_id] = groups[x.user_id] || []).push(x); });
   const owners = Object.keys(groups);
