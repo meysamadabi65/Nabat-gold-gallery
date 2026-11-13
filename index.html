@@ -168,7 +168,7 @@ tbody tr:hover{background:#f2f8f3}
 <button data-tab="historyTab">گردش حساب</button>
 <button data-tab="inventoryTab">موجودی ویترین</button>
 </div>
-<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:var(--soft);border-radius:10px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم)</b><button id="refreshMarket" class="secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem">بروزرسانی</button></div><div id="marketPrices" style="font-size:1.3rem;font-weight:bold;margin-top:8px">—</div><div id="marketUpdated" class="muted"></div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div><h2>پشتیبان‌گیری</h2><div class="muted">پشتیبان‌گیری فقط دستی است؛ فایل در پوشه Downloads گوشی ذخیره می‌شود.</div><div class="inline"><button id="bkNow">پشتیبان‌گیری الان</button><button id="bkRestore" class="secondary">بازیابی از فایل</button></div><input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="muted" id="bkInfo"></div></section>
+<section id="dashboardTab" class="tab card"><h2>داشبورد</h2><div style="background:var(--soft);border-radius:10px;padding:12px;margin-bottom:12px"><b>🪙 نرخ طلای ۱۸ عیار (هر گرم، تومان)</b><div style="display:flex;gap:8px;margin-top:8px"><input id="goldRateInput" inputmode="numeric" placeholder="مثلاً 4,500,000" style="flex:1;min-width:0;margin:0;direction:ltr;text-align:right"><button id="saveGoldRate" type="button" style="width:auto;margin:0;padding:0 18px">ذخیره</button></div><div id="marketUpdated" class="muted" style="margin-top:6px">نرخ را دستی وارد کن؛ در فرم فروش و خرید خودکار پر می‌شود.</div></div><div id="dashSetup" class="status hidden"></div><div class="balance" id="dashCards"></div><h2>درآمد و هزینه ۶ ماه اخیر</h2><div id="chartMonths"></div><h2>سهم هزینه‌ها به تفکیک دسته</h2><div id="chartCats"></div><h2>جدول ماهانه</h2><div class="tablewrap"><table><thead><tr><th>ماه</th><th>درآمد</th><th>هزینه</th><th>سود</th></tr></thead><tbody id="dashMonths"></tbody></table></div><h2>بیشترین مانده پول مشتری‌ها</h2><div class="tablewrap"><table><thead><tr><th>مشتری</th><th>مانده پول</th></tr></thead><tbody id="dashDebt"></tbody></table></div><h2>پشتیبان‌گیری</h2><div class="muted">پشتیبان‌گیری فقط دستی است؛ فایل در پوشه Downloads گوشی ذخیره می‌شود.</div><div class="inline"><button id="bkNow">پشتیبان‌گیری الان</button><button id="bkRestore" class="secondary">بازیابی از فایل</button></div><input type="file" id="bkFile" accept=".json,application/json" class="hidden"><div class="muted" id="bkInfo"></div></section>
 <section id="customerTab" class="tab card hidden">
 <h2 id="cFormTitle">ثبت مشتری</h2>
 <div class="grid">
@@ -521,7 +521,6 @@ $('addTransaction').onclick=async()=>{try{
   if(!customer)throw Error('مشتری انتخاب‌شده پیدا نشد.');
   const oldItems=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
   if(editingSale.itemIds){const order=new Map(editingSale.itemIds.map((id,i)=>[String(id),i]));oldItems.sort((a,b)=>(order.get(String(a.id))??999)-(order.get(String(b.id))??999));}
-  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
   const primary=oldItems.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||oldItems.find(x=>String(x.id)===String(editingSale.primaryId));
   if(!primary)throw Error('ردیف اصلی فاکتور پیدا نشد؛ برای جلوگیری از به‌هم‌ریختن حساب، ویرایش لغو شد.');
   const il=itemList();if(!il.length)throw Error('حداقل یک قلم با وزن معتبر وارد کنید.');
@@ -554,6 +553,7 @@ $('addTransaction').onclick=async()=>{try{
   else if(income)deleteEntryLocal(income);
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
   try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}
+  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
   const newProductIds=il.map(x=>String(x.id));
   await invApplySaleProducts(oldProductIds,newProductIds);
   const savedPrimary=transactions.find(x=>String(x.id)===String(primary.id));
@@ -727,11 +727,11 @@ $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='_
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
 $('qSave').onclick=()=>{try{if(!currentUser)throw Error('ابتدا وارد شوید.');const name=$('qName').value.trim();if(!name)throw Error('نام مشتری اجباری است.');const row={Name:name,Phone:$('qPhone').value.trim()||null,Address:null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();$('qName').value='';$('qPhone').value='';showQuick(false);persist();renderAll();$('tCustomer').value=String(id);updateGold();say('appStatus','مشتری «'+name+'» ثبت شد.');syncNow();}catch(e){say('appStatus','ثبت مشتری ناموفق بود: '+msg(e))}};
 function nextInvNo(){let m=1000;for(const t of transactions){const c=(String(t.Description||'').match(/فاکتور\s+(\d{4,5})(?![A-Z0-9])/)||[])[1];if(c&&+c>m)m=+c}return String(m+1)}
-function syncCredit(code,re,customerId,custName,time,excess,exclude){
+function syncCredit(code,re,customerId,custName,time,excess){
  // اعتبار اضافه‌پرداخت روی همان ردیف اصلی فروش ذخیره می‌شود؛ ردیف دریافت جداگانه نساز.
  const oldRows=transactions.filter(x=>x.Is_money===true&&x.Type==='Receive'&&/اضافه پرداختی این فاکتور/.test(x.Description||'')&&re.test(x.Description||''));
  oldRows.forEach(deleteTxLocal); // پاک‌سازی ردیف‌های اعتباری نسخه‌های قبلی
- const saleRows=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||'')&&(!exclude||(x!==exclude&&String(x.id)!==String(exclude.id))));
+ const saleRows=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
  if(!saleRows.length)return;
  const primary=saleRows.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||saleRows[0];
  let desc=String(primary.Description||'').replace(/\s*\|?\s*اعتبار مشتری\s*:\s*[\d,٬۰-۹٠-٩.]+\s*تومان?/g,'').trim();
@@ -751,7 +751,7 @@ function recalcSaleAfterDelete(t){
  const all=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
  const left=all.filter(x=>x!==t&&String(x.id)!==String(t.id));
  const debtRow=transactions.find(x=>x.Is_money===true&&x.Type==='Give'&&/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
- if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0,t);const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));if(income)deleteEntryLocal(income);return 'همه';}
+ if(!left.length){if(debtRow)deleteTxLocal(debtRow);syncCredit(code,re,t.Customer_id,t.Name,t.Time,0);const income=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));if(income)deleteEntryLocal(income);return 'همه';}
  const W=Math.round(left.reduce((a,x)=>a+Number(x.Amount||0),0)*1000)/1000;
  const base=Math.round(W*sale.pr),wage=Math.round(base*sale.wg/100),profit=Math.round((base+wage)*sale.pf/100),tax=Math.round((wage+profit)*sale.vat/100);
  const final=base+wage+profit+tax;
@@ -769,7 +769,7 @@ function recalcSaleAfterDelete(t){
   const d=String(x.Description||'');const nm=(enD(d).match(/جنس:\s*([^|]+)/)||[])[1];
   const note=d.split(/\s*\|\s*قیمت هر گرم/)[0];
   const hasMeta=/قیمت هر گرم/.test(d);
-  const pid=(d.match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1];const nd=[hasMeta?note:'',meta,nm?'جنس: '+nm.trim():'',pid?'کالا: '+pid:''].filter(Boolean).join(' | ');
+  const nd=[hasMeta?note:'',meta,nm?'جنس: '+nm.trim():''].filter(Boolean).join(' | ');
   txUpdateLocal(x,{Description:nd,DebtGrams:x===primary?restG:null});
  });
  if(debtMoney&&restT>0){
@@ -777,7 +777,7 @@ function recalcSaleAfterDelete(t){
   if(debtRow)txUpdateLocal(debtRow,df);
   else{const c=customers.find(c=>String(c.id)===String(t.Customer_id))||{};const id=newTmp();const rw={Time:t.Time,Amount:restT,Is_money:true,Name:c.Name||t.Name,Description:df.Description,Customer_id:Number(t.Customer_id),Type:'Give',user_id:currentUser.id};transactions.push(Object.assign({id},rw));queue.push({k:'tInsert',tmp:id,row:rw});}
  }else if(debtRow)deleteTxLocal(debtRow);
- syncCredit(code,re,t.Customer_id,(customers.find(c=>String(c.id)===String(t.Customer_id))||{}).Name||t.Name,t.Time,excess,t);
+ syncCredit(code,re,t.Customer_id,(customers.find(c=>String(c.id)===String(t.Customer_id))||{}).Name||t.Name,t.Time,excess);
  const e=entries.find(x=>x.Kind==='Income'&&re.test(x.Description||''));
  const inc=wage+profit+tax;
  if(e){
@@ -997,7 +997,7 @@ function reqStartSale(id){
  $('itemsBody').innerHTML='';ids.forEach(i=>addItemRow(i));syncAmt();
  const dg=v=>String(v||'').replace(/\D/g,'').slice(-10);
  const c=customers.find(x=>dg(x.Phone)&&dg(x.Phone)===dg(r.customer_phone))||customers.find(x=>String(x.Name||'').trim()===String(r.customer_name||'').trim());
- let cid=c?c.id:null;if(!cid&&String(r.customer_name||'').trim()){const row={Name:String(r.customer_name).trim(),Phone:String(r.customer_phone||'').trim()||null,Address:String(r.customer_address||'').trim()||null,user_id:currentUser.id};const id=newTmp();customers.push(Object.assign({id:id},row));queue.push({k:'cInsert',tmp:id,row:row});sortC();persist();renderAll();cid=id;say('appStatus','مشتری «'+row.Name+'» به لیست مشتری‌ها اضافه شد.');syncNow();}if(cid!==null)$('tCustomer').value=String(cid);updateGold();
+ if(c)$('tCustomer').value=String(c.id);
  document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});
 }
 async function reqPrune(soldIds){
@@ -1030,29 +1030,25 @@ $('reqList').onclick=async e=>{
 
 })();
  
-async function loadMarketRates(){
-  const out=document.getElementById('marketPrices'),upd=document.getElementById('marketUpdated'),btn=document.getElementById('refreshMarket');
-  if(!out)return;
-  const show=(r,old)=>{out.textContent=Number(r.price).toLocaleString('fa-IR')+' تومان';if(upd)upd.textContent=(old?'آخرین نرخ ذخیره‌شده: ':'آخرین دریافت: ')+new Date(r.time).toLocaleString('fa-IR');};
-  if(btn)btn.disabled=true;if(upd)upd.textContent='در حال دریافت نرخ…';
-  try{
-    const res=await fetch('https://raw.githubusercontent.com/iran-market/iran-market.github.io/main/data/popular.json',{cache:'no-store'});
-    if(!res.ok)throw new Error('دریافت نرخ ناموفق بود');
-    const j=await res.json();const item=(j.data||[]).find(x=>x.symbol==='GOLD_18K_IRR');
-    if(!item||item.price==null)throw new Error('نرخ طلای ۱۸ عیار در منبع موجود نیست');
-    let v=Number(item.price);if(v>=1e8)v=v/10;
-    const rec={price:v,time:Date.now()};try{localStorage.setItem('goldRate18',JSON.stringify(rec))}catch(e){}window.dispatchEvent(new Event('goldrate'));
-    show(rec,false);
-  }catch(e){
-    let c=null;try{c=JSON.parse(localStorage.getItem('goldRate18')||'null')}catch(_){}
-    if(c)show(c,true);else{out.textContent='—';if(upd)upd.textContent='دریافت نرخ ممکن نشد. اتصال اینترنت را بررسی کن.';}
-  }finally{if(btn)btn.disabled=false;}
-}
-const rb=document.getElementById('refreshMarket');if(rb)rb.addEventListener('click',loadMarketRates);
-window.addEventListener('online',loadMarketRates);
-setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')loadMarketRates()},300000);
-loadMarketRates();
-
+(function(){
+  const inp=document.getElementById('goldRateInput'),btn=document.getElementById('saveGoldRate'),upd=document.getElementById('marketUpdated');
+  if(!inp||!btn)return;
+  const toNum=v=>Number(String(v).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^0-9]/g,''));
+  const fmt=n=>Number(n).toLocaleString('en-US');
+  let rec=null;try{rec=JSON.parse(localStorage.getItem('goldRate18')||'null')}catch(e){}
+  if(rec&&rec.price){inp.value=fmt(rec.price);upd.textContent='آخرین نرخ ثبت‌شده: '+new Date(rec.time).toLocaleString('fa-IR');}
+  inp.addEventListener('input',()=>{const n=toNum(inp.value);inp.value=n?fmt(n):'';});
+  const save=()=>{
+    const n=toNum(inp.value);
+    if(!(n>0)){upd.textContent='نرخ را به‌صورت عدد (تومان) وارد کن.';return}
+    const r={price:n,time:Date.now()};
+    try{localStorage.setItem('goldRate18',JSON.stringify(r))}catch(e){upd.textContent='ذخیره‌ی نرخ روی این دستگاه انجام نشد.';return}
+    window.dispatchEvent(new Event('goldrate'));
+    upd.textContent='نرخ ذخیره شد: '+new Date(r.time).toLocaleString('fa-IR');
+  };
+  btn.addEventListener('click',save);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')save()});
+})();
 </script>
 <script>
 /* آخرین ویرایش: از زمان آخرین تغییر خود فایل (Last-Modified) خوانده می‌شود؛ اگر در دسترس نبود، متن ثابت بالا می‌ماند. */
@@ -1067,6 +1063,139 @@ els.forEach(function(el){el.textContent=p+'، ساعت '+t});}catch(e){}})();
 function t(){b.classList.toggle('show',(window.scrollY||document.documentElement.scrollTop)>300)}
 window.addEventListener('scroll',t,{passive:true});t();
 b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});})();
+</script>
+<script>
+/* Jalali (Persian) calendar date picker for <input type="date"> fields.
+   The original input stays in the page (hidden) and keeps its ISO yyyy-mm-dd value,
+   so the rest of the app works unchanged. */
+(function(){
+'use strict';
+var BR=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+function div(a,b){return ~~(a/b)}
+function mod(a,b){return a-~~(a/b)*b}
+function jalCal(jy,noLeap){
+  var bl=BR.length,gy=jy+621,leapJ=-14,jp=BR[0],jm,jump=0,leap,leapG,march,n,i;
+  for(i=1;i<bl;i++){jm=BR[i];jump=jm-jp;if(jy<jm)break;leapJ=leapJ+div(jump,33)*8+div(mod(jump,33),4);jp=jm}
+  n=jy-jp;leapJ=leapJ+div(n,33)*8+div(mod(n,33)+3,4);
+  if(mod(jump,33)===4&&jump-n===4)leapJ+=1;
+  leapG=div(gy,4)-div((div(gy,100)+1)*3,4)-150;march=20+leapJ-leapG;
+  if(noLeap)return{gy:gy,march:march};
+  if(jump-n<6)n=n-jump+div(jump+4,33)*33;
+  leap=mod(mod(n+1,33)-1,4);if(leap===-1)leap=4;
+  return{leap:leap,gy:gy,march:march};
+}
+function g2d(gy,gm,gd){var d=div((gy+div(gm-8,6)+100100)*1461,4)+div(153*mod(gm+9,12)+2,5)+gd-34840408;return d-div(div(gy+100100+div(gm-8,6),100)*3,4)+752}
+function d2g(jdn){var j=4*jdn+139361631;j=j+div(div(4*jdn+183187720,146097)*3,4)*4-3908;var i=div(mod(j,1461),4)*5+308,gd=div(mod(i,153),5)+1,gm=mod(div(i,153),12)+1,gy=div(j,1461)-100100+div(8-gm,6);return{gy:gy,gm:gm,gd:gd}}
+function j2d(jy,jm,jd){var r=jalCal(jy,true);return g2d(r.gy,3,r.march)+(jm-1)*31-div(jm,7)*(jm-7)+jd-1}
+function d2j(jdn){
+  var gy=d2g(jdn).gy,jy=gy-621,r=jalCal(jy,false),j1=g2d(gy,3,r.march),k=jdn-j1,jm,jd;
+  if(k>=0){if(k<=185){return{jy:jy,jm:1+div(k,31),jd:mod(k,31)+1}}k-=186}
+  else{jy-=1;k+=179;if(r.leap===1)k+=1}
+  jm=7+div(k,30);jd=mod(k,30)+1;return{jy:jy,jm:jm,jd:jd};
+}
+function isLeap(jy){return jalCal(jy,false).leap===0}
+function monthLen(jy,jm){return jm<=6?31:jm<=11?30:(isLeap(jy)?30:29)}
+function toJalali(gy,gm,gd){return d2j(g2d(gy,gm,gd))}
+function toGreg(jy,jm,jd){return d2g(j2d(jy,jm,jd))}
+window.JalaliCal={toJalali:toJalali,toGregorian:toGreg,monthLength:monthLen,isLeap:isLeap};
+
+var MONTHS=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+var WEEK=['ش','ی','د','س','چ','پ','ج'];
+var FA='۰۱۲۳۴۵۶۷۸۹';
+function fa(n){return String(n).replace(/\d/g,function(d){return FA[d]})}
+function pad(n){return n<10?'0'+n:''+n}
+function iso(g){return g.gy+'-'+pad(g.gm)+'-'+pad(g.gd)}
+function parseIso(v){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(v||'');return m?{gy:+m[1],gm:+m[2],gd:+m[3]}:null}
+
+/* ---- shared popup ---- */
+var dlg,state={y:0,m:0,sel:null,onPick:null};
+function injectCss(){
+  var st=document.createElement('style');
+  st.textContent=
+  '.jd-input{cursor:pointer}'+
+  '#jcal{border:0;padding:0;border-radius:16px;width:min(340px,94vw);background:var(--card,#fff);color:var(--ink,#18352d);box-shadow:0 12px 40px #0006}'+
+  '#jcal::backdrop{background:#0a1a1470}'+
+  '#jcal .jc{padding:14px;direction:rtl;font-family:inherit}'+
+  '#jcal .jc-head{display:flex;gap:6px;align-items:center;margin-bottom:10px}'+
+  '#jcal .jc-head button{flex:0 0 auto;width:38px;height:38px;min-height:0;margin:0;padding:0;border-radius:10px;border:1px solid var(--line,#dce8e0);background:var(--soft,#edf5ef);color:inherit;font-size:1.1rem;cursor:pointer}'+
+  '#jcal .jc-head select{flex:1;min-width:0;height:38px;min-height:0;margin:0;padding:0 6px;border:1px solid var(--line,#dce8e0);border-radius:10px;background:var(--card,#fff);color:inherit;font:inherit}'+
+  '#jcal .jc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}'+
+  '#jcal .jc-w{font-size:.8rem;color:var(--muted,#62736a);padding:4px 0}'+
+  '#jcal .jc-d{height:38px;min-height:0;margin:0;padding:0;border:0;border-radius:10px;background:none;color:inherit;font:inherit;cursor:pointer}'+
+  '#jcal .jc-d:hover{background:var(--soft,#edf5ef)}'+
+  '#jcal .jc-d.today{outline:2px solid var(--gold,#c69a42);outline-offset:-2px}'+
+  '#jcal .jc-d.sel{background:var(--green,#08745a);color:#fff}'+
+  '#jcal .jc-d.fri{color:var(--danger,#a3312b)}'+
+  '#jcal .jc-d.sel.fri{color:#fff}'+
+  '#jcal .jc-foot{display:flex;gap:8px;margin-top:12px}'+
+  '#jcal .jc-foot button{flex:1;min-height:42px;margin:0;border-radius:10px;border:1px solid var(--line,#dce8e0);background:var(--soft,#edf5ef);color:inherit;font:inherit;cursor:pointer}';
+  document.head.appendChild(st);
+}
+function build(){
+  injectCss();
+  dlg=document.createElement('dialog');dlg.id='jcal';
+  dlg.innerHTML='<div class="jc"><div class="jc-head"><button type="button" data-a="pm" aria-label="ماه قبل">›</button><select data-a="m" aria-label="ماه"></select><select data-a="y" aria-label="سال"></select><button type="button" data-a="nm" aria-label="ماه بعد">‹</button></div><div class="jc-grid" id="jcGrid"></div><div class="jc-foot"><button type="button" data-a="today">امروز</button><button type="button" data-a="clear">پاک کردن</button><button type="button" data-a="close">بستن</button></div></div>';
+  document.body.appendChild(dlg);
+  var ms=dlg.querySelector('[data-a=m]');ms.innerHTML=MONTHS.map(function(n,i){return '<option value="'+(i+1)+'">'+n+'</option>'}).join('');
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  dlg.addEventListener('change',function(e){var a=e.target.getAttribute('data-a');if(a==='m'){state.m=+e.target.value;draw()}if(a==='y'){state.y=+e.target.value;draw()}});
+  dlg.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var a=b.getAttribute('data-a');
+    if(a==='pm'){state.m--;if(state.m<1){state.m=12;state.y--}draw()}
+    else if(a==='nm'){state.m++;if(state.m>12){state.m=1;state.y++}draw()}
+    else if(a==='close')dlg.close();
+    else if(a==='clear'){var f=state.onPick;dlg.close();f&&f('')}
+    else if(a==='today'){var n=new Date(),g=iso({gy:n.getFullYear(),gm:n.getMonth()+1,gd:n.getDate()}),f2=state.onPick;dlg.close();f2&&f2(g)}
+    else if(b.hasAttribute('data-day')){var d=+b.getAttribute('data-day'),gg=toGreg(state.y,state.m,d),f3=state.onPick;dlg.close();f3&&f3(iso(gg))}
+  });
+}
+function draw(){
+  var ys=dlg.querySelector('[data-a=y]'),opts='',from=state.y-12,to=state.y+6,i;
+  var now=new Date(),tj=toJalali(now.getFullYear(),now.getMonth()+1,now.getDate());
+  if(tj.jy-12<from)from=tj.jy-12;
+  for(i=from;i<=to;i++)opts+='<option value="'+i+'">'+fa(i)+'</option>';
+  ys.innerHTML=opts;ys.value=state.y;dlg.querySelector('[data-a=m]').value=state.m;
+  var first=j2d(state.y,state.m,1),off=mod(first+2,7),len=monthLen(state.y,state.m),h='',k;
+  for(k=0;k<7;k++)h+='<div class="jc-w">'+WEEK[k]+'</div>';
+  for(k=0;k<off;k++)h+='<div></div>';
+  for(k=1;k<=len;k++){
+    var cls='jc-d',col=mod(off+k-1,7);
+    if(col===6)cls+=' fri';
+    if(state.y===tj.jy&&state.m===tj.jm&&k===tj.jd)cls+=' today';
+    if(state.sel&&state.sel.jy===state.y&&state.sel.jm===state.m&&state.sel.jd===k)cls+=' sel';
+    h+='<button type="button" class="'+cls+'" data-day="'+k+'">'+fa(k)+'</button>';
+  }
+  document.getElementById('jcGrid').innerHTML=h;
+}
+function open(curIso,onPick){
+  if(!dlg)build();
+  var g=parseIso(curIso),n=new Date(),j=g?toJalali(g.gy,g.gm,g.gd):toJalali(n.getFullYear(),n.getMonth()+1,n.getDate());
+  state.y=j.jy;state.m=j.jm;state.sel=g?j:null;state.onPick=onPick;draw();dlg.showModal();
+}
+
+/* ---- attach to a native date input ---- */
+function attach(orig){
+  if(!orig||orig.getAttribute('data-jalali'))return;
+  orig.setAttribute('data-jalali','1');
+  var vis=document.createElement('input');
+  vis.type='text';vis.readOnly=true;vis.className=(orig.className?orig.className+' ':'')+'jd-input';
+  vis.setAttribute('inputmode','none');vis.placeholder='انتخاب تاریخ';vis.autocomplete='off';
+  vis.id=orig.id+'_fa';
+  orig.style.display='none';orig.parentNode.insertBefore(vis,orig.nextSibling);
+  var lab=document.querySelector('label[for="'+orig.id+'"]');if(lab)lab.setAttribute('for',vis.id);
+  var proto=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  function refresh(){var g=parseIso(proto.get.call(orig));if(!g){vis.value='';return}var j=toJalali(g.gy,g.gm,g.gd);vis.value=fa(j.jy)+'/'+fa(pad(j.jm))+'/'+fa(pad(j.jd))}
+  Object.defineProperty(orig,'value',{configurable:true,get:function(){return proto.get.call(orig)},set:function(v){proto.set.call(orig,v);refresh()}});
+  function pick(v){proto.set.call(orig,v);refresh();orig.dispatchEvent(new Event('input',{bubbles:true}));orig.dispatchEvent(new Event('change',{bubbles:true}))}
+  vis.addEventListener('click',function(){open(proto.get.call(orig),pick)});
+  vis.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(proto.get.call(orig),pick)}});
+  refresh();
+}
+function init(){['rFrom','rTo','fromDate','toDate'].forEach(function(id){attach(document.getElementById(id))})}
+window.JalaliPicker={attach:attach,init:init};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
