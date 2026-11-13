@@ -140,14 +140,14 @@ tbody tr:hover{background:#f2f8f3}
   <span>آخرین ویرایش نرم‌افزار</span>
   <strong data-ver>۱۷ آبان ۱۴۰۵، ساعت ۰۶:۴۴</strong>
 </div>
-<div class="warn">اطلاعات اتصال فقط در همین مرورگر ذخیره می‌شود. کلید <b>service_role</b> یا کلید مخفی را اینجا وارد نکنید؛ فقط Project URL و کلید عمومی publishable.</div>
+<div class="warn hidden">اطلاعات اتصال فقط در همین مرورگر ذخیره می‌شود. کلید <b>service_role</b> یا کلید مخفی را اینجا وارد نکنید؛ فقط Project URL و کلید عمومی publishable.</div>
 <div class="grid" style="margin-top:12px">
-<div><label for="url">Project URL</label><input id="url" placeholder="https://....supabase.co" autocomplete="url"></div>
-<div><label for="key">Publishable / anon key</label><input id="key" placeholder="sb_publishable_... یا کلید anon" autocomplete="off"></div>
+<div class="hidden"><label for="url">Project URL</label><input id="url" placeholder="https://....supabase.co" autocomplete="url"></div>
+<div class="hidden"><label for="key">Publishable / anon key</label><input id="key" placeholder="sb_publishable_... یا کلید anon" autocomplete="off"></div>
 <div><label for="email">ایمیل حساب</label><input id="email" type="email" autocomplete="username"></div>
 <div><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"><label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="showPw" style="width:auto;margin:0"> نمایش رمز</label></div>
 </div>
-<div class="inline"><button id="saveConfig" class="secondary">ذخیره تنظیمات</button><button id="login">ورود به دفتر حساب</button></div>
+<div class="inline"><button id="saveConfig" class="secondary hidden">ذخیره تنظیمات</button><button id="login">ورود به دفتر حساب</button></div>
 <div class="inline"><button id="signup" class="secondary">ساخت حساب (در صورت نیاز)</button><button id="forgot" class="secondary">فراموشی رمز عبور</button></div>
 <div id="authStatus" class="status" role="status">هنوز وارد نشده‌اید.</div>
 <div id="recoveryBox" class="hidden"><h2>تعیین رمز جدید</h2><label for="newPw">رمز جدید</label><input id="newPw" type="password" autocomplete="new-password"><label for="newPw2">تکرار رمز جدید</label><input id="newPw2" type="password" autocomplete="new-password"><button id="savePw">ذخیره رمز جدید</button></div>
@@ -297,8 +297,8 @@ const fmt = n => Number(n||0).toLocaleString('fa-IR',{maximumFractionDigits:6});
 const localDateTime = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
 $('tTime').value = localDateTime();
 const saved = (()=>{try{return JSON.parse(localStorage.getItem('ledgerConfig')||'{}')}catch{return {}}})();
-$('url').value=saved.url||'https://walqvjkqkyruuweqwqih.supabase.co';
-$('key').value=saved.key||'';
+$('url').value='https://walqvjkqkyruuweqwqih.supabase.co';
+$('key').value='sb_publishable_pWVFSUrM9eq6jYlWIk9kxQ_jFuTQp8D';
 $('email').value=saved.email||'';
 function setupClient(){
  if(!window.supabase){throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.')}
