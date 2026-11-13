@@ -353,8 +353,13 @@ $('login').onclick=async()=>{
  const offlineLogin=async()=>{
   const u=cachedUser();
   if(!u||!u.id||!u.email||String(u.email).trim().toLowerCase()!==em)return false;
+  const pw=$('password').value;
+  if(!(await verifyOfflinePassword(u.id,pw))){
+   say('authStatus','برای ورود آفلاین، رمز این حساب قبلاً روی این دستگاه ثبت نشده یا رمز واردشده درست نیست. برای ورود اولیه یک‌بار با اینترنت وارد شو.');
+   return false;
+  }
   await onSignedIn(u,true);
-  say('authStatus','ورود آفلاین انجام شد؛ اطلاعات ذخیره‌شده همین دستگاه نمایش داده می‌شود. پس از اتصال اینترنت، همگام‌سازی انجام خواهد شد.');
+  say('authStatus','ورود آفلاین با تأیید رمز انجام شد؛ اطلاعات ذخیره‌شده همین دستگاه نمایش داده می‌شود و پس از اتصال، همگام‌سازی خواهد شد.');
   return true;
  };
  try{
@@ -362,8 +367,9 @@ $('login').onclick=async()=>{
   if(!navigator.onLine){if(await offlineLogin())return;throw new Error('اینترنت قطع است و حساب قبلاً روی این دستگاه ذخیره نشده؛ برای اولین ورود باید اینترنت وصل باشد.');}
   const c=setupClient(),pw=$('password').value;
   const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-  let r=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error)break;if(!/invalid login/i.test(rawMsg(r.error)))break;}
+  let r=null,acceptedPassword=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error){acceptedPassword=v;break;}if(!/invalid login/i.test(rawMsg(r.error)))break;}
   if(r.error)throw r.error;
+  await saveOfflinePassword(r.data.user.id,acceptedPassword);
   await onSignedIn(r.data.user,true);
  }catch(e){
   if(isNet(e)&&await offlineLogin())return;
@@ -372,8 +378,8 @@ $('login').onclick=async()=>{
  }
 };
 $('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'password'};
-$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
-$('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{localStorage.removeItem('ledgerUser')}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
+$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await saveOfflinePassword(data.user.id,$('password').value);await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
+$('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{const u=cachedUser();localStorage.removeItem('ledgerUser');if(u&&u.id)localStorage.removeItem('ledgerOfflineAuth:'+u.id)}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const selRemap={};let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
 const cacheKey=()=>'ledgerCache:'+(currentUser&&currentUser.id);
@@ -528,6 +534,8 @@ $('addTransaction').onclick=async()=>{try{
   const code=editingSale.code,re=new RegExp('فاکتور\\s+'+code+'(?![A-Z0-9])');
   if(!customer)throw Error('مشتری انتخاب‌شده پیدا نشد.');
   const oldItems=transactions.filter(x=>x.Is_money===false&&x.Type==='Give'&&!/مانده بدهی پولی این فروش/.test(x.Description||'')&&re.test(x.Description||''));
+  // شناسه کالاها را قبل از تغییر توضیحات ردیف‌ها نگه می‌داریم.
+  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
   if(editingSale.itemIds){const order=new Map(editingSale.itemIds.map((id,i)=>[String(id),i]));oldItems.sort((a,b)=>(order.get(String(a.id))??999)-(order.get(String(b.id))??999));}
   const primary=oldItems.find(x=>x.DebtGrams!==null&&x.DebtGrams!==undefined)||oldItems.find(x=>String(x.id)===String(editingSale.primaryId));
   if(!primary)throw Error('ردیف اصلی فاکتور پیدا نشد؛ برای جلوگیری از به‌هم‌ریختن حساب، ویرایش لغو شد.');
@@ -561,7 +569,6 @@ $('addTransaction').onclick=async()=>{try{
   else if(income)deleteEntryLocal(income);
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
   try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}
-  const oldProductIds=oldItems.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);
   const newProductIds=il.map(x=>String(x.id));
   await invApplySaleProducts(oldProductIds,newProductIds);
   const savedPrimary=transactions.find(x=>String(x.id)===String(primary.id));
@@ -649,7 +656,12 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
  if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
- const deletedProductId=(String(t.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1];if(deletedProductId)invApplySaleProducts([deletedProductId],[]);const adj=recalcSaleAfterDelete(t);transactions=transactions.filter(x=>x.id!==tid);if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='همه'?' و بدهی/درآمد این فاکتور پاک شد.':adj==='بازحساب'?' و مبلغ فاکتور، بدهی مشتری و درآمد دوباره حساب شد.':'.'));afterChange();};
+ const deletedProductId=(String(t.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1];
+ // ابتدا ردیف حذف‌شده را از گردش حساب خارج کن تا syncCredit آن را دوباره ردیف اصلی فرض نکند.
+ transactions=transactions.filter(x=>String(x.id)!==String(tid));
+ if(deletedProductId)invApplySaleProducts([deletedProductId],[]);
+ const adj=recalcSaleAfterDelete(t);
+ if(editingTx===tid)resetTx();say('appStatus','تراکنش حذف شد'+(adj==='همه'?' و بدهی/درآمد این فاکتور پاک شد.':adj==='بازحساب'?' و مبلغ فاکتور، بدهی مشتری و درآمد دوباره حساب شد.':'.'));afterChange();};
 function sepInput(el){const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
  const fa=x=>String(x).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/٫/g,'.');
  const clean=x=>fa(x).replace(/[^\d.]/g,'').replace(/(\..*)\./g,'$1');
@@ -737,7 +749,7 @@ let recoveryMode=/type=recovery/.test(location.hash);
 function showRecovery(){$('recoveryBox').classList.remove('hidden');say('authStatus','رمز جدید خودت را تعیین کن.')}
 if(recoveryMode)showRecovery();else if(/error_code=/.test(location.hash))say('authStatus','لینک تغییر رمز منقضی یا استفاده‌شده است؛ دوباره «فراموشی رمز عبور» را بزن.');
 $('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال انجام نشد. '+await explain(e))}};
-$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
+$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;await saveOfflinePassword(currentUser.id,a);recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
 function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qName').focus()}
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
@@ -922,6 +934,30 @@ $('cashBody').onclick=ev=>{const b=ev.target.closest('button[data-del]');if(!b)r
 ['rFrom','rTo','rCustomer'].forEach(i=>{$(i).onchange=renderReport});
 $('rClear').onclick=()=>{['rFrom','rTo','rCustomer'].forEach(i=>{$(i).value=''});renderReport();};
 const cachedUser=()=>{try{return JSON.parse(localStorage.getItem('ledgerUser')||'null')}catch(e){return null}};
+const offlineAuthKey=id=>'ledgerOfflineAuth:'+id;
+async function offlinePasswordHash(password,salt){
+ const material=await crypto.subtle.importKey('raw',new TextEncoder().encode(String(password)),'PBKDF2',false,['deriveBits']);
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},material,256);
+ return Array.from(new Uint8Array(bits),b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function saveOfflinePassword(userId,password){
+ if(!userId||!password||!crypto.subtle)return false;
+ const salt=crypto.getRandomValues(new Uint8Array(16));
+ const hash=await offlinePasswordHash(password,salt);
+ const hex=Array.from(salt,b=>b.toString(16).padStart(2,'0')).join('');
+ try{localStorage.setItem(offlineAuthKey(userId),JSON.stringify({salt:hex,hash:hash,iterations:310000,algorithm:'PBKDF2-SHA256'}));return true}catch(e){return false}
+}
+async function verifyOfflinePassword(userId,password){
+ try{
+  const saved=JSON.parse(localStorage.getItem(offlineAuthKey(userId))||'null');
+  if(!saved||saved.algorithm!=='PBKDF2-SHA256'||!saved.salt||!saved.hash||!crypto.subtle)return false;
+  const salt=new Uint8Array(saved.salt.match(/.{2}/g).map(x=>parseInt(x,16)));
+  const actual=await offlinePasswordHash(password,salt);
+  if(actual.length!==saved.hash.length)return false;
+  let diff=0;for(let i=0;i<actual.length;i++)diff|=actual.charCodeAt(i)^saved.hash.charCodeAt(i);
+  return diff===0;
+ }catch(e){return false}
+}
 function ensureLib(){return new Promise(r=>{if(window.supabase)return r(true);const s=document.createElement('script');s.src=CDN;s.onload=()=>r(!!window.supabase);s.onerror=()=>r(false);document.head.appendChild(s);});}
 window.addEventListener('offline',updateNet);
 window.addEventListener('online',async()=>{
@@ -943,15 +979,14 @@ window.addEventListener('online',async()=>{
    try{
      const r=await client.auth.getSession();
      if(recoveryMode)showRecovery();
-     else if(r.data&&r.data.session)await onSignedIn(r.data.session.user, true);
-     else if(cachedUser())await onSignedIn(cachedUser(), true);
-   }catch(e){if(cachedUser())await onSignedIn(cachedUser(), true);}
+     else if(navigator.onLine&&r.data&&r.data.session)await onSignedIn(r.data.session.user, true);
+   }catch(e){/* در حالت آفلاین، ورود فقط از فرم و پس از بررسی رمز انجام می‌شود. */}
    client.auth.onAuthStateChange((_e,session)=>{
      if(!recoveryMode&&session && (!currentUser || currentUser.id!==session.user.id)){
        onSignedIn(session.user, true).catch(e=>say('authStatus',msg(e)));
      }
    });
- } else if(cachedUser())await onSignedIn(cachedUser(), true);
+ }
 })();
 // Inventory backed by Supabase; local cache is used for quick display and queued status changes.
 
