@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#075b48">
-<link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>گالری طلای نبات</title>
@@ -284,7 +283,7 @@ tbody tr:hover{background:#f0f6f2}
 <label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="invVisible" type="checkbox" checked style="width:auto;margin:0"> نمایش در ویترین مشتریان</label>
 <div class="inline"><button id="invSave">ثبت طلا</button><button id="invCancel" class="secondary hidden" type="button">انصراف از ویرایش</button></div>
 <h2 style="margin-top:24px">فهرست طلاهای ثبت‌شده</h2>
-<p class="muted" style="margin:6px 0 0">مشتریان طلاهای «نمایش در ویترین» را در <a href="catalog.html" target="_blank" rel="noopener">پنل مشتریان</a> می‌بینند و انتخاب می‌کنند.</p>
+<p class="muted" style="margin:6px 0 0">مشتریان طلاهای «نمایش در ویترین» را در <a href="https://meysamadabi65.github.io/nabat-shop/catalog.html" rel="noopener">پنل مشتریان</a> می‌بینند و انتخاب می‌کنند.</p>
 
 <div class="grid"><div><label for="invSearch">جست‌وجو</label><input id="invSearch" placeholder="نام یا کد کالا"></div><div><label for="invFilter">وضعیت نمایش</label><select id="invFilter"><option value="all">همه</option><option value="yes">نمایش در ویترین</option><option value="no">مخفی</option></select></div></div>
 <div id="invList" class="grid" style="margin-top:12px"></div>
@@ -302,7 +301,6 @@ tbody tr:hover{background:#f0f6f2}
 </main>
 <button id="toTop" type="button" aria-label="بازگشت به بالا" title="بازگشت به بالا">↑</button>
 <footer>گالری طلای نبات <span class="ver-small">آخرین ویرایش: <span data-ver>۱۷ آبان ۱۴۰۵، ساعت ۰۶:۴۴</span></span></footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
 const $ = id => document.getElementById(id);
@@ -377,7 +375,7 @@ async function explain(e){
  if(!navigator.onLine||!(await internetWorks()))return 'اینترنت دستگاه وصل نیست یا کار نمی‌کند. اتصال را بررسی کن و دوباره تلاش کن.';
  return 'اینترنت وصل است ولی ارتباط با سرور برقرار نشد. اگر فیلترشکن داری آن را عوض یا خاموش کن؛ ممکن است سرور هم موقتاً در دسترس نباشد. چند دقیقه بعد دوباره تلاش کن.';
 }
-$('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
+$('saveConfig').onclick=async()=>{try{if(!window.supabase&&navigator.onLine&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
 $('login').onclick=async()=>{
  const em=$('email').value.trim().toLowerCase();
  const offlineLogin=async()=>{
@@ -395,6 +393,7 @@ $('login').onclick=async()=>{
  try{
   say('authStatus','در حال ورود…');
   if(!navigator.onLine){if(await offlineLogin())return;throw new Error('اینترنت قطع است و حساب قبلاً روی این دستگاه ذخیره نشده؛ برای اولین ورود باید اینترنت وصل باشد.');}
+  if(!window.supabase&&!(await ensureLib())){if(await offlineLogin())return;throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');}
   const c=setupClient(),pw=$('password').value;
   const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
   let r=null,acceptedPassword=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error){acceptedPassword=v;break;}if(!/invalid login/i.test(rawMsg(r.error)))break;}
@@ -408,7 +407,7 @@ $('login').onclick=async()=>{
  }
 };
 $('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'password'};
-$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await saveOfflinePassword(data.user.id,$('password').value);await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
+$('signup').onclick=async()=>{try{if(!window.supabase&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await saveOfflinePassword(data.user.id,$('password').value);await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
 $('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{const u=cachedUser();localStorage.removeItem('ledgerUser');if(u&&u.id)localStorage.removeItem('ledgerOfflineAuth:'+u.id)}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const selRemap={};let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
@@ -770,11 +769,13 @@ function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Custom
  document.getElementById('invShare').onclick=async()=>{
   const txt=invoiceText(v);
   try{
-   if(navigator.share){await navigator.share({title:'فاکتور گالری طلای نبات',text:txt});}
+   if(window.NabatAndroid&&typeof NabatAndroid.shareText==='function'){NabatAndroid.shareText('فاکتور گالری طلای نبات',txt);}
+   else if(navigator.share){await navigator.share({title:'فاکتور گالری طلای نبات',text:txt});}
    else if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(txt);alert('متن فاکتور کپی شد؛ می‌توانید در پیام‌رسان Paste کنید.');}
    else{prompt('متن فاکتور را کپی کنید:',txt);}
   }catch(e){if(e&&e.name==='AbortError')return;try{prompt('متن فاکتور را کپی کنید:',txt)}catch(_){}}
  };}
+if(window.NabatAndroid&&typeof NabatAndroid.printPage==='function'){window.print=()=>NabatAndroid.printPage();}
 function invoiceText(v){
  const lines=['🪙 گالری طلای نبات',(v.querySelector('h2')?.nextElementSibling?.textContent||'').trim()];
  v.querySelectorAll('.row2').forEach(r=>{const s=r.textContent.trim();if(s&&!/امضای/.test(s))lines.push(Array.from(r.children).map(x=>x.textContent.trim()).filter(Boolean).join(' — '))});
@@ -782,9 +783,15 @@ function invoiceText(v){
  v.querySelectorAll('table tr').forEach(r=>lines.push(Array.from(r.cells).map(c=>c.textContent.trim()).filter(Boolean).join(' | ')));
  return lines.filter((x,i)=>x!==''||i>0).join('\n');
 }
+function saveNabatBlob(blob,filename){
+ if(window.NabatAndroid&&typeof NabatAndroid.saveFile==='function'){
+  const r=new FileReader();r.onloadend=()=>{try{NabatAndroid.saveFile(filename,blob.type||'application/octet-stream',String(r.result).split(',')[1]||'')}catch(e){alert('ذخیره فایل انجام نشد.')}};r.onerror=()=>alert('آماده‌سازی فایل ناموفق بود.');r.readAsDataURL(blob);return;
+ }
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),8000);
+}
 let bkTimer=null,lastBk=Number(localStorage.getItem('bkLast')||0),lastSig='',pendingRestore=null;
 function bkDownload(){if(!currentUser)return;const o={app:'nabat',v:1,userId:currentUser.id,email:currentUser.email,savedAt:Date.now(),customers:customers,transactions:transactions,entries:entries,queue:queue};lastSig=JSON.stringify([customers,transactions,entries,queue]);
- const d=new Date(),n='nabat-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+ const d=new Date(),n='nabat-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';saveNabatBlob(new Blob([JSON.stringify(o)],{type:'application/json'}),n);
  lastBk=Date.now();try{localStorage.setItem('bkLast',String(lastBk))}catch(e){}$('bkInfo').textContent='آخرین پشتیبان: '+d.toLocaleString('fa-IR')+' (فایل '+n+' در Downloads)';}
 $('bkNow').onclick=bkDownload;
 $('bkFile').onchange=async()=>{const f=$('bkFile').files[0];$('bkFile').value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d||d.app!=='nabat'||!Array.isArray(d.customers))throw Error('فایل پشتیبان معتبر نیست.');if(!currentUser||d.userId!==currentUser.id)throw Error('این پشتیبان مربوط به حساب دیگری است.');if(queue.length)throw Error('تغییر همگام‌نشده وجود دارد؛ اول همگام‌سازی کن.');
@@ -793,8 +800,8 @@ $('bkRestore').onclick=()=>{if(pendingRestore){const d=pendingRestore;pendingRes
 let recoveryMode=/type=recovery/.test(location.hash);
 function showRecovery(){$('recoveryBox').classList.remove('hidden');say('authStatus','رمز جدید خودت را تعیین کن.')}
 if(recoveryMode)showRecovery();else if(/error_code=/.test(location.hash))say('authStatus','لینک تغییر رمز منقضی یا استفاده‌شده است؛ دوباره «فراموشی رمز عبور» را بزن.');
-$('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال انجام نشد. '+await explain(e))}};
-$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;await saveOfflinePassword(currentUser.id,a);recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
+$('forgot').onclick=async()=>{try{if(!window.supabase&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:'https://meysamadabi65.github.io/Nabat-gold-gallery/'});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال انجام نشد. '+await explain(e))}};
+$('savePw').onclick=async()=>{try{if(!window.supabase&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;await saveOfflinePassword(currentUser.id,a);recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
 function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qName').focus()}
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
@@ -913,7 +920,7 @@ function downloadXLSX(filename,sheet,rows,widths){
   {name:'xl/styles.xml',data:H+'<styleSheet '+N+'><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'},
   {name:'xl/worksheets/sheet1.xml',data:H+'<worksheet '+N+'><sheetViews><sheetView rightToLeft="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+cols+'<sheetData>'+sd+'</sheetData></worksheet>'}
  ];
- const url=URL.createObjectURL(zipStore(files));const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),8000);}
+ saveNabatBlob(zipStore(files),filename);}
 $('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','مانده طلا'],...Array.from($('reportBody').rows).map(r=>Array.from(r.cells).map((c,i)=>{const t=enD(c.textContent).replace(/[,\u066c\s]/g,'');return i>0&&/^-?\d+(\.\d+)?$/.test(t)?Number(t):c.textContent}))];downloadXLSX('customer-balances.xlsx','گزارش مشتری‌ها',rows,[28,18,18])};
 $('exportHistory').onclick=()=>{const rows=[['تاریخ','مشتری','نوع','دارایی','مبلغ/وزن','توضیحات'],...filteredHistory().map(t=>[new Date(t.Time).toLocaleString('fa-IR'),cname(t.Customer_id),t.Type==='Give'?'دادم':'گرفتم',t.Is_money?'پول':'طلا',t.Amount,prettyDesc(t.Description)||''])];downloadXLSX('transactions.xlsx','گردش حساب',rows,[22,24,10,10,16,50])};
 const metric=(l,v,c,h)=>`<div class="metric${h?' hero':''}">${l}<strong class="${c||''}">${fmt(v)}</strong></div>`;
@@ -1019,7 +1026,11 @@ window.addEventListener('online',async()=>{
 });
 (async()=>{
  let ok=true;
- try{setupClient();}catch(e){ok=false;say('authStatus',msg(e));}
+ try{
+   if(!window.supabase&&navigator.onLine)await ensureLib();
+   if(window.supabase)setupClient();
+   else {ok=false;say('authStatus','برنامه آماده است؛ برای ورود آنلاین اینترنت را وصل کن. ورود آفلاین پس از اولین ورود موفق فعال می‌شود.');}
+ }catch(e){ok=false;say('authStatus',msg(e));}
  if(ok){
    try{
      const r=await client.auth.getSession();
@@ -1297,6 +1308,5 @@ window.JalaliPicker={attach:attach,init:init};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
-<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
 </html>
