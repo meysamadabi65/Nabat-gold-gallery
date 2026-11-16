@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#075b48">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>گالری طلای نبات</title>
@@ -221,7 +222,7 @@ tbody tr:hover{background:#f0f6f2}
 <div><label for="tDesc">توضیحات</label><input id="tDesc" placeholder="شرح تراکنش"></div>
 </div><p class="muted" id="opHint"></p>
 <div id="itemsBox" class="hidden" style="margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px">
-<b>اقلام فاکتور</b><div class="muted">جنس را از موجودی انتخاب کن؛ نام و وزن به‌صورت خودکار ثبت می‌شود. مبلغ همه اقلام با هم محاسبه می‌شود.</div>
+<b>اقلام فاکتور</b><div class="muted">جنس را از موجودی انتخاب کن (نام و وزن خودکار ثبت می‌شود) یا گزینه «✍️ ورود دستی طلا» را بزن و نام و وزن را خودت بنویس. مبلغ همه اقلام با هم محاسبه می‌شود.</div>
 <div class="tablewrap"><table><thead><tr><th>انتخاب کالا از موجودی</th><th>وزن (گرم)</th><th>حذف</th></tr></thead><tbody id="itemsBody"></tbody></table></div>
 <button id="addItem" type="button" class="secondary" style="font-size:1rem;padding:8px">＋ افزودن آیتم جدید</button>
 <div class="muted" id="gTotalW" style="margin-top:6px;font-weight:bold"></div></div>
@@ -283,7 +284,7 @@ tbody tr:hover{background:#f0f6f2}
 <label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="invVisible" type="checkbox" checked style="width:auto;margin:0"> نمایش در ویترین مشتریان</label>
 <div class="inline"><button id="invSave">ثبت طلا</button><button id="invCancel" class="secondary hidden" type="button">انصراف از ویرایش</button></div>
 <h2 style="margin-top:24px">فهرست طلاهای ثبت‌شده</h2>
-<p class="muted" style="margin:6px 0 0">مشتریان طلاهای «نمایش در ویترین» را در <a href="https://meysamadabi65.github.io/nabat-shop/catalog.html" rel="noopener">پنل مشتریان</a> می‌بینند و انتخاب می‌کنند.</p>
+<p class="muted" style="margin:6px 0 0">مشتریان طلاهای «نمایش در ویترین» را در <a href="catalog.html" target="_blank" rel="noopener">پنل مشتریان</a> می‌بینند و انتخاب می‌کنند.</p>
 
 <div class="grid"><div><label for="invSearch">جست‌وجو</label><input id="invSearch" placeholder="نام یا کد کالا"></div><div><label for="invFilter">وضعیت نمایش</label><select id="invFilter"><option value="all">همه</option><option value="yes">نمایش در ویترین</option><option value="no">مخفی</option></select></div></div>
 <div id="invList" class="grid" style="margin-top:12px"></div>
@@ -301,6 +302,7 @@ tbody tr:hover{background:#f0f6f2}
 </main>
 <button id="toTop" type="button" aria-label="بازگشت به بالا" title="بازگشت به بالا">↑</button>
 <footer>گالری طلای نبات <span class="ver-small">آخرین ویرایش: <span data-ver>۱۷ آبان ۱۴۰۵، ساعت ۰۶:۴۴</span></span></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
 const $ = id => document.getElementById(id);
@@ -375,7 +377,7 @@ async function explain(e){
  if(!navigator.onLine||!(await internetWorks()))return 'اینترنت دستگاه وصل نیست یا کار نمی‌کند. اتصال را بررسی کن و دوباره تلاش کن.';
  return 'اینترنت وصل است ولی ارتباط با سرور برقرار نشد. اگر فیلترشکن داری آن را عوض یا خاموش کن؛ ممکن است سرور هم موقتاً در دسترس نباشد. چند دقیقه بعد دوباره تلاش کن.';
 }
-$('saveConfig').onclick=async()=>{try{if(!window.supabase&&navigator.onLine&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
+$('saveConfig').onclick=()=>{try{setupClient();say('authStatus','تنظیمات روی این دستگاه ذخیره شد. حالا وارد شوید.')}catch(e){say('authStatus',msg(e))}};
 $('login').onclick=async()=>{
  const em=$('email').value.trim().toLowerCase();
  const offlineLogin=async()=>{
@@ -393,7 +395,6 @@ $('login').onclick=async()=>{
  try{
   say('authStatus','در حال ورود…');
   if(!navigator.onLine){if(await offlineLogin())return;throw new Error('اینترنت قطع است و حساب قبلاً روی این دستگاه ذخیره نشده؛ برای اولین ورود باید اینترنت وصل باشد.');}
-  if(!window.supabase&&!(await ensureLib())){if(await offlineLogin())return;throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');}
   const c=setupClient(),pw=$('password').value;
   const fa=pw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
   let r=null,acceptedPassword=null;for(const v of [...new Set([pw,pw.trim(),fa])]){r=await c.auth.signInWithPassword({email:em,password:v});if(!r.error){acceptedPassword=v;break;}if(!/invalid login/i.test(rawMsg(r.error)))break;}
@@ -407,7 +408,7 @@ $('login').onclick=async()=>{
  }
 };
 $('showPw').onchange=()=>{$('password').type=$('showPw').checked?'text':'password'};
-$('signup').onclick=async()=>{try{if(!window.supabase&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await saveOfflinePassword(data.user.id,$('password').value);await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
+$('signup').onclick=async()=>{try{const c=setupClient();const {data,error}=await c.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)throw error;if(data.session){await saveOfflinePassword(data.user.id,$('password').value);await onSignedIn(data.user, true)}else{say('authStatus','درخواست ساخت حساب ثبت شد. اگر تأیید ایمیل فعال است، ایمیل را تأیید کن؛ سپس وارد شو.')}}catch(e){say('authStatus','ساخت حساب انجام نشد. '+await explain(e))}};
 $('logout').onclick=async()=>{const n=queue.length;try{if(client)await client.auth.signOut()}catch(e){}try{const u=cachedUser();localStorage.removeItem('ledgerUser');if(u&&u.id)localStorage.removeItem('ledgerOfflineAuth:'+u.id)}catch(e){}currentUser=null;customers=[];transactions=[];entries=[];queue=[];flushing=false;$('app').classList.add('hidden');$('setup').classList.remove('hidden');say('authStatus','خارج شدید.'+(n?' '+n+' تغییر همگام‌نشده روی این دستگاه می‌ماند و پس از ورود دوباره ارسال می‌شود.':''));window.scrollTo({top:0,behavior:'smooth'});};
 const CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const selRemap={};let entries=[],cfErr='',queue=[],tmpSeq=0,flushing=false,syncErr='';
@@ -547,7 +548,7 @@ $('addTransaction').onclick=async()=>{try{
  const md=txMode();
  if(customerId==='__new')throw Error('اول مشتری جدید را ثبت کن یا مشتری را انتخاب کن.');
  if(!customerId&&txMode()!=='buy')throw Error('مشتری را انتخاب کنید.');
- if(md==='sell'){if(!(totalW()>0))throw Error('حداقل یک کالا از موجودی انتخاب کن.');if(itemList().length!==$('itemsBody').children.length)throw Error('برای همه ردیف‌ها باید کالا از موجودی انتخاب شود.');if(new Set(itemList().map(x=>String(x.id))).size!==itemList().length)throw Error('یک کالا را نمی‌توان دوبار در یک فاکتور انتخاب کرد.');}else if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
+ if(md==='sell'){if(!(totalW()>0))throw Error('حداقل یک کالا از موجودی انتخاب کن.');if(itemList().length!==$('itemsBody').children.length)throw Error('برای همه ردیف‌ها باید کالا از موجودی انتخاب شود یا در حالت دستی وزن طلا (بیشتر از صفر) وارد شود.');{const ids=itemList().filter(x=>!x.manual).map(x=>String(x.id));if(new Set(ids).size!==ids.length)throw Error('یک کالا را نمی‌توان دوبار در یک فاکتور انتخاب کرد.');}}else if(!Number.isFinite(amount)||amount<=0)throw Error('مبلغ یا وزن باید بیشتر از صفر باشد.');
  const dt=$('tTime').value?new Date($('tTime').value).toISOString():new Date().toISOString();
  const customer=customers.find(c=>String(c.id)===String(customerId));
  const type=$('tType').value;
@@ -575,7 +576,7 @@ $('addTransaction').onclick=async()=>{try{
   const metadata='قیمت هر گرم '+fmt(gc.pr)+' | اجرت '+fmt(gc.wg)+'٪ | سود '+fmt(gc.pf)+'٪ | مالیات '+fmt(gc.vat)+'٪ | مبلغ نهایی '+fmt(gc.final)+' | پرداختی '+fmt(paidA)+' | '+(restT>0?'اقساطی — مانده '+fmt(restT)+' تومان'+(debtMoney?' (بدهی پولی)':' (بدهی طلایی)'):'نقدی')+' | فاکتور '+code+(gc.discount>0?' | تخفیف '+fmt(gc.discount):'');
   const baseNote=$('tDesc').value.trim();
   const common={Time:dt,Is_money:false,Name:customer.Name,Customer_id:Number(customerId),Type:'Give',Settled:true,user_id:currentUser.id};
-  const descFor=it=>[baseNote,metadata,'جنس: '+it.n,'کالا: '+it.id].filter(Boolean).join(' | ');
+  const descFor=it=>[baseNote,metadata,'جنس: '+it.n,it.manual?'':'کالا: '+it.id].filter(Boolean).join(' | ');
   const primaryFields=Object.assign({},common,{Amount:il[0].w,DebtGrams:restG,Description:descFor(il[0])},(gc.discount>0||Number(primary.Discount)>0)?{Discount:gc.discount||0}:{});
   txUpdateLocal(primary,primaryFields);
   const other=oldItems.filter(x=>x!==primary);
@@ -598,7 +599,7 @@ $('addTransaction').onclick=async()=>{try{
   else if(income)deleteEntryLocal(income);
   transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
   try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}
-  const newProductIds=il.map(x=>String(x.id));
+  const newProductIds=il.filter(x=>!x.manual).map(x=>String(x.id));
   await invApplySaleProducts(oldProductIds,newProductIds);
   const savedPrimary=transactions.find(x=>String(x.id)===String(primary.id));
   resetTx();say('appStatus','فاکتور با موفقیت بازحساب شد؛ وزن اقلام، بدهی پولی/طلایی و درآمد همگی به‌روزرسانی شدند.');afterChange();
@@ -614,13 +615,13 @@ $('addTransaction').onclick=async()=>{try{
  const mk=rw=>{const id=newTmp();const o=Object.assign({id:id},rw);transactions.push(o);queue.push({k:'tInsert',tmp:id,row:rw});return o;};
  if(asGold!==null){row.Amount=asGold;row.Is_money=false;}
  if(gc){row.Settled=true;row.DebtGrams=restG;if(gc.discount>0)row.Discount=gc.discount;}
- const il=gc?itemList():[];if(il[0])row.Description=row.Description+' | جنس: '+il[0].n+' | کالا: '+il[0].id;
+ const il=gc?itemList():[];if(il[0])row.Description=row.Description+' | جنس: '+il[0].n+(il[0].manual?'':' | کالا: '+il[0].id);
  const saved=md==='buy'?null:mk(row);if(debtMoney)mk({Time:dt,Amount:restT,Is_money:true,Name:customer?customer.Name:null,Description:'مانده بدهی پولی این فروش | فاکتور '+invNo,Customer_id:Number(customerId),Type:'Give',user_id:currentUser.id});
- il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,DebtGrams:null,Description:descText+' | جنس: '+it.n+' | کالا: '+it.id},(gc&&gc.discount>0)?{Discount:0}:{})));
+ il.slice(1).forEach(it=>mk(Object.assign({},row,{Amount:it.w,DebtGrams:null,Description:descText+' | جنس: '+it.n+(it.manual?'':' | کالا: '+it.id)},(gc&&gc.discount>0)?{Discount:0}:{})));
  if(gc&&credit>0)syncCredit(invNo,new RegExp('فاکتور\\s+'+invNo+'(?![A-Z0-9])'),customerId,customer?customer.Name:null,dt,credit);
  if(gc)extra={kind:'Income',cat:'فروش طلا',amt:Math.max(0,gc.wage+gc.profit+gc.tax-(gc.discount||0)),desc:'اجرت، سود و مالیات فروش طلا ('+(restT>0?'اقساطی':'نقدی')+') به '+cn+' — '+fmt(gc.w)+' گرم | فاکتور '+invNo};
  if(extra&&extra.amt>0){const eid=newTmp();const er={Time:dt,Kind:extra.kind,Category:extra.cat,Amount:extra.amt,Description:extra.desc,user_id:currentUser.id};entries.push(Object.assign({id:eid},er));queue.push({k:'eInsert',tmp:eid,row:er});}
- if(gc)await invApplySaleProducts([],il.map(x=>String(x.id)));
+ if(gc)await invApplySaleProducts([],il.filter(x=>!x.manual).map(x=>String(x.id)));
  transactions.sort((a,b)=>new Date(b.Time)-new Date(a.Time));
  if(gc||md==='buy'){try{localStorage.setItem('goldPct',JSON.stringify({vat:$('gVat').value,wg:$('gWage').value,pf:$('gProfit').value,bf:$('bFee').value}))}catch(e){}}
  PRC.forEach(i=>{delete $(i).dataset.t});delete $('gPaid').dataset.t;$('gDiscount').value='';
@@ -674,7 +675,7 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
    $('gPrice').value=sale.pr;$('gWage').value=sale.wg;$('gProfit').value=sale.pf;$('gVat').value=sale.vat;$('gDiscount').value=sale.discount||'';$('gPaid').value=sale.paid==null?'':sale.paid; $('gPaid').dataset.t='1';
    $('gDebtType').value=/بدهی پولی/.test(firstDesc)?'money':'gold';
    $('itemsBody').innerHTML='';
-   editingSale.productIds=group.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);group.forEach(x=>{const pid=(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]||'';addItemRow(pid);});
+   editingSale.productIds=group.map(x=>(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]).filter(Boolean);group.forEach(x=>{const pid=(String(x.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1]||'';if(pid)addItemRow(pid);else{const nm=((String(x.Description||'').match(/جنس:\s*([^|]+)/)||[])[1]||'').trim();addItemRow('__manual',{name:nm,w:Number(x.Amount)||''});}});
    if(!group.length)addItemRow();syncAmt();
    $('tFormTitle').textContent='ویرایش فاکتور فروش';$('addTransaction').textContent='ذخیره و بازحساب فاکتور';$('cancelTx').classList.remove('hidden');updateGold();
   }else{
@@ -699,18 +700,18 @@ function sepInput(el){const d=Object.getOwnPropertyDescriptor(HTMLInputElement.p
  el.addEventListener('input',()=>{const cur=d.get.call(el),pos=el.selectionStart||0,digs=clean(cur.slice(0,pos)).length,nv=fmtS(cur);if(nv===cur)return;d.set.call(el,nv);let n=0,i=0;for(;i<nv.length&&n<digs;i++)if(/[\d.]/.test(nv[i]))n++;try{el.setSelectionRange(i,i)}catch(e){}});}
 ['tAmount','gPrice','bPrice','pPrice','gPaid','gDiscount','cashAmount'].forEach(i=>{sepInput($(i));$(i).addEventListener('blur',()=>{$(i).value=$(i).value})});
 const PRC=['gPrice','bPrice','pPrice'];
-const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>{const id=tr.querySelector('.xp').value,p=invItems.find(x=>String(x.id)===String(id));return p?{id:p.id,w:Number(p.weight)||0,n:p.name,product:p}:null}).filter(Boolean);
+const itemList=()=>[...document.querySelectorAll('#itemsBody tr')].map(tr=>{const id=tr.querySelector('.xp').value;if(id==='__manual'){const w=Math.round((Number(enD(tr.querySelector('.xw').value).replace(/,/g,''))||0)*1000)/1000,nm=(tr.querySelector('.xmn').value||'').replace(/[|\r\n]+/g,' ').trim()||'طلای دستی';return w>0?{id:'',manual:true,w:w,n:nm,product:null}:null}const p=invItems.find(x=>String(x.id)===String(id));return p?{id:p.id,w:Number(p.weight)||0,n:p.name,product:p}:null}).filter(Boolean);
 const itemWs=()=>itemList().map(i=>i.w);
 function syncAmt(){const sels=[...document.querySelectorAll('#itemsBody .xp')],chosen=sels.map(x=>x.value).filter(Boolean);sels.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));const f=itemWs()[0]||0;$('tAmount').value=f||'';renderGold()}
 function setThumb(tr,p){const im=tr.querySelector('.xi');if(!im)return;if(p&&p.photo){im.src=p.photo;im.classList.remove('hidden')}else{im.removeAttribute('src');im.classList.add('hidden')}}
-function addItemRow(selectedId=''){const tr=document.createElement('tr');const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(selectedId));tr.innerHTML='<td><div class="xrow"><select class="xp"><option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('')+'</select><img class="xi hidden" alt="تصویر کالا"></div></td><td><input class="xw" type="text" readonly placeholder="—"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';const sel=tr.querySelector('.xp');sel.value=selectedId||'';const update=()=>{const p=invItems.find(x=>String(x.id)===String(sel.value));tr.querySelector('.xw').value=p?p.weight:'';setThumb(tr,p);syncAmt()};sel.addEventListener('change',update);update();tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{sel.value='';tr.querySelector('.xw').value=''}syncAmt()};$('itemsBody').appendChild(tr);}
+function addItemRow(selectedId='',manual=null){const tr=document.createElement('tr');const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(selectedId));tr.innerHTML='<td><div class="xrow"><select class="xp"><option value="">انتخاب کالا…</option><option value="__manual">✍️ ورود دستی طلا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('')+'</select><img class="xi hidden" alt="تصویر کالا"></div><input class="xmn hidden" type="text" placeholder="نام جنس (مثلاً النگو، گردنبند)" style="margin-top:6px"></td><td><input class="xw" type="text" inputmode="decimal" readonly placeholder="—"></td><td><button type="button" class="danger" style="width:auto;margin:0;padding:6px 10px">✕</button></td>';const sel=tr.querySelector('.xp'),nmI=tr.querySelector('.xmn'),wI=tr.querySelector('.xw');sel.value=selectedId||'';if(manual){nmI.value=manual.name||'';wI.value=manual.w||''}const update=()=>{const isM=sel.value==='__manual';nmI.classList.toggle('hidden',!isM);wI.readOnly=!isM;wI.placeholder=isM?'وزن (گرم)':'—';if(isM){setThumb(tr,null)}else{const p=invItems.find(x=>String(x.id)===String(sel.value));wI.value=p?p.weight:'';setThumb(tr,p)}syncAmt()};sel.addEventListener('change',update);wI.addEventListener('input',()=>{if(sel.value==='__manual')syncAmt()});update();tr.querySelector('button').onclick=()=>{if($('itemsBody').children.length>1)tr.remove();else{sel.value='';nmI.value='';wI.value='';update();return}syncAmt()};$('itemsBody').appendChild(tr);}
 function refreshItemOptions(){
  const rows=document.querySelectorAll('#itemsBody .xp');
  rows.forEach(sel=>{const cur=sel.value;
   const allowed=invItems.filter(x=>x.status==='available'||(editingSale&&editingSale.productIds&&editingSale.productIds.includes(String(x.id)))||String(x.id)===String(cur));
-  sel.innerHTML='<option value="">انتخاب کالا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('');
+  sel.innerHTML='<option value="">انتخاب کالا…</option><option value="__manual">✍️ ورود دستی طلا…</option>'+allowed.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.code||'بدون کد')+' · '+esc(x.weight)+' گرم</option>').join('');
   sel.value=cur;
-  const p=invItems.find(x=>String(x.id)===String(sel.value));const tr=sel.closest('tr'),w=tr&&tr.querySelector('.xw');if(w)w.value=p?p.weight:'';if(tr)setThumb(tr,p);
+  const p=invItems.find(x=>String(x.id)===String(sel.value));const tr=sel.closest('tr'),w=tr&&tr.querySelector('.xw');if(w&&sel.value!=='__manual')w.value=p?p.weight:'';if(tr)setThumb(tr,p);
  });
  const chosen=[...rows].map(x=>x.value).filter(Boolean);
  rows.forEach(sel=>[...sel.options].forEach(o=>{if(o.value)o.disabled=o.value!==sel.value&&chosen.includes(o.value)}));
@@ -769,13 +770,11 @@ function showInvoice(t){const c=customers.find(x=>String(x.id)===String(t.Custom
  document.getElementById('invShare').onclick=async()=>{
   const txt=invoiceText(v);
   try{
-   if(window.NabatAndroid&&typeof NabatAndroid.shareText==='function'){NabatAndroid.shareText('فاکتور گالری طلای نبات',txt);}
-   else if(navigator.share){await navigator.share({title:'فاکتور گالری طلای نبات',text:txt});}
+   if(navigator.share){await navigator.share({title:'فاکتور گالری طلای نبات',text:txt});}
    else if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(txt);alert('متن فاکتور کپی شد؛ می‌توانید در پیام‌رسان Paste کنید.');}
    else{prompt('متن فاکتور را کپی کنید:',txt);}
   }catch(e){if(e&&e.name==='AbortError')return;try{prompt('متن فاکتور را کپی کنید:',txt)}catch(_){}}
  };}
-if(window.NabatAndroid&&typeof NabatAndroid.printPage==='function'){window.print=()=>NabatAndroid.printPage();}
 function invoiceText(v){
  const lines=['🪙 گالری طلای نبات',(v.querySelector('h2')?.nextElementSibling?.textContent||'').trim()];
  v.querySelectorAll('.row2').forEach(r=>{const s=r.textContent.trim();if(s&&!/امضای/.test(s))lines.push(Array.from(r.children).map(x=>x.textContent.trim()).filter(Boolean).join(' — '))});
@@ -783,15 +782,9 @@ function invoiceText(v){
  v.querySelectorAll('table tr').forEach(r=>lines.push(Array.from(r.cells).map(c=>c.textContent.trim()).filter(Boolean).join(' | ')));
  return lines.filter((x,i)=>x!==''||i>0).join('\n');
 }
-function saveNabatBlob(blob,filename){
- if(window.NabatAndroid&&typeof NabatAndroid.saveFile==='function'){
-  const r=new FileReader();r.onloadend=()=>{try{NabatAndroid.saveFile(filename,blob.type||'application/octet-stream',String(r.result).split(',')[1]||'')}catch(e){alert('ذخیره فایل انجام نشد.')}};r.onerror=()=>alert('آماده‌سازی فایل ناموفق بود.');r.readAsDataURL(blob);return;
- }
- const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),8000);
-}
 let bkTimer=null,lastBk=Number(localStorage.getItem('bkLast')||0),lastSig='',pendingRestore=null;
 function bkDownload(){if(!currentUser)return;const o={app:'nabat',v:1,userId:currentUser.id,email:currentUser.email,savedAt:Date.now(),customers:customers,transactions:transactions,entries:entries,queue:queue};lastSig=JSON.stringify([customers,transactions,entries,queue]);
- const d=new Date(),n='nabat-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';saveNabatBlob(new Blob([JSON.stringify(o)],{type:'application/json'}),n);
+ const d=new Date(),n='nabat-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000);
  lastBk=Date.now();try{localStorage.setItem('bkLast',String(lastBk))}catch(e){}$('bkInfo').textContent='آخرین پشتیبان: '+d.toLocaleString('fa-IR')+' (فایل '+n+' در Downloads)';}
 $('bkNow').onclick=bkDownload;
 $('bkFile').onchange=async()=>{const f=$('bkFile').files[0];$('bkFile').value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d||d.app!=='nabat'||!Array.isArray(d.customers))throw Error('فایل پشتیبان معتبر نیست.');if(!currentUser||d.userId!==currentUser.id)throw Error('این پشتیبان مربوط به حساب دیگری است.');if(queue.length)throw Error('تغییر همگام‌نشده وجود دارد؛ اول همگام‌سازی کن.');
@@ -800,8 +793,8 @@ $('bkRestore').onclick=()=>{if(pendingRestore){const d=pendingRestore;pendingRes
 let recoveryMode=/type=recovery/.test(location.hash);
 function showRecovery(){$('recoveryBox').classList.remove('hidden');say('authStatus','رمز جدید خودت را تعیین کن.')}
 if(recoveryMode)showRecovery();else if(/error_code=/.test(location.hash))say('authStatus','لینک تغییر رمز منقضی یا استفاده‌شده است؛ دوباره «فراموشی رمز عبور» را بزن.');
-$('forgot').onclick=async()=>{try{if(!window.supabase&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:'https://meysamadabi65.github.io/Nabat-gold-gallery/'});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال انجام نشد. '+await explain(e))}};
-$('savePw').onclick=async()=>{try{if(!window.supabase&&!(await ensureLib()))throw new Error('کتابخانه اتصال بارگذاری نشد؛ اینترنت را بررسی کنید.');const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;await saveOfflinePassword(currentUser.id,a);recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
+$('forgot').onclick=async()=>{try{if(location.protocol.indexOf('http')!==0)throw Error('این قابلیت فقط روی آدرس سایت (https) کار می‌کند، نه فایل محلی.');const c=setupClient();const em=$('email').value.trim().toLowerCase();if(!em)throw Error('اول ایمیل حساب را وارد کن.');const r=await c.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;say('authStatus','اگر این ایمیل ثبت شده باشد، لینک تغییر رمز برایش ارسال شد. ایمیل (و پوشه اسپم) را چک کن و لینک را روی همین گوشی باز کن.')}catch(e){say('authStatus','ارسال انجام نشد. '+await explain(e))}};
+$('savePw').onclick=async()=>{try{const a=$('newPw').value,b=$('newPw2').value;if(a.length<6)throw Error('رمز باید حداقل ۶ کاراکتر باشد.');if(a!==b)throw Error('تکرار رمز یکی نیست.');const r=await client.auth.updateUser({password:a});if(r.error)throw r.error;await saveOfflinePassword(currentUser.id,a);recoveryMode=false;$('recoveryBox').classList.add('hidden');try{history.replaceState(null,'',location.pathname)}catch(e){}say('authStatus','رمز جدید ذخیره شد.');await onSignedIn(r.data.user,true)}catch(e){say('authStatus','تغییر رمز انجام نشد. '+await explain(e))}};
 function showQuick(on){$('quickCust').classList.toggle('hidden',!on);if(on)$('qName').focus()}
 $('tCustomer').addEventListener('change',()=>showQuick($('tCustomer').value==='__new'));
 $('qCancel').onclick=()=>{$('qName').value='';$('qPhone').value='';$('tCustomer').value='';showQuick(false);updateGold()};
@@ -920,7 +913,7 @@ function downloadXLSX(filename,sheet,rows,widths){
   {name:'xl/styles.xml',data:H+'<styleSheet '+N+'><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'},
   {name:'xl/worksheets/sheet1.xml',data:H+'<worksheet '+N+'><sheetViews><sheetView rightToLeft="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+cols+'<sheetData>'+sd+'</sheetData></worksheet>'}
  ];
- saveNabatBlob(zipStore(files),filename);}
+ const url=URL.createObjectURL(zipStore(files));const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),8000);}
 $('exportReport').onclick=()=>{const rows=[['مشتری','مانده پول','مانده طلا'],...Array.from($('reportBody').rows).map(r=>Array.from(r.cells).map((c,i)=>{const t=enD(c.textContent).replace(/[,\u066c\s]/g,'');return i>0&&/^-?\d+(\.\d+)?$/.test(t)?Number(t):c.textContent}))];downloadXLSX('customer-balances.xlsx','گزارش مشتری‌ها',rows,[28,18,18])};
 $('exportHistory').onclick=()=>{const rows=[['تاریخ','مشتری','نوع','دارایی','مبلغ/وزن','توضیحات'],...filteredHistory().map(t=>[new Date(t.Time).toLocaleString('fa-IR'),cname(t.Customer_id),t.Type==='Give'?'دادم':'گرفتم',t.Is_money?'پول':'طلا',t.Amount,prettyDesc(t.Description)||''])];downloadXLSX('transactions.xlsx','گردش حساب',rows,[22,24,10,10,16,50])};
 const metric=(l,v,c,h)=>`<div class="metric${h?' hero':''}">${l}<strong class="${c||''}">${fmt(v)}</strong></div>`;
@@ -1026,11 +1019,7 @@ window.addEventListener('online',async()=>{
 });
 (async()=>{
  let ok=true;
- try{
-   if(!window.supabase&&navigator.onLine)await ensureLib();
-   if(window.supabase)setupClient();
-   else {ok=false;say('authStatus','برنامه آماده است؛ برای ورود آنلاین اینترنت را وصل کن. ورود آفلاین پس از اولین ورود موفق فعال می‌شود.');}
- }catch(e){ok=false;say('authStatus',msg(e));}
+ try{setupClient();}catch(e){ok=false;say('authStatus',msg(e));}
  if(ok){
    try{
      const r=await client.auth.getSession();
@@ -1308,5 +1297,6 @@ window.JalaliPicker={attach:attach,init:init};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
 </html>
