@@ -530,8 +530,8 @@ $('customersBody').onclick=ev=>{const b=ev.target.closest('button[data-act]');if
    const cid=c.id,n=transactions.filter(t=>t.Customer_id===cid).length;
    if(pendingDel!==String(cid)){
      pendingDel=String(cid);
-     b.textContent='تأیید بایگانی؟';
-     say('appStatus',(n?`مشتری «${c.Name}» ${n} تراکنش دارد و با حذف او همه آن‌ها هم برای همیشه پاک می‌شوند. `:`مشتری «${c.Name}» حذف می‌شود. `)+'برای تأیید، دوباره روی «تأیید بایگانی؟» بزن.');
+     b.textContent='تأیید حذف؟';
+     say('appStatus',(n?`مشتری «${c.Name}» ${n} تراکنش دارد و با حذف او همه آن‌ها هم برای همیشه پاک می‌شوند. `:`مشتری «${c.Name}» حذف می‌شود. `)+'برای تأیید، دوباره روی «تأیید حذف؟» بزن.');
      setTimeout(()=>{if(pendingDel===String(cid)){pendingDel=null;renderCustomers();say('appStatus','');}},6000);
      return;
    }
@@ -694,7 +694,7 @@ $('historyBody').onclick=ev=>{const b=ev.target.closest('button[data-tedit],butt
   }
   document.querySelector('[data-tab="transactionTab"]').click();window.scrollTo({top:0,behavior:'smooth'});return;
  }
- if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید بایگانی؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
+ if(pendingTx!==String(t.id)){pendingTx=String(t.id);b.textContent='تأیید حذف؟';say('appStatus','برای حذف این تراکنش دوباره روی «تأیید حذف؟» بزن.');setTimeout(()=>{if(pendingTx===String(t.id)){pendingTx=null;renderHistory();say('appStatus','')}},5000);return;}
  pendingTx=null;const tid=t.id;const ins=queue.find(o=>o.k==='tInsert'&&o.tmp===tid);
  if(ins)queue=queue.filter(o=>o!==ins);else{queue=queue.filter(o=>!(o.k==='tUpdate'&&o.tid===tid));if(tid>0)queue.push({k:'tDelete',tid:tid});}
  const deletedProductId=(String(t.Description||'').match(/کالا:\s*([0-9a-f-]{36})/i)||[])[1];
@@ -1018,7 +1018,8 @@ function renderDash(){
  $('dashDebt').innerHTML=[...bal.entries()].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,v])=>`<tr><td>${esc(cname(id))}</td><td>${fmt(v)}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>';
  $('dashSetup').classList.toggle('hidden',!cfErr);$('dashSetup').textContent=cfErr?'جدول درآمد/هزینه (Cashflow) در Supabase ساخته نشده یا دسترسی ندارد: '+cfErr:'';
 }
-function renderCash(){const rows=entries.slice().sort((a,b)=>new Date(b.Time)-new Date(a.Time)).slice(0,100);$('cashBody').innerHTML=rows.map(e=>`<tr><td>${esc(new Date(e.Time).toLocaleDateString('fa-IR'))}${pendE(e)}</td><td>${e.Kind==='Income'?'درآمد':'هزینه'}</td><td>${esc(e.Category||'—')}</td><td>${fmt(e.Amount)}</td><td>${esc(e.Description||'—')}</td><td><button class="rowbtn danger" data-del="${e.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="6">هنوز چیزی ثبت نشده.</td></tr>';}
+const autoInc=e=>e.Kind==='Income'&&e.Category==='فروش طلا'&&/فاکتور\s+[A-Z0-9]{4,8}/.test(e.Description||'');
+function renderCash(){const rows=entries.slice().sort((a,b)=>new Date(b.Time)-new Date(a.Time)).slice(0,100);$('cashBody').innerHTML=rows.map(e=>`<tr><td>${esc(new Date(e.Time).toLocaleDateString('fa-IR'))}${pendE(e)}</td><td>${e.Kind==='Income'?'درآمد':'هزینه'}</td><td>${esc(e.Category||'—')}</td><td>${fmt(e.Amount)}</td><td>${esc(e.Description||'—')}</td><td>${autoInc(e)?'<span class="muted">خودکار (از فاکتور)</span>':'<button class="rowbtn danger" data-del="${e.id}">حذف</button>'}</td></tr>`).join('')||'<tr><td colspan="6">هنوز چیزی ثبت نشده.</td></tr>';}
 let pendingCash=null;
 $('cashTime').value=localDateTime();
 $('addCash').onclick=()=>{try{
@@ -1032,7 +1033,7 @@ $('addCash').onclick=()=>{try{
  $('cashAmount').value='';$('cashDesc').value='';$('cashTime').value=localDateTime();
  say('appStatus','ثبت شد.');afterChange();
 }catch(e){say('appStatus','ثبت ناموفق بود: '+msg(e));}};
-$('cashBody').onclick=ev=>{const b=ev.target.closest('button[data-del]');if(!b)return;const id=Number(b.dataset.del);if(pendingCash!==id){pendingCash=id;b.textContent='تأیید؟';setTimeout(()=>{if(pendingCash===id){pendingCash=null;renderCash()}},5000);return;}pendingCash=null;const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===id);if(ins)queue=queue.filter(o=>o!==ins);else if(id>0)queue.push({k:'eDelete',eid:id});entries=entries.filter(e=>e.id!==id);afterChange();};
+$('cashBody').onclick=ev=>{const b=ev.target.closest('button[data-del]');if(!b)return;const id=Number(b.dataset.del);{const ee=entries.find(x=>x.id===id);if(ee&&autoInc(ee))return;}if(pendingCash!==id){pendingCash=id;b.textContent='تأیید؟';setTimeout(()=>{if(pendingCash===id){pendingCash=null;renderCash()}},5000);return;}pendingCash=null;const ins=queue.find(o=>o.k==='eInsert'&&o.tmp===id);if(ins)queue=queue.filter(o=>o!==ins);else if(id>0)queue.push({k:'eDelete',eid:id});entries=entries.filter(e=>e.id!==id);afterChange();};
 ['rFrom','rTo','rCustomer'].forEach(i=>{$(i).onchange=renderReport});
 $('rClear').onclick=()=>{['rFrom','rTo','rCustomer'].forEach(i=>{$(i).value=''});renderReport();};
 const cachedUser=()=>{try{return JSON.parse(localStorage.getItem('ledgerUser')||'null')}catch(e){return null}};
