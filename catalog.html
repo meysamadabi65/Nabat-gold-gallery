@@ -38,7 +38,18 @@ header p{margin:0;font-size:.9rem;color:#e4f2e9}
 .chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
 
 main{max-width:1100px;margin:auto;padding:14px}
-.note{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.note{margin:0;color:var(--muted);font-size:.9rem;white-space:nowrap}
+.listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
+.sortbox{display:flex;align-items:center;gap:6px;min-width:0}
+.sortbox span{font-size:.85rem;color:var(--muted);white-space:nowrap}
+.sortbox select{min-height:40px;max-width:100%;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-size:.9rem;color:var(--ink)}
+.active{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.active:empty{display:none}
+.tag{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 6px 0 12px;border:1px solid var(--gold);border-radius:999px;background:var(--gold-soft);color:#6b4d10;font-size:.84rem}
+.tag i{font-style:normal;width:20px;height:20px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:.7rem}
+.tag.clear{background:none;border-color:var(--line);color:var(--muted);padding:0 12px}
+.sheet .sub{margin:14px 0 4px;font-size:.9rem;color:var(--muted)}
+.sheet .sortbox select{width:100%;min-height:46px}
 .status{padding:28px 12px;text-align:center;color:var(--muted)}
 .status.err{color:var(--danger)}
 
@@ -80,6 +91,7 @@ dialog::backdrop{background:#0a1a1470}
 .sel-list small{color:var(--muted);display:block}
 .x{width:34px;height:34px;min-height:0;padding:0;border:0;border-radius:50%;background:var(--soft)}
 label{display:block;margin:10px 0 4px;font-size:.9rem;color:var(--muted)}
+.listhead label{margin:0}
 .sheet input{width:100%;min-height:46px;padding:0 12px;border:1px solid var(--line);border-radius:12px;font:inherit}
 .actions{display:grid;gap:8px;margin-top:14px}
 .row{display:flex;gap:8px}
@@ -104,7 +116,24 @@ label{display:block;margin:10px 0 4px;font-size:.9rem;color:var(--muted)}
 </div>
 
 <main>
-  <p class="note" id="count"></p>
+  <div class="listhead">
+    <p class="note" id="count"></p>
+    <label class="sortbox" for="sort"><span>مرتب‌سازی:</span>
+      <select id="sort" aria-label="ترتیب نمایش">
+        <option value="new">جدیدترین</option>
+        <option value="wAsc">وزن: سبک به سنگین</option>
+        <option value="wDesc">وزن: سنگین به سبک</option>
+        <option value="pAsc">اجرت (٪): کم به زیاد</option>
+        <option value="pDesc">اجرت (٪): زیاد به کم</option>
+        <option value="gAsc">اجرت (گرم): کم به زیاد</option>
+        <option value="gDesc">اجرت (گرم): زیاد به کم</option>
+        <option value="kDesc">عیار: زیاد به کم</option>
+        <option value="kAsc">عیار: کم به زیاد</option>
+        <option value="name">نام (الفبایی)</option>
+      </select>
+    </label>
+  </div>
+  <div class="active" id="active"></div>
   <div id="status" class="status">در حال دریافت لیست…</div>
   <ul class="grid" id="grid"></ul>
 </main>
@@ -129,7 +158,13 @@ label{display:block;margin:10px 0 4px;font-size:.9rem;color:var(--muted)}
       <input id="fMin" inputmode="decimal" placeholder="از" aria-label="حداقل وزن">
       <input id="fMax" inputmode="decimal" placeholder="تا" aria-label="حداکثر وزن">
     </div>
+    <label>عیار</label>
+    <div class="chips" id="fKarat" style="padding-top:0"></div>
+    <label for="fWage">حداکثر اجرت (درصد)</label>
+    <input id="fWage" inputmode="decimal" placeholder="مثلاً ۸" style="width:100%;min-height:46px;padding:0 12px;border:1px solid var(--line);border-radius:12px;font:inherit">
     <label class="chk"><input type="checkbox" id="fNoWage"> فقط طلای بدون اجرت</label>
+    <label for="fSort">ترتیب نمایش</label>
+    <div class="sortbox"><select id="fSort" aria-label="ترتیب نمایش"></select></div>
     <div class="actions">
       <button class="btn green" id="fShow" type="button">نمایش نتیجه</button>
       <button class="btn alt" id="fReset" type="button">حذف فیلترها</button>
@@ -181,7 +216,19 @@ const fa = n => Number(n).toLocaleString('fa-IR',{maximumFractionDigits:3});
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SEL_KEY = 'nabatCatalogSelection';
 
-let items = [], cat = 'all', query = '', noWage = false, cond = 'all', wMin = '', wMax = '';
+let items = [], cat = 'all', query = '', noWage = false, cond = 'all', wMin = '', wMax = '', karat = 'all', wgMax = '', sortKey = 'new';
+try { sortKey = localStorage.getItem('nabatCatalogSort') || 'new'; } catch (e) {}
+const wageG = x => wagePct(x) === null ? null : Number(x.weight) * wagePct(x) / 100;
+const num = v => (v == null || v === '') ? null : Number(v);
+const by = (fn, dir) => (a, b) => { const x = fn(a), y = fn(b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return dir * (x - y); };
+const SORTS = {
+  new: null,
+  wAsc: by(x => num(x.weight), 1), wDesc: by(x => num(x.weight), -1),
+  pAsc: by(wagePct, 1), pDesc: by(wagePct, -1),
+  gAsc: by(wageG, 1), gDesc: by(wageG, -1),
+  kDesc: by(x => num(x.karat), -1), kAsc: by(x => num(x.karat), 1),
+  name: (a, b) => String(a.name).localeCompare(String(b.name), 'fa')
+};
 const condText = x => x.item_condition === 'used' ? ' · کارکرده' : x.item_condition === 'new' ? ' · نو' : '';
 const wagePct = x => (x.sell_wage_percent == null || x.sell_wage_percent === '') ? null : Number(x.sell_wage_percent);
 const wageText = x => { const p = wagePct(x); if (p === null) return ''; if (p === 0) return 'بدون اجرت'; return 'اجرت ' + fa(p) + '٪ (' + fa(Number(x.weight) * p / 100) + ' گرم)'; };
@@ -231,8 +278,11 @@ function render() {
   const rows = items.filter(x =>
     (cat === 'all' || (x.category || 'سایر') === cat) && (!noWage || wagePct(x) === 0) &&
     (cond === 'all' || x.item_condition === cond) &&
+    (karat === 'all' || String(num(x.karat)) === karat) &&
+    (wgMax === '' || (wagePct(x) !== null && wagePct(x) <= wgMax)) &&
     (wMin === '' || Number(x.weight) >= wMin) && (wMax === '' || Number(x.weight) <= wMax) &&
     (!q || (String(x.name) + ' ' + (x.code || '')).toLocaleLowerCase().includes(q)));
+  if (SORTS[sortKey]) rows.sort(SORTS[sortKey]);
   $('count').textContent = items.length ? fa(rows.length) + ' مورد' : '';
   $('status').classList.toggle('hidden', rows.length > 0 || !!items.length);
   if (!items.length) { $('status').textContent = 'فعلاً طلایی برای نمایش موجود نیست.'; $('status').classList.remove('hidden'); }
@@ -254,10 +304,21 @@ function render() {
 }
 
 function updateFilterUi(n) {
-  const k = (cond !== 'all') + (wMin !== '') + (wMax !== '') + noWage;
+  const k = (cond !== 'all') + (wMin !== '') + (wMax !== '') + noWage + (karat !== 'all') + (wgMax !== '');
   $('fCount').textContent = fa(k); $('fCount').classList.toggle('hidden', !k);
   $('fShow').textContent = 'نمایش ' + fa(n) + ' مورد';
   $('fCond').querySelectorAll('[data-cond]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cond === cond));
+  const ks = [...new Set(items.map(x => num(x.karat)).filter(v => v !== null))].sort((a, b) => b - a).map(String);
+  $('fKarat').innerHTML = ['all', ...ks].map(k => `<button class="chip" type="button" data-karat="${k}" aria-pressed="${k === karat}">${k === 'all' ? 'همه' : fa(k)}</button>`).join('');
+  $('sort').value = sortKey; $('fSort').value = sortKey;
+  const tags = [];
+  if (cond !== 'all') tags.push(['cond', cond === 'new' ? 'نو' : 'کارکرده']);
+  if (karat !== 'all') tags.push(['karat', 'عیار ' + fa(karat)]);
+  if (wMin !== '' || wMax !== '') tags.push(['w', 'وزن ' + (wMin !== '' ? 'از ' + fa(wMin) + ' ' : '') + (wMax !== '' ? 'تا ' + fa(wMax) + ' ' : '') + 'گرم']);
+  if (wgMax !== '') tags.push(['wg', 'اجرت تا ' + fa(wgMax) + '٪']);
+  if (noWage) tags.push(['nw', 'بدون اجرت']);
+  $('active').innerHTML = tags.map(t => `<button class="tag" type="button" data-clr="${t[0]}">${t[1]} <i aria-hidden="true">✕</i></button>`).join('')
+    + (tags.length > 1 ? '<button class="tag clear" type="button" data-clr="all">حذف همه</button>' : '');
 }
 
 function updateBar() {
@@ -300,8 +361,29 @@ $('fShow').onclick = () => $('filters').close();
 $('fCond').addEventListener('click', e => { const b = e.target.closest('[data-cond]'); if (!b) return; cond = b.dataset.cond; render(); });
 $('fMin').addEventListener('input', e => { wMin = numOrEmpty(e.target.value); render(); });
 $('fMax').addEventListener('input', e => { wMax = numOrEmpty(e.target.value); render(); });
+$('fKarat').addEventListener('click', e => { const b = e.target.closest('[data-karat]'); if (!b) return; karat = b.dataset.karat; render(); });
+$('fWage').addEventListener('input', e => { wgMax = numOrEmpty(e.target.value); render(); });
+const setSort = v => { sortKey = v; try { localStorage.setItem('nabatCatalogSort', v); } catch (e) {} render(); };
+$('sort').addEventListener('change', e => setSort(e.target.value));
+$('fSort').innerHTML = $('sort').innerHTML;
+$('fSort').addEventListener('change', e => setSort(e.target.value));
+function clearFilters() {
+  cond = 'all'; wMin = wMax = ''; noWage = false; karat = 'all'; wgMax = '';
+  $('fMin').value = $('fMax').value = $('fWage').value = ''; $('fNoWage').checked = false;
+}
+$('active').addEventListener('click', e => {
+  const b = e.target.closest('[data-clr]'); if (!b) return;
+  const k = b.dataset.clr;
+  if (k === 'all') clearFilters();
+  else if (k === 'cond') cond = 'all';
+  else if (k === 'karat') karat = 'all';
+  else if (k === 'w') { wMin = wMax = ''; $('fMin').value = $('fMax').value = ''; }
+  else if (k === 'wg') { wgMax = ''; $('fWage').value = ''; }
+  else if (k === 'nw') { noWage = false; $('fNoWage').checked = false; }
+  render();
+});
 $('fNoWage').addEventListener('change', e => { noWage = e.target.checked; render(); });
-$('fReset').onclick = () => { cond = 'all'; wMin = wMax = ''; noWage = false; cat = 'all'; $('fMin').value = $('fMax').value = ''; $('fNoWage').checked = false; render(); };
+$('fReset').onclick = () => { clearFilters(); cat = 'all'; render(); };
 $('clear').onclick = () => { sel.clear(); saveSel(); render(); };
 
 function openView(id) {
